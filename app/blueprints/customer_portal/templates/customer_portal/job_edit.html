@@ -30,9 +30,8 @@
                    value="{{ job.contact_name or '' }}" required>
           </div>
           <div>
-            <label for="company" class="block text-sm font-medium text-slate-300 mb-2">Company *</label>
-            <input type="text" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="company" name="company"
-                   value="{{ job.company or '' }}" required>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Company</label>
+            <input type="text" class="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-400 cursor-not-allowed" value="{{ job.company or account.customer.company if account and account.customer else '' }}" disabled>
           </div>
         </div>
 
