@@ -21,7 +21,8 @@
         Cancel
       </a>
       <button
-        type="button"
+        form="job-edit-form"
+        type="submit"
         class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
       >
         Save Changes
@@ -29,133 +30,74 @@
     </div>
   </header>
 
-  <section class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
-    <div class="flex flex-wrap items-center gap-3">
-      <span class="inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200">
-        Created {{ job.created_at or "—" }}
-      </span>
-      {% if job.completed_at %}
-        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">
-          Completed {{ job.completed_at }}
-        </span>
-      {% endif %}
-      {% if job.archived %}
-        <span class="inline-flex items-center gap-2 rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-200">
-          Archived
-        </span>
-      {% endif %}
-    </div>
-
-    <div class="mt-4 flex flex-wrap gap-3">
-      <button
-        type="button"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      >
-        {% if job.archived %}Unarchive{% else %}Archive{% endif %}
-      </button>
-      <button
-        type="button"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      >
-        {% if job.completed_at %}Reopen Job{% else %}Mark Completed{% endif %}
-      </button>
-      <button
-        type="button"
-        class="ml-auto inline-flex items-center gap-2 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs font-semibold text-rose-200 transition hover:border-rose-500 hover:bg-rose-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300"
-      >
-        Delete Job
-      </button>
-    </div>
-  </section>
-
-  <section class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
-    <header class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">Photos</h2>
-      <button
-        type="button"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      >
-        Upload
-      </button>
-    </header>
-    {% if not photos %}
-      <div class="mt-4 rounded-xl border border-slate-800/60 bg-slate-950/60 p-8 text-center text-sm text-slate-400">
-        No photos yet.
-      </div>
-    {% else %}
-      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {% for photo in photos %}
-          <figure class="overflow-hidden rounded-xl border border-slate-800/70 bg-slate-950/70">
-            <div class="aspect-video bg-slate-800">
-              <img
-                src="{{ photo.url }}"
-                alt="{{ photo.label }}"
-                class="h-full w-full object-cover"
-              />
-            </div>
-            <figcaption class="flex items-center justify-between px-3 py-2 text-xs text-slate-300">
-              <span>{{ photo.label }}</span>
-              <button
-                type="button"
-                class="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[11px] font-semibold text-rose-200 transition hover:border-rose-500 hover:bg-rose-500/20"
-              >
-                Remove
-              </button>
-            </figcaption>
-          </figure>
-        {% endfor %}
-      </div>
+  {% with messages = get_flashed_messages(category_filter=['error', 'success']) %}
+    {% if messages %}
+      {% for message in messages %}
+        <p class="rounded-lg border border-{{ 'emerald-500/40 bg-emerald-500/10 text-emerald-200' if 'success' in message else 'red-500/40 bg-red-500/10 text-red-200' }} px-4 py-2 text-sm">{{ message }}</p>
+      {% endfor %}
     {% endif %}
-  </section>
+  {% endwith %}
 
-  <section class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
-    <form class="space-y-6" onsubmit="return false;">
-      <div class="grid gap-4 md:grid-cols-2">
-        {{ text_field("date_in", "Date In", job.date_in or "", type="date") }}
-        {{ text_field("due_by", "Due By", job.due or "", type="date") }}
-        {{ text_field("contact_name", "Contact Name", job.contact_name or "") }}
-        {{ text_field("company", "Company", job.customer or "") }}
-        {{ text_field("phone", "Phone", job.phone or "") }}
-        {{ text_field("email", "Email", job.email or "", type="email") }}
-        {{ text_field("po", "Purchase Order", job.po or "") }}
-        {{ select_field("type", "Category", form_options.category, job.type or "") }}
-        {{ select_field("priority", "Priority", form_options.priority, job.priority or "") }}
-        {{ select_field("blast", "Sandblasting", form_options.blast, job.blast or "") }}
-        {{ select_field("prep", "Prep", form_options.prep, job.prep or "") }}
-        {{ text_field("color", "Color / Coating", job.color or job.coating or "") }}
-        <label class="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-          <span>Department</span>
-          <select
-            class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
-            id="department"
-            name="department"
-          >
-            {% for value, label in departments %}
-              <option value="{{ value }}" {% if value == job.department %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </label>
-        {{ text_field("status", "Status", job.status or "") }}
-      </div>
-
-      {{ textarea_field("description", "Description", job.description or "", rows=5) }}
-      {{ textarea_field("notes", "Internal Notes", job.notes or "", rows=5) }}
-
-      <div class="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+  <form id="job-edit-form" method="post" class="space-y-6 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+    <div class="grid gap-6 md:grid-cols-2">
+      {{ text_field("contact_name", "Contact Name", value=form_data.contact_name) }}
+      {{ text_field("phone", "Phone", value=form_data.phone) }}
+      {{ text_field("email", "Email", value=form_data.email, type="email") }}
+      {{ text_field("company", "Company", value=job.company or '', disabled=True) }}
+      {{ text_field("po", "Purchase Order", value=form_data.po) }}
+      {{ select_field("type", "Category", form_options.category, form_data.type, placeholder="Select category") }}
+      {{ select_field("priority", "Priority", form_options.priority, form_data.priority, placeholder="Select priority") }}
+      {{ select_field("blast", "Sandblasting", form_options.blast, form_data.blast, placeholder="Select option") }}
+      {{ select_field("prep", "Prep", form_options.prep, form_data.prep, placeholder="Select option") }}
+      {{ text_field("color", "Color / Coating", value=form_data.color) }}
+      <label class="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+        <span>Status</span>
+        <select
+          class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
+          id="status"
+          name="status"
+          required
         >
-          Save Changes
-        </button>
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+          <option value="" {% if not form_data.status %}selected{% endif %}>Select status</option>
+          {% for option in status_options %}
+            <option value="{{ option }}" {% if option == form_data.status %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+        <span>Department</span>
+        <select
+          class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
+          id="department"
+          name="department"
         >
-          Generate Work Order
-        </button>
-      </div>
-    </form>
-  </section>
+          <option value="" {% if not form_data.department %}selected{% endif %}>Select department</option>
+          {% for value, label in departments %}
+            <option value="{{ value }}" {% if value == form_data.department %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      {{ text_field("date_in", "Date In", value=form_data.date_in, type="date") }}
+      {{ text_field("due_by", "Due By", value=form_data.due_by, type="date") }}
+    </div>
+
+    {{ textarea_field("description", "Description", form_data.description, rows=5) }}
+    {{ textarea_field("notes", "Internal Notes", form_data.notes, rows=5) }}
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        type="submit"
+        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+      >
+        Save Changes
+      </button>
+      <a
+        href="{{ url_for('jobs.detail', job_id=job.id) }}"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+      >
+        Cancel
+      </a>
+    </div>
+  </form>
 </section>
 {% endblock %}

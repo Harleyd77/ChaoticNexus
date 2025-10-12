@@ -55,6 +55,37 @@ class JobRepository:
             session.flush()
             return job
 
+    def update_job(self, job_id: int, **fields) -> Job | None:
+        allowed_fields = {
+            "contact_name",
+            "phone",
+            "email",
+            "po",
+            "type",
+            "priority",
+            "blast",
+            "prep",
+            "color",
+            "status",
+            "department",
+            "date_in",
+            "due_by",
+            "description",
+            "notes",
+        }
+
+        with session_scope() as session:
+            job = session.get(Job, job_id)
+            if not job:
+                return None
+
+            for key, value in fields.items():
+                if key in allowed_fields:
+                    setattr(job, key, value)
+
+            session.flush()
+            return job
+
     def get_job(self, job_id: int) -> Job | None:
         with session_scope() as session:
             return session.execute(

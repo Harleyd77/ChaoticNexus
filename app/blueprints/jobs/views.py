@@ -35,6 +35,15 @@ _DEPARTMENTS = [
     ("shipping", "Shipping / Pickup"),
 ]
 
+_STATUS_OPTIONS = [
+    "Intake",
+    "Pending Approval",
+    "Not Started",
+    "In Progress",
+    "Ready for Pickup",
+    "Completed",
+]
+
 
 def _group_jobs_by_department(jobs: Sequence) -> dict[str, list]:
     grouped: dict[str, list] = {col["key"]: [] for col in _KANBAN_COLUMNS}
@@ -42,6 +51,27 @@ def _group_jobs_by_department(jobs: Sequence) -> dict[str, list]:
         department = getattr(job, "department", None) or "intake"
         grouped.setdefault(department, []).append(job)
     return grouped
+
+
+def _job_to_form_data(job) -> dict[str, str]:
+    return {
+        "contact_name": job.contact_name or "",
+        "phone": job.phone or "",
+        "email": job.email or "",
+        "company": job.company or "",
+        "po": job.po or "",
+        "type": job.type or "",
+        "priority": job.priority or "",
+        "blast": job.blast or "",
+        "prep": job.prep or "",
+        "color": job.color or job.coating or "",
+        "status": job.status or "",
+        "department": job.department or "",
+        "date_in": job.date_in.isoformat() if job.date_in else "",
+        "due_by": job.due_by.isoformat() if job.due_by else "",
+        "description": job.description or "",
+        "notes": job.notes or "",
+    }
 
 
 @bp.get("/")
@@ -185,9 +215,9 @@ def detail(job_id: int):
     )
 
 
-@bp.get("/<int:job_id>/edit")
+@bp.route("/<int:job_id>/edit", methods=["GET", "POST"])
 def edit(job_id: int):
-    """Render the job edit form (placeholder)."""
+    """Render and process the job edit form."""
     job = _find_job(job_id)
     if not job:
         return (
@@ -199,18 +229,116 @@ def edit(job_id: int):
             404,
         )
 
-    photos = [
-        {
-            "url": photo.filename,
-            "label": photo.original_name or "Job photo",
-        }
-        for photo in getattr(job, "photos", [])
-    ]
+    form_data = _job_to_form_data(job)
+
+    if request.method == "POST":
+        contact_name = request.form.get("contact_name", "").strip() or None
+        phone = request.form.get("phone", "").strip() or None
+        email = request.form.get("email", "").strip() or None
+        po = request.form.get("po", "").strip() or None
+        job_type = request.form.get("type", "").strip() or None
+        priority = request.form.get("priority", "").strip() or None
+        blast = request.form.get("blast", "").strip() or None
+        prep = request.form.get("prep", "").strip() or None
+        color = request.form.get("color", "").strip() or None
+        status = request.form.get("status", "").strip()
+        department = request.form.get("department", "").strip()
+        date_in_raw = request.form.get("date_in", "").strip()
+        due_by_raw = request.form.get("due_by", "").strip()
+        description = request.form.get("description", "").strip()
+        notes = request.form.get("notes", "").strip()
+
+        form_data.update(
+            {
+                "contact_name": contact_name or "",
+                "phone": phone or "",
+                "email": email or "",
+                "po": po or "",
+                "type": job_type or "",
+                "priority": priority or "",
+                "blast": blast or "",
+                "prep": prep or "",
+                "color": color or "",
+                "status": status,
+                "department": department,
+                "date_in": date_in_raw,
+                "due_by": due_by_raw,
+                "description": description,
+                "notes": notes,
+            }
+        )
+
+        errors: list[str] = []
+        status_options = list(dict.fromkeys(_STATUS_OPTIONS + ([job.status] if job.status else [])))
+
+        if not status:
+            errors.append("Status is required.")
+        elif status not in status_options:
+            errors.append("Select a valid status option.")
+
+        department_keys = {value for value, _ in _DEPARTMENTS}
+        if department and department not in department_keys:
+            errors.append("Select a valid department.")
+
+        if email and "@" not in email:
+            errors.append("Enter a valid email address.")
+
+        date_in = None
+        if date_in_raw:
+            try:
+                date_in = date.fromisoformat(date_in_raw)
+            except ValueError:
+                errors.append("Date in must be a valid YYYY-MM-DD value.")
+
+        due_by = None
+        if due_by_raw:
+            try:
+                due_by = date.fromisoformat(due_by_raw)
+            except ValueError:
+                errors.append("Due date must be a valid YYYY-MM-DD value.")
+
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            status_options = list(dict.fromkeys(_STATUS_OPTIONS + ([status] if status else [])))
+            return render_template(
+                "jobs/edit.html",
+                job=job,
+                form_options=_FORM_OPTIONS,
+                departments=_DEPARTMENTS,
+                status_options=status_options,
+                form_data=form_data,
+                is_admin=True,
+            )
+
+        job_repo.update_job(
+            job_id,
+            contact_name=contact_name,
+            phone=phone,
+            email=email,
+            po=po,
+            type=job_type,
+            priority=priority,
+            blast=blast,
+            prep=prep,
+            color=color,
+            status=status,
+            department=department or None,
+            date_in=date_in,
+            due_by=due_by,
+            description=description,
+            notes=notes,
+        )
+        flash("Job updated successfully", "success")
+        return redirect(url_for("jobs.detail", job_id=job.id))
+
+    status_options = list(dict.fromkeys(_STATUS_OPTIONS + ([job.status] if job.status else [])))
     return render_template(
         "jobs/edit.html",
         job=job,
-        photos=photos,
         form_options=_FORM_OPTIONS,
         departments=_DEPARTMENTS,
+        status_options=status_options,
+        form_data=form_data,
         is_admin=True,
     )
