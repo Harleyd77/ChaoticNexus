@@ -121,6 +121,126 @@
     {% endif %}
   </section>
 
+  <section class="grid gap-4 lg:grid-cols-2">
+    <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">Time Logs</h2>
+        <a
+          href="#"
+          data-pending-route
+          data-pending-target="/jobs/{{ job.id }}/time-logs"
+          class="text-xs font-medium text-emerald-400 hover:text-emerald-300"
+        >
+          Manage
+        </a>
+      </div>
+      {% if not time_logs %}
+        <p class="mt-4 text-sm text-slate-400">No time entries recorded yet.</p>
+      {% else %}
+        <p class="mt-4 text-xs uppercase tracking-[0.25em] text-slate-500">Total Time</p>
+        <p class="text-lg font-semibold text-slate-100">{{ total_minutes or 0 }} minutes</p>
+        <ul class="mt-4 space-y-3 text-sm text-slate-300">
+          {% for log in time_logs %}
+            <li class="rounded-xl border border-slate-800/50 bg-slate-950/30 p-3">
+              <div class="flex items-center justify-between text-xs uppercase tracking-wide text-slate-400">
+                <span>{{ log.department or "Department" }}</span>
+                <span>{{ log.start_ts.strftime('%Y-%m-%d %H:%M') if log.start_ts else "Unknown" }}</span>
+              </div>
+              <div class="mt-2 flex items-center justify-between">
+                <span>{{ log.minutes or "?" }} minutes</span>
+                {% if log.end_ts %}
+                  <span class="text-xs text-slate-500">Ended {{ log.end_ts.strftime('%Y-%m-%d %H:%M') }}</span>
+                {% else %}
+                  <span class="text-xs text-amber-400">In progress</span>
+                {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+
+    <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">Powder Usage</h2>
+        <a
+          href="#"
+          data-pending-route
+          data-pending-target="/jobs/{{ job.id }}/powders"
+          class="text-xs font-medium text-emerald-400 hover:text-emerald-300"
+        >
+          Manage
+        </a>
+      </div>
+      {% if not powder_usage %}
+        <p class="mt-4 text-sm text-slate-400">No powder usage tracked yet.</p>
+      {% else %}
+        <p class="mt-4 text-xs uppercase tracking-[0.25em] text-slate-500">Total Used</p>
+        <p class="text-lg font-semibold text-slate-100">{{ total_powder or 0 }} kg</p>
+        <ul class="mt-4 space-y-3 text-sm text-slate-300">
+          {% for usage in powder_usage %}
+            <li class="rounded-xl border border-slate-800/50 bg-slate-950/30 p-3">
+              <div class="flex items-center justify-between">
+                <span>{{ usage.powder.powder_color if usage.powder else usage.notes or 'Powder' }}</span>
+                <span class="text-xs text-slate-400">{{ usage.created_at.strftime('%Y-%m-%d') if usage.created_at else '' }}</span>
+              </div>
+              <div class="mt-2 flex items-center justify-between text-xs text-slate-400">
+                <span>{{ usage.amount_used or 'N/A' }} kg</span>
+                {% if usage.notes %}
+                  <span>{{ usage.notes }}</span>
+                {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+    <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">Customer Summary</h2>
+    {% if job.customer %}
+      <dl class="mt-4 grid gap-4 md:grid-cols-2 text-sm text-slate-300">
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Company</dt>
+          <dd class="mt-1 text-slate-100">{{ job.customer.company or '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Primary Contact</dt>
+          <dd class="mt-1 text-slate-100">{{ job.customer.contact_name or '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Phone</dt>
+          <dd class="mt-1 text-slate-100">{{ job.customer.phone or '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Email</dt>
+          <dd class="mt-1">
+            {% if job.customer.email %}
+              <a href="mailto:{{ job.customer.email }}" class="text-emerald-400 hover:text-emerald-300">{{ job.customer.email }}</a>
+            {% else %}
+              <span class="text-slate-400">—</span>
+            {% endif %}
+          </dd>
+        </div>
+        <div class="md:col-span-2">
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Address</dt>
+          <dd class="mt-1 whitespace-pre-line text-slate-100">
+            {{ job.customer.address or job.customer.street or '—' }}
+          </dd>
+        </div>
+        {% if job.customer.notes %}
+          <div class="md:col-span-2">
+            <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Customer Notes</dt>
+            <dd class="mt-1 whitespace-pre-line text-slate-100">{{ job.customer.notes }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+    {% else %}
+      <p class="mt-4 text-sm text-slate-400">No customer record linked to this job.</p>
+    {% endif %}
+  </section>
+
   <footer class="flex flex-wrap gap-3">
     <a
       href="#"

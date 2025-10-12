@@ -43,6 +43,7 @@ class JobIntakeService:
             )
             session.add(job)
             session.flush()
+
             return job
 
     def create_railing_job(
@@ -76,6 +77,7 @@ class JobIntakeService:
             )
             session.add(job)
             session.flush()
+
             return job
 
     def _get_or_create_customer(

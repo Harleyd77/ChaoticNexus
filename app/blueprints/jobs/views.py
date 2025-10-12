@@ -116,10 +116,18 @@ def detail(job_id: int):
         }
         for photo in getattr(job, "photos", [])
     ]
+    time_logs = job_repo.list_time_logs(job.id)
+    powder_usage = job_repo.list_powder_usage(job.id)
+    total_minutes = sum(filter(None, (log.minutes for log in time_logs)))
+    total_powder = sum(filter(None, (usage.amount_used for usage in powder_usage)))
     return render_template(
         "jobs/detail.html",
         job=job,
         photos=photos,
+        time_logs=time_logs,
+        powder_usage=powder_usage,
+        total_minutes=total_minutes,
+        total_powder=total_powder,
         is_admin=True,
     )
 
