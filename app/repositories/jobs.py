@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from ..models import Job, JobPowder, PowderUsage, TimeLog
+from ..models import Customer, Job, JobPowder, PowderUsage, TimeLog
 from .session import session_scope
 
 
@@ -27,14 +27,21 @@ class JobRepository:
         *,
         company: str,
         contact_name: str | None,
-        description: str | None,
+        description: str,
+        customer_id: int | None = None,
     ) -> Job:
         if not company.strip():
             raise ValueError("Company name is required")
-        if not (description or "").strip():
+        if not description.strip():
             raise ValueError("Description is required")
 
         with session_scope() as session:
+            customer = None
+            if customer_id:
+                customer = session.get(Customer, customer_id)
+            elif company:
+                customer = session.query(Customer).filter(Customer.company.ilike(company)).first()
+
             job = Job(
                 created_at=datetime.utcnow(),
                 company=company,
@@ -42,6 +49,7 @@ class JobRepository:
                 description=description,
                 status="Intake",
                 department="intake",
+                customer=customer,
             )
             session.add(job)
             session.flush()

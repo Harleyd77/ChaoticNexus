@@ -10,11 +10,19 @@
   {% endcall %}
 
   <form method="post" class="grid gap-6 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
-    {{ form_input('company', 'Company', required=True, placeholder='Company name') }}
-    {{ form_input('contact_name', 'Contact Name', placeholder='Optional contact') }}
+    {% with messages = get_flashed_messages(category_filter=['error']) %}
+      {% if messages %}
+        {% for message in messages %}
+          <p class="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {{ form_input('company', 'Company', required=True, value=form_data.get('company', ''), placeholder='Company name') }}
+    {{ form_input('contact_name', 'Contact Name', value=form_data.get('contact_name', ''), placeholder='Optional contact') }}
     <div class="space-y-1.5">
       <label for="description" class="block text-sm font-medium text-slate-300">Description<span class="text-red-400">*</span></label>
-      <textarea id="description" name="description" rows="4" required class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"></textarea>
+      <textarea id="description" name="description" rows="4" required class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40">{{ form_data.get('description', '') }}</textarea>
     </div>
 
     <div class="flex items-center justify-end gap-3">

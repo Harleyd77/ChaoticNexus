@@ -73,16 +73,37 @@ def index():
 def new_job():
     """Render a simple form to create a job without placeholders."""
     if request.method == "POST":
-        form = request.form
+        company = request.form.get("company", "").strip()
+        description = request.form.get("description", "").strip()
+        contact_name = request.form.get("contact_name", "").strip() or None
+
+        errors = []
+        if not company:
+            errors.append("Company name is required.")
+        if not description:
+            errors.append("Description is required.")
+
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return render_template(
+                "jobs/new.html",
+                form_data={
+                    "company": company,
+                    "contact_name": request.form.get("contact_name", ""),
+                    "description": description,
+                },
+            )
+
         job = job_repo.create_job(
-            company=form.get("company", "").strip(),
-            contact_name=form.get("contact_name", "").strip() or None,
-            description=form.get("description", "").strip() or None,
+            company=company,
+            contact_name=contact_name,
+            description=description,
         )
         flash(f"Job #{job.id} created", "success")
         return redirect(url_for("jobs.detail", job_id=job.id))
 
-    return render_template("jobs/new.html")
+    return render_template("jobs/new.html", form_data={})
 
 
 @bp.get("/export")
