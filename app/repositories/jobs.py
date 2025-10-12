@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -20,6 +21,31 @@ class JobRepository:
 
         with session_scope() as session:
             return session.execute(stmt).scalars().all()
+
+    def create_job(
+        self,
+        *,
+        company: str,
+        contact_name: str | None,
+        description: str | None,
+    ) -> Job:
+        if not company.strip():
+            raise ValueError("Company name is required")
+        if not (description or "").strip():
+            raise ValueError("Description is required")
+
+        with session_scope() as session:
+            job = Job(
+                created_at=datetime.utcnow(),
+                company=company,
+                contact_name=contact_name,
+                description=description,
+                status="Intake",
+                department="intake",
+            )
+            session.add(job)
+            session.flush()
+            return job
 
     def get_job(self, job_id: int) -> Job | None:
         with session_scope() as session:

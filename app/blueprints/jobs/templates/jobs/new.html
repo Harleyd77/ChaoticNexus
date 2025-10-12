@@ -1,0 +1,27 @@
+{% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import page_header, button_primary, button_secondary, form_input %}
+
+{% block title %}Create Job{% endblock %}
+
+{% block content %}
+<section class="space-y-8">
+  {% call page_header("Create Job", "Add a new job directly from the admin screen.") %}
+    {{ button_secondary("Back to Jobs", href=url_for('jobs.index')) }}
+  {% endcall %}
+
+  <form method="post" class="grid gap-6 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+    {{ form_input('company', 'Company', required=True, placeholder='Company name') }}
+    {{ form_input('contact_name', 'Contact Name', placeholder='Optional contact') }}
+    <div class="space-y-1.5">
+      <label for="description" class="block text-sm font-medium text-slate-300">Description<span class="text-red-400">*</span></label>
+      <textarea id="description" name="description" rows="4" required class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"></textarea>
+    </div>
+
+    <div class="flex items-center justify-end gap-3">
+      <a href="{{ url_for('jobs.index') }}" class="px-4 py-2 text-sm font-semibold text-slate-300 transition hover:text-white">Cancel</a>
+      {{ button_primary('Create Job', type='submit') }}
+    </div>
+  </form>
+</section>
+{% endblock %}
+

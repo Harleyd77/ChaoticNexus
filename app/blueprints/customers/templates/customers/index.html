@@ -7,7 +7,7 @@
 <section class="space-y-8">
   {% call page_header("Customers", "Manage customer records and contact information.") %}
     {% if is_admin %}
-      {{ button_primary("+ New Customer", pending=True) }}
+      {{ button_primary("+ New Customer", href=url_for('customers.new_customer')) }}
     {% endif %}
   {% endcall %}
   
@@ -19,6 +19,16 @@
     </form>
   </div>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        {% call alert(type="success" if category == "success" else "info") %}
+          {{ message }}
+        {% endcall %}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
   {% call alert(type="warning") %}
     <strong>Note:</strong> This page is a placeholder. Full customer management functionality pending migration from legacy app.
   {% endcall %}
@@ -27,8 +37,47 @@
     <div class="grid gap-4">
       {% for customer in customers %}
         <article class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
-          <h3 class="text-lg font-semibold text-slate-100">{{ customer.company }}</h3>
-          <p class="text-sm text-slate-400">{{ customer.contact_name }}</p>
+          <header class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-100">{{ customer.company }}</h3>
+              <p class="text-sm text-slate-400">
+                {{ customer.contact_name or 'No primary contact' }}
+                {% if customer.email %}
+                  • <a href="mailto:{{ customer.email }}" class="text-slate-300 underline-offset-4 hover:underline">{{ customer.email }}</a>
+                {% endif %}
+                {% if customer.phone %}
+                  • <span>{{ customer.phone }}</span>
+                {% endif %}
+              </p>
+            </div>
+            {% if customer.status %}
+              <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+                {{ customer.status }}
+              </span>
+            {% endif %}
+          </header>
+
+          {% if customer.notes %}
+            <p class="mt-4 text-sm text-slate-300">{{ customer.notes }}</p>
+          {% endif %}
+
+          <dl class="mt-4 grid gap-3 text-xs text-slate-400 md:grid-cols-3">
+            <div>
+              <dt class="uppercase tracking-[0.25em] text-slate-500">Address</dt>
+              <dd class="mt-1 text-slate-200">
+                {{ customer.street or '—' }}<br />
+                {{ customer.city or '' }} {{ customer.region or '' }} {{ customer.postal_code or '' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="uppercase tracking-[0.25em] text-slate-500">Account #</dt>
+              <dd class="mt-1 text-slate-200">{{ customer.account_number or '—' }}</dd>
+            </div>
+            <div>
+              <dt class="uppercase tracking-[0.25em] text-slate-500">Terms</dt>
+              <dd class="mt-1 text-slate-200">{{ customer.terms or '—' }}</dd>
+            </div>
+          </dl>
         </article>
       {% endfor %}
     </div>
@@ -37,7 +86,7 @@
       <svg class="h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
       </svg>
-      {{ button_primary("+ Add Customer", pending=True) }}
+      {{ button_primary("+ Add Customer", href=url_for('customers.new_customer')) }}
     {% endcall %}
   {% endif %}
 </section>

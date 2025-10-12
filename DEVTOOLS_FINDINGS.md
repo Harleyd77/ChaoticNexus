@@ -249,7 +249,7 @@ Dark → Light → **Industrial Forge** → **Ocean Breeze** → **Sunset Glow**
 - [ ] 🟡 **Light Theme** - Toggle changes attribute but body stays dark (hardcoded bg classes)
 - [x] 🟡 Missing favicon.png - Fixed: copied from legacy and updated path to `/static/img/favicon.png` (app/templates/_layouts/base.html:10)
 - [x] 🟢 Root path redirects to dashboard - Added redirect in app/__init__.py
-- [ ] 🟢 Most links marked "Soon" - Expected behavior, routes will be wired up as repositories are implemented
+- ✅ Most admin buttons now wired to real views (job create, customer create); remaining "Soon" markers track future enhancements
 
 **Latest Verification (2025-10-12 17:10 UTC):**
 - Logo constrained to 56px with inline style
@@ -262,7 +262,9 @@ Dark → Light → **Industrial Forge** → **Ocean Breeze** → **Sunset Glow**
 - ✅ **Assets Load** - All CSS, JS, logo load properly
 - ✅ **Content** - Shows seeded jobs (Acme Fabrication, Island Builders) with search/filter controls
 - ✅ **Search** - `q` query param filters by company/description
-- 🟢 Search/filter controls not yet functional (expected - waiting for repository layer enhancements)
+- ✅ **New Job Flow** - "New Job" button opens server-side form; submission creates job and redirects to detail view
+- ✅ **Export CSV** - Streams `jobs.csv` download
+- ⚠️ **Batch Actions** - "Add to Batch" still points to sprayer screen (expected future integration)
 
 ### Jobs Kanban (`http://10.0.0.196:8080/jobs/kanban`)
 - ✅ **HTTP 200** - Page loads successfully
@@ -295,7 +297,8 @@ Dark → Light → **Industrial Forge** → **Ocean Breeze** → **Sunset Glow**
 - ✅ **HTTP 200** - Page loads successfully
 - ✅ **No Console Errors** - Clean console
 - ✅ **Content** - Shows seeded customers (Acme Fabrication, Island Builders) plus contact info
-- 🟢 No editing yet (expected - pending form handlers)
+- ✅ **Add Customer Flow** - "+ New Customer" button opens form; submission persists and returns to index with flash message
+- ⚠️ **Editing/Deletion** - Still pending implementation
 
 ### Powders (`http://10.0.0.196:8080/powders/`)
 - ✅ **HTTP 200** - Page loads successfully

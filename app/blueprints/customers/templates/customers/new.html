@@ -1,0 +1,49 @@
+{% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import page_header, button_primary, form_input %}
+
+{% block title %}New Customer{% endblock %}
+
+{% block content %}
+<section class="space-y-8">
+  {% call page_header("Add Customer", "Create a new customer record with basic contact information.") %}
+    {{ button_primary("Back to Customers", href=url_for('customers.index')) }}
+  {% endcall %}
+
+  <form method="post" class="grid gap-6 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+    <div class="grid gap-4 md:grid-cols-2">
+      {{ form_input('company', 'Company Name', required=True, placeholder="Company or Organization") }}
+      {{ form_input('contact_name', 'Primary Contact', placeholder="Who should we reach out to?") }}
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      {{ form_input('email', 'Email', type='email', placeholder="name@example.com") }}
+      {{ form_input('phone', 'Phone', type='tel', placeholder="(555) 123-4567") }}
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      {{ form_input('street', 'Street Address', placeholder="123 Industrial Way") }}
+      {{ form_input('city', 'City', placeholder="City") }}
+      {{ form_input('region', 'State/Province', placeholder="State or Province") }}
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      {{ form_input('postal_code', 'Postal Code', placeholder="Zip / Postal Code") }}
+      {{ form_input('account_number', 'Account Number', placeholder="Customer ID") }}
+      {{ form_input('terms', 'Payment Terms', placeholder="Net 30, COD, etc.") }}
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      {{ form_input('status', 'Status', value='Active', placeholder="Active, On Hold, etc.") }}
+      <div class="space-y-1.5">
+        <label for="notes" class="block text-sm font-medium text-slate-300">Notes</label>
+        <textarea id="notes" name="notes" rows="4" class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"></textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3">
+      <a href="{{ url_for('customers.index') }}" class="px-4 py-2 text-sm font-semibold text-slate-300 transition hover:text-white">Cancel</a>
+      {{ button_primary('Create Customer', type='submit') }}
+    </div>
+  </form>
+</section>
+{% endblock %}

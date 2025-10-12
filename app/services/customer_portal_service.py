@@ -104,11 +104,6 @@ class CustomerPortalService:
             account = session.get(CustomerAccount, account_id)
 
         total = len(jobs)
-        pending = sum(
-            1
-            for job in jobs
-            if job.status in ["In Progress", "Not Started", "Pending Approval", "Ready for Pickup"]
-        )
         completed = sum(1 for job in jobs if job.status == "Completed")
         overdue = sum(
             1 for job in jobs if job.due_by and job.due_by < today and job.status != "Completed"
@@ -123,7 +118,17 @@ class CustomerPortalService:
 
         return CustomerDashboardStats(
             total=total,
-            pending=pending,
+            pending=sum(
+                1
+                for job in jobs
+                if job.status
+                in [
+                    "In Progress",
+                    "Not Started",
+                    "Pending Approval",
+                    "Ready for Pickup",
+                ]
+            ),
             completed=completed,
             overdue=overdue,
             last_login=last_login,
@@ -137,7 +142,13 @@ class CustomerPortalService:
         in_progress = sum(
             1
             for job in jobs
-            if job.status in ["In Progress", "Not Started", "Pending Approval", "Ready for Pickup"]
+            if job.status
+            in [
+                "In Progress",
+                "Not Started",
+                "Pending Approval",
+                "Ready for Pickup",
+            ]
         )
         pending_approval = sum(1 for job in jobs if job.status == "Pending Approval")
         ready_for_pickup = sum(1 for job in jobs if job.status == "Ready for Pickup")

@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import date
 
-from flask import render_template, request
+from flask import Response, flash, redirect, render_template, request, url_for
 
 from app.repositories import job_repo
 
@@ -66,6 +66,38 @@ def index():
         jobs=jobs,
         metrics=metrics,
         filters=filters,
+    )
+
+
+@bp.route("/new", methods=["GET", "POST"])
+def new_job():
+    """Render a simple form to create a job without placeholders."""
+    if request.method == "POST":
+        form = request.form
+        job = job_repo.create_job(
+            company=form.get("company", "").strip(),
+            contact_name=form.get("contact_name", "").strip() or None,
+            description=form.get("description", "").strip() or None,
+        )
+        flash(f"Job #{job.id} created", "success")
+        return redirect(url_for("jobs.detail", job_id=job.id))
+
+    return render_template("jobs/new.html")
+
+
+@bp.get("/export")
+def export_csv() -> Response:
+    """Export job data as CSV (basic implementation)."""
+    jobs = job_repo.list_jobs()
+    header = "id,company,status,due_by\n"
+    rows = [f"{job.id},{job.company or ''},{job.status or ''},{job.due_by or ''}" for job in jobs]
+    csv_content = header + "\n".join(rows)
+    return Response(
+        csv_content,
+        headers={
+            "Content-Type": "text/csv",
+            "Content-Disposition": "attachment; filename=jobs.csv",
+        },
     )
 
 

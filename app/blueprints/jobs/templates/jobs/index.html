@@ -8,8 +8,8 @@
 {% block content %}
 <section class="space-y-8">
   {% call page_header("Jobs", "Track production progress, assignments, and customer details for every active work order.") %}
-    {{ button_primary("New Job", pending=True) }}
-    {{ button_secondary("Export CSV", pending=True) }}
+    {{ button_primary("New Job", href=url_for('jobs.new_job')) }}
+    {{ button_secondary("Export CSV", href=url_for('jobs.export_csv')) }}
   {% endcall %}
 
   {# Metrics #}
@@ -26,8 +26,6 @@
         <select
           class="bg-transparent text-sm text-slate-100 focus:outline-none"
           name="stage"
-          data-pending-route
-          data-pending-target="/jobs/filter"
         >
           <option value="all" {% if filters.stage == "all" %}selected{% endif %}>All</option>
           <option value="prep" {% if filters.stage == "prep" %}selected{% endif %}>In Prep</option>
@@ -37,7 +35,7 @@
         </select>
       </label>
       <label class="inline-flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
-        <input type="checkbox" class="h-4 w-4 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-400" {% if filters.show_archived %}checked{% endif %} data-pending-route data-pending-target="/jobs/archived" />
+        <input type="checkbox" class="h-4 w-4 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-400" name="show_archived" value="1" {% if filters.show_archived %}checked{% endif %} />
         <span>Show archived</span>
       </label>
     </form>
@@ -101,8 +99,8 @@
 
           <footer class="mt-6 flex flex-wrap items-center gap-3">
             {{ button_primary("View Details", href=url_for('jobs.detail', job_id=job.id)) }}
-            {{ button_secondary("Edit Job", pending=True) }}
-            {{ button_secondary("Add to Batch", pending=True) }}
+            {{ button_secondary("Edit Job", href=url_for('jobs.edit', job_id=job.id)) }}
+            {{ button_secondary("Add to Batch", href=url_for('sprayer.hitlist')) }}
           </footer>
         </article>
       {% else %}
