@@ -36,73 +36,38 @@
   "/api/print-templates"
 ] %}
 
+{% from "_macros/ui.html" import button_primary, button_secondary, alert %}
+
 {% macro action_button(label, href, kind="primary") -%}
-  {%- set css = primary_btn if kind == "primary" else secondary_btn -%}
   {%- set pending = href in pending_links -%}
-  <a
-    href="{{ '#' if pending else href }}"
-    class="{{ css }} {% if pending %}opacity-65 hover:opacity-80{% endif %}"
-    {% if pending %}
-      data-pending-route="true"
-      data-pending-target="{{ href }}"
-      title="Route pending migration"
-    {% endif %}
-  >
-    <span>{{ label }}</span>
-    {% if pending %}
-      <span class="ml-2 text-[10px] font-semibold uppercase tracking-wide text-amber-300">Soon</span>
-    {% endif %}
-  </a>
+  {% if kind == "primary" %}
+    {{ button_primary(label, href=href, pending=pending) }}
+  {% else %}
+    {{ button_secondary(label, href=href, pending=pending) }}
+  {% endif %}
 {%- endmacro %}
 
-{% block header %}{% endblock %}
-
 {% block content %}
-<section class="space-y-10 text-slate-100">
-  <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/80 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/40 ring-1 ring-white/5">
-    <div class="flex flex-wrap items-center justify-between gap-6">
-      <div class="flex items-center gap-4">
-        <img
-          src="{{ branding_page_logo or url_for('static', filename='img/logo.svg') }}"
-          alt="Chaotic Nexus logo"
-          class="h-14 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
-        />
-        <div>
-          <p class="text-xs uppercase tracking-wider text-slate-400">Victoria Powder Coating</p>
-          <h1 class="text-2xl font-semibold tracking-tight">Chaotic Nexus</h1>
-          <p class="text-sm text-slate-400">Operational control for production, inventory, and customer care.</p>
-        </div>
+<section class="space-y-8 text-slate-100">
+  {# Welcome Header #}
+  <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/40 ring-1 ring-white/5">
+    <div class="flex items-center gap-4">
+      <img
+        src="{{ branding_page_logo or url_for('static', filename='img/logo.svg') }}"
+        alt="Chaotic Nexus logo"
+        class="h-14 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
+      />
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight">Operations Hub</h1>
+        <p class="text-sm text-slate-400">Operational control for production, inventory, and customer care.</p>
       </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <div
-          class="inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-800/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-300"
-        >
-          {% if is_admin %}
-            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-            <span>Admin</span>
-          {% elif me_username %}
-            <span class="h-2 w-2 rounded-full bg-sky-400"></span>
-            <span>{{ me_username }}</span>
-          {% else %}
-            <span class="h-2 w-2 rounded-full bg-amber-400"></span>
-            <span>Guest</span>
-          {% endif %}
-        </div>
-        {% if is_admin or me_username %}
-          <a href="/logout" class="{{ primary_btn }}">Logout</a>
-        {% else %}
-          <a href="/login" class="{{ primary_btn }}">Admin Login</a>
-        {% endif %}
-      </div>
-  </div>
-  <p class="text-sm text-slate-400">
-      Theme controls appear in the global header. Use the quick links below to open the most-used operational views.
-    </p>
+    </div>
   </div>
 
-  <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-    Routes marked <span class="font-semibold uppercase tracking-wide">Soon</span> are placeholders until their blueprints are migrated from the legacy app.
-  </div>
+  {# Info Alert #}
+  {% call alert(type="warning") %}
+    <strong>Note:</strong> Routes marked <span class="font-semibold">Soon</span> are placeholders until their blueprints are migrated from the legacy app.
+  {% endcall %}
 
   {% if has_operations %}
     <section class="space-y-4">

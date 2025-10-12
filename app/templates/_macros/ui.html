@@ -1,0 +1,217 @@
+{# UI Component Macros - Reusable UI elements for consistent design #}
+
+{# Primary button - for main actions #}
+{% macro button_primary(label, href=None, type="button", onclick=None, disabled=False, pending=False) -%}
+  {% if href %}
+    <a
+      href="{{ href }}"
+      class="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed {{ 'opacity-65 hover:opacity-80' if pending else '' }}"
+      {% if disabled %}aria-disabled="true"{% endif %}
+      {% if pending %}data-pending-route="true"{% endif %}
+      {% if onclick %}onclick="{{ onclick }}"{% endif %}
+    >
+      {{ label }}
+      {% if pending %}<span class="ml-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">Soon</span>{% endif %}
+    </a>
+  {% else %}
+    <button
+      type="{{ type }}"
+      class="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed {{ 'opacity-65 hover:opacity-80' if pending else '' }}"
+      {% if disabled %}disabled{% endif %}
+      {% if pending %}data-pending-route="true"{% endif %}
+      {% if onclick %}onclick="{{ onclick }}"{% endif %}
+    >
+      {{ label }}
+      {% if pending %}<span class="ml-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">Soon</span>{% endif %}
+    </button>
+  {% endif %}
+{%- endmacro %}
+
+{# Secondary button - for less important actions #}
+{% macro button_secondary(label, href=None, type="button", onclick=None, disabled=False, pending=False) -%}
+  {% if href %}
+    <a
+      href="{{ href }}"
+      class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 disabled:opacity-50 disabled:cursor-not-allowed {{ 'opacity-65 hover:opacity-80' if pending else '' }}"
+      {% if disabled %}aria-disabled="true"{% endif %}
+      {% if pending %}data-pending-route="true"{% endif %}
+      {% if onclick %}onclick="{{ onclick }}"{% endif %}
+    >
+      {{ label }}
+      {% if pending %}<span class="ml-1 text-[10px] font-semibold uppercase tracking-wide text-amber-300">Soon</span>{% endif %}
+    </a>
+  {% else %}
+    <button
+      type="{{ type }}"
+      class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 disabled:opacity-50 disabled:cursor-not-allowed {{ 'opacity-65 hover:opacity-80' if pending else '' }}"
+      {% if disabled %}disabled{% endif %}
+      {% if pending %}data-pending-route="true"{% endif %}
+      {% if onclick %}onclick="{{ onclick }}"{% endif %}
+    >
+      {{ label }}
+      {% if pending %}<span class="ml-1 text-[10px] font-semibold uppercase tracking-wide text-amber-300">Soon</span>{% endif %}
+    </button>
+  {% endif %}
+{%- endmacro %}
+
+{# Page header with title, description, and actions #}
+{% macro page_header(title, description=None, actions=None) -%}
+  <header class="flex flex-col gap-6 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/40 ring-1 ring-white/5">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex-1">
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-100">{{ title }}</h1>
+        {% if description %}
+          <p class="mt-1 text-sm text-slate-400">{{ description }}</p>
+        {% endif %}
+      </div>
+      {% if actions %}
+        <div class="flex flex-wrap items-center gap-3">
+          {{ actions }}
+        </div>
+      {% endif %}
+    </div>
+    {{ caller() if caller }}
+  </header>
+{%- endmacro %}
+
+{# Card component for content sections #}
+{% macro card(title=None, description=None, footer=None) -%}
+  <article class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30 transition hover:border-slate-600 hover:shadow-slate-950/50">
+    {% if title %}
+      <header class="mb-4">
+        <h3 class="text-lg font-semibold text-slate-100">{{ title }}</h3>
+        {% if description %}
+          <p class="mt-1 text-sm text-slate-400">{{ description }}</p>
+        {% endif %}
+      </header>
+    {% endif %}
+    <div class="space-y-4">
+      {{ caller() }}
+    </div>
+    {% if footer %}
+      <footer class="mt-6 flex flex-wrap items-center gap-3">
+        {{ footer }}
+      </footer>
+    {% endif %}
+  </article>
+{%- endmacro %}
+
+{# Metric card for displaying statistics #}
+{% macro metric_card(label, value, color="emerald", icon=None) -%}
+  {% set color_classes = {
+    "emerald": "border-emerald-500/20 bg-emerald-500/10 text-emerald-200",
+    "blue": "border-blue-500/20 bg-blue-500/10 text-blue-200",
+    "amber": "border-amber-500/20 bg-amber-500/10 text-amber-200",
+    "sky": "border-sky-500/20 bg-sky-500/10 text-sky-200",
+    "red": "border-red-500/20 bg-red-500/10 text-red-200",
+    "green": "border-green-500/20 bg-green-500/10 text-green-200",
+    "purple": "border-purple-500/20 bg-purple-500/10 text-purple-200"
+  } %}
+  {% set label_classes = {
+    "emerald": "text-emerald-300/80",
+    "blue": "text-blue-300/80",
+    "amber": "text-amber-300/80",
+    "sky": "text-sky-300/80",
+    "red": "text-red-300/80",
+    "green": "text-green-300/80",
+    "purple": "text-purple-300/80"
+  } %}
+  <div class="rounded-xl border {{ color_classes[color] }} p-4 transition hover:shadow-lg">
+    <dt class="text-xs font-semibold uppercase tracking-[0.26em] {{ label_classes[color] }}">{{ label }}</dt>
+    <dd class="mt-2 text-2xl font-semibold">{{ value }}</dd>
+  </div>
+{%- endmacro %}
+
+{# Status badge component #}
+{% macro status_badge(label, status="info") -%}
+  {% set status_classes = {
+    "success": "border-green-500/30 bg-green-500/10 text-green-200",
+    "warning": "border-amber-500/30 bg-amber-500/10 text-amber-200",
+    "error": "border-red-500/30 bg-red-500/10 text-red-200",
+    "info": "border-blue-500/30 bg-blue-500/10 text-blue-200",
+    "neutral": "border-slate-700 bg-slate-800/80 text-slate-300"
+  } %}
+  <span class="inline-flex items-center gap-1 rounded-full border {{ status_classes[status] }} px-3 py-1 text-xs font-semibold">
+    {{ label }}
+  </span>
+{%- endmacro %}
+
+{# Alert/Notice component #}
+{% macro alert(type="info", dismissible=False) -%}
+  {% set type_classes = {
+    "info": "border-blue-500/20 bg-blue-500/10 text-blue-200",
+    "success": "border-green-500/20 bg-green-500/10 text-green-200",
+    "warning": "border-amber-500/20 bg-amber-500/10 text-amber-200",
+    "error": "border-red-500/20 bg-red-500/10 text-red-200"
+  } %}
+  <div class="rounded-2xl border {{ type_classes[type] }} px-4 py-3 text-sm" role="alert">
+    <div class="flex items-start gap-3">
+      <div class="flex-1">
+        {{ caller() }}
+      </div>
+      {% if dismissible %}
+        <button type="button" class="text-current opacity-70 hover:opacity-100 transition" aria-label="Dismiss">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      {% endif %}
+    </div>
+  </div>
+{%- endmacro %}
+
+{# Empty state component #}
+{% macro empty_state(title, description=None, actions=None) -%}
+  <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-12 text-center">
+    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-800">
+      {{ caller() if caller else '📋' }}
+    </div>
+    <h3 class="mb-2 text-lg font-semibold text-slate-200">{{ title }}</h3>
+    {% if description %}
+      <p class="mb-6 text-slate-400">{{ description }}</p>
+    {% endif %}
+    {% if actions %}
+      <div class="flex flex-wrap justify-center gap-3">
+        {{ actions }}
+      </div>
+    {% endif %}
+  </div>
+{%- endmacro %}
+
+{# Form input with label #}
+{% macro form_input(name, label, type="text", placeholder="", value="", required=False, disabled=False) -%}
+  <div class="space-y-1.5">
+    <label for="{{ name }}" class="block text-sm font-medium text-slate-300">
+      {{ label }}
+      {% if required %}<span class="text-red-400">*</span>{% endif %}
+    </label>
+    <input
+      type="{{ type }}"
+      id="{{ name }}"
+      name="{{ name }}"
+      value="{{ value }}"
+      placeholder="{{ placeholder }}"
+      class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+    />
+  </div>
+{%- endmacro %}
+
+{# Search input component #}
+{% macro search_input(name="q", placeholder="Search...", value="", action=None) -%}
+  <label class="flex min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 focus-within:border-slate-500 focus-within:ring-2 focus-within:ring-slate-500/40">
+    <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    </svg>
+    <input
+      class="w-full bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
+      type="search"
+      name="{{ name }}"
+      placeholder="{{ placeholder }}"
+      value="{{ value }}"
+      {% if action %}form="{{ action }}"{% endif %}
+    />
+  </label>
+{%- endmacro %}
+

@@ -1,62 +1,85 @@
 {% set header_is_admin = is_admin or session.get("is_admin") %}
 {% set header_username = me_username or session.get("me_username") %}
+{# Active page detection #}
+{% set current_path = request.path %}
 <header class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-4 shadow-md shadow-slate-950/30 ring-1 ring-white/5">
-  <div class="flex items-center gap-3">
+  {# Logo and Branding #}
+  <a href="/dashboard" class="flex items-center gap-3 transition hover:opacity-80">
     <img
       src="{{ branding_header_logo or url_for('static', filename='img/logo.svg') }}"
       alt="Chaotic Nexus"
       class="h-10 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
     />
-    <div>
+    <div class="hidden md:block">
       <p class="text-xs uppercase tracking-wider text-slate-400">Victoria Powder Coating</p>
-      <h1 class="text-lg font-semibold text-slate-100">Chaotic Nexus</h1>
+      <h1 class="text-base font-semibold text-slate-100">Chaotic Nexus</h1>
     </div>
-  </div>
+  </a>
 
-  <nav class="flex flex-wrap items-center gap-3 text-sm text-slate-300">
-    <a href="/dashboard" class="rounded-lg px-3 py-1 transition hover:bg-slate-800/80 hover:text-white">Dashboard</a>
-    <a href="/jobs" class="rounded-lg px-3 py-1 transition hover:bg-slate-800/80 hover:text-white">Jobs</a>
-    <a href="/customers" class="rounded-lg px-3 py-1 transition hover:bg-slate-800/80 hover:text-white">Customers</a>
-    <a href="/powders" class="rounded-lg px-3 py-1 transition hover:bg-slate-800/80 hover:text-white">Powders</a>
-    <a href="/inventory" class="rounded-lg px-3 py-1 transition hover:bg-slate-800/80 hover:text-white">Inventory</a>
+  {# Main Navigation #}
+  <nav class="flex flex-wrap items-center gap-2 text-sm" aria-label="Main navigation">
+    <a href="/dashboard/" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/dashboard') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Dashboard</a>
+    <a href="/jobs/" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/jobs') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Jobs</a>
+    <a href="/customers/" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/customers') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Customers</a>
+    <a href="/powders/" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/powders') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Powders</a>
+    <a href="/inventory/" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/inventory') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Inventory</a>
   </nav>
 
-  <div class="flex items-center gap-3">
+  {# User Controls #}
+  <div class="flex items-center gap-2">
+    {# User Status Badge #}
     <div
       class="inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-800/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-300"
+      aria-label="User status"
     >
       {% if header_is_admin %}
-        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+        <span class="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true"></span>
         <span>Admin</span>
       {% elif header_username %}
-        <span class="h-2 w-2 rounded-full bg-sky-400"></span>
-        <span>{{ header_username }}</span>
+        <span class="h-2 w-2 rounded-full bg-sky-400" aria-hidden="true"></span>
+        <span class="hidden sm:inline">{{ header_username }}</span>
+        <span class="sm:hidden">User</span>
       {% else %}
-        <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+        <span class="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true"></span>
         <span>Guest</span>
       {% endif %}
     </div>
+
+    {# Theme Toggle #}
     <button
       type="button"
       data-theme-toggle
       class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+      aria-label="Toggle theme"
     >
-      <span class="h-2 w-2 rounded-full bg-emerald-400" data-theme-indicator></span>
-      <span data-theme-label>Theme</span>
+      <span class="h-2 w-2 rounded-full bg-emerald-400" data-theme-indicator aria-hidden="true"></span>
+      <span data-theme-label class="hidden sm:inline">Theme</span>
     </button>
+
+    {# Login/Logout #}
     {% if header_is_admin or header_username %}
       <a
-        href="/logout"
+        href="/auth/logout"
         class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
       >
-        Logout
+        <span class="hidden sm:inline">Logout</span>
+        <span class="sm:hidden">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+        </span>
       </a>
     {% else %}
       <a
-        href="/login"
+        href="/auth/login"
         class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
       >
-        Admin Login
+        <span class="hidden sm:inline">Login</span>
+        <span class="sm:hidden">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+          </svg>
+        </span>
       </a>
     {% endif %}
   </div>

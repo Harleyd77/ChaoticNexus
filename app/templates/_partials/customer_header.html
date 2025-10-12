@@ -1,0 +1,68 @@
+{% set customer_name = customer.first_name if customer else 'Guest' %}
+{% set current_path = request.path %}
+<header class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-4 shadow-md shadow-slate-950/30 ring-1 ring-white/5">
+  {# Logo and Branding #}
+  <a href="{{ url_for('customer_portal.dashboard') }}" class="flex items-center gap-3 transition hover:opacity-80">
+    <img
+      src="{{ branding_header_logo or url_for('static', filename='img/logo.svg') }}"
+      alt="Customer Portal"
+      class="h-10 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
+    />
+    <div class="hidden md:block">
+      <p class="text-xs uppercase tracking-wider text-slate-400">Victoria Powder Coating</p>
+      <h1 class="text-base font-semibold text-slate-100">Customer Portal</h1>
+    </div>
+  </a>
+
+  {# Main Navigation #}
+  <nav class="flex flex-wrap items-center gap-2 text-sm" aria-label="Customer navigation">
+    <a href="{{ url_for('customer_portal.dashboard') }}" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path == url_for('customer_portal.dashboard') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Dashboard</a>
+    <a href="{{ url_for('customer_portal.jobs_list') }}" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/customer/jobs') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">My Jobs</a>
+    
+    {# Submit Job Dropdown #}
+    <div class="relative group">
+      <button type="button" class="rounded-lg px-3 py-1.5 text-slate-300 transition hover:bg-slate-800/80 hover:text-white inline-flex items-center gap-1">
+        <span>Submit Job</span>
+        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div class="absolute left-0 z-50 mt-2 w-48 origin-top-left scale-95 rounded-lg border border-slate-800/70 bg-slate-900/95 p-1 opacity-0 shadow-lg ring-1 ring-white/5 transition-all duration-200 group-hover:scale-100 group-hover:opacity-100 invisible group-hover:visible backdrop-blur-sm">
+        <a href="{{ url_for('intake.intake_form') }}" class="block rounded-md px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Production Intake</a>
+        <a href="{{ url_for('intake.railing_intake') }}" class="block rounded-md px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Railing Intake</a>
+      </div>
+    </div>
+  </nav>
+
+  {# User Controls #}
+  <div class="flex items-center gap-2">
+    {# User Profile Badge #}
+    <div class="relative group">
+      <button type="button" class="inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-800/60 px-3 py-1 text-xs font-semibold tracking-wide text-slate-300 transition hover:bg-slate-800">
+        <span class="h-2 w-2 rounded-full bg-sky-400" aria-hidden="true"></span>
+        <span class="hidden sm:inline">{{ customer_name }}</span>
+        <span class="sm:hidden">Menu</span>
+        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div class="absolute right-0 z-50 mt-2 w-48 origin-top-right scale-95 rounded-lg border border-slate-800/70 bg-slate-900/95 p-1 opacity-0 shadow-lg ring-1 ring-white/5 transition-all duration-200 group-hover:scale-100 group-hover:opacity-100 invisible group-hover:visible backdrop-blur-sm">
+        <a href="{{ url_for('customer_portal.profile') }}" class="block rounded-md px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">My Profile</a>
+        <div class="my-1 h-px bg-slate-800"></div>
+        <a href="{{ url_for('customer_portal.logout') }}" class="block rounded-md px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white">Logout</a>
+      </div>
+    </div>
+
+    {# Theme Toggle #}
+    <button
+      type="button"
+      data-theme-toggle
+      class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+      aria-label="Toggle theme"
+    >
+      <span class="h-2 w-2 rounded-full bg-emerald-400" data-theme-indicator aria-hidden="true"></span>
+      <span data-theme-label class="hidden sm:inline">Theme</span>
+    </button>
+  </div>
+</header>
+
