@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="title">
+  <title>Job photo placeholder</title>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="200" fill="url(#grad)"/>
+  <g fill="none" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M60 140l50-60 42 48 28-36 60 48"/>
+    <circle cx="110" cy="78" r="20"/>
+  </g>
+  <text x="50%" y="92%" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#94a3b8">
+    Photo pending upload
+  </text>
+</svg>

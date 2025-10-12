@@ -1,0 +1,40 @@
+# analysis/legacy_models.txt
+Data layer overview
+===================
+- The legacy app does **not** use SQLAlchemy models. All persistence logic lives in `src/powder_app/core/db.py`, `core/customer_auth.py`, and various blueprints that execute raw SQL against Postgres (with an outdated SQLite fallback in `_migrate_sqlite_schema`).
+- Connections are created through `core.db.connect()` which wraps `psycopg` (v3) to emulate parts of the SQLite API. Helpers `db_execute`, `db_query_one`, etc. return `dict` rows.
+- Schema creation happens imperatively at startup (`init_db_postgres`) plus ad-hoc ensure/alter blocks inside blueprints (notably `sprayer.py`). Historical migrations live under `tools/migrations/`.
+
+Primary tables & relationships
+------------------------------
+- `settings(id, name, value)` — stringly-typed JSON blobs driving UI, intake, branding, and powder/work-order options.
+- `users(id, username, password_hash, is_admin, permissions_json, created_at)` — internal staff accounts. Referenced by session helpers and admin blueprint.
+- `customer_accounts(id, first_name, last_name, email, password_hash, …)` — portal accounts. `jobs.customer_account_id` and `job_edit_history.customer_id` reference this table.
+- `customer_sessions(id, customer_id, session_token, expires_at, is_active, created_at, updated_at)` — managed by `core.customer_auth`; created via migration script `tools/migrations/001_customer_portal_schema.py`.
+- `customers(id, company, contact_name, …, updated_at)` — business customers. Uniqueness enforced on `lower(trim(company))`.
+- `contacts(id, customer_id, …)` — per-customer contact records (FK `customer_id -> customers.id`).
+- `jobs(id, created_at, date_in, due_by, …, status, department, work_order_json, archived, order_index, on_screen, screen_order_index, customer_account_id, submitted_by_customer, requires_approval)` — central production jobs/work orders.
+  * Foreign keys to `customer_accounts` (optional) and indirectly to `customers` via company name.
+  * Related tables: `time_logs(job_id FK)`, `job_photos(job_id FK)`, `job_edit_history(job_id FK)`, `spray_batch_jobs(job_id FK)`, `job_powders(job_id FK)`, `powder_usage(job_id FK)`.
+- `time_logs(id, job_id, department, start_ts, end_ts, minutes)` — legacy time tracking per department.
+- `job_photos(id, job_id, filename, original_name, created_at)` — uploaded intake/work photos.
+- `job_edit_history(id, job_id, customer_id, field_name, old_value, new_value, change_reason, created_at)` — tracks customer-initiated edits from the portal.
+- `powders(id, powder_color, manufacturer, …, price_per_kg, in_stock, on_hand_kg, last_weighed_kg, last_weighed_at, color_family, aliases)` — catalog of powders with pricing and inventory metadata.
+- `job_powders(job_id, powder_id, role, est_kg)` — many-to-many mapping between jobs and powders (role defaults to `primary`).
+- `spray_batch(id, powder_id, role, operator, note, started_at, ended_at, start/end_weight_kg, used_kg, duration_min)` — production spray batches (FK `powder_id`).
+- `spray_batch_jobs(batch_id, job_id, time_min, start_ts, end_ts, elapsed_seconds, running_since)` — join table for jobs scheduled inside batches.
+- `powder_usage(id, powder_id, job_id, used_kg, note, created_at)` — historical usage log; ties into inventory adjustments.
+- `inventory_log(id, powder_id, change_type, old_value, new_value, notes, created_at, created_by)` — audit log for stock level changes.
+- `reorder_settings(id, powder_id, low_stock_threshold, reorder_quantity, supplier_info, notes, created_at, updated_at)` — per-powder reorder metadata.
+- `print_templates(id, template_type, template_name, layout_json, is_default, created_at, updated_at, created_by)` — stores JSON definitions for customizable work order/label templates (managed by `blueprints.print_templates`).
+
+Views and indices
+-----------------
+- `blueprints/sprayer.py` creates SQL views `spray_batches_view` and `job_spray_time_view` for reporting.
+- Numerous indices are created ad hoc (jobs company/contact/color/etc., customer_accounts email, inventory tables, etc.) inside `init_db_postgres()` and `_ensure_sprayer_schema_*()`.
+
+Key observations
+----------------
+- There is **no declarative model layer**; business logic embeds SQL strings across blueprints, making migrations hard to track.
+- Schema drift is patched with `ALTER TABLE IF NOT EXISTS` blocks throughout the code base; some tables (e.g., `customer_sessions`) rely on external migration scripts.
+- Relationships hinge on consistent FK enforcement (Postgres only). Legacy SQLite compatibility code is still present but should be considered dead.

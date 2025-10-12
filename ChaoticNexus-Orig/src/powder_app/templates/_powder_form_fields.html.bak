@@ -1,0 +1,108 @@
+<div class="section-title">Basics</div>
+<div class="grid">
+  <label>Color<input name="powder_color" value="{{ (r['powder_color'] if r and 'powder_color' in r else '') or '' }}" required></label>
+  <label>Color Family
+    {% set _cf = ((r['color_family'] if r and 'color_family' in r else '') or '').strip() %}
+    {% set fams = opt_families or [] %}
+    {% set fams_lower = fams | map('lower') | list %}
+    <select name="color_family">
+      <option value="">Select…</option>
+      {% for fam in fams %}
+        <option value="{{ fam }}" {% if _cf|lower==fam|lower %}selected{% endif %}>{{ fam }}</option>
+      {% endfor %}
+      {% if _cf and (_cf|lower not in fams_lower) %}
+        <option value="{{ _cf }}" selected>(Custom) {{ _cf }}</option>
+      {% endif %}
+    </select>
+  </label>
+  <label>Manufacturer
+    {% set _mf = ((r['manufacturer'] if r and 'manufacturer' in r else '') or '').strip() %}
+    {% set mans = opt_manufacturers or [] %}
+    {% set mans_lower = mans | map('lower') | list %}
+    <select name="manufacturer">
+      <option value="">Select…</option>
+      {% for m in mans %}
+        <option value="{{ m }}" {% if _mf|lower==m|lower %}selected{% endif %}>{{ m }}</option>
+      {% endfor %}
+      {% if _mf and (_mf|lower not in mans_lower) %}
+        <option value="{{ _mf }}" selected>(Custom) {{ _mf }}</option>
+      {% endif %}
+    </select>
+  </label>
+  <label>Product Code<input name="product_code" value="{{ (r['product_code'] if r and 'product_code' in r else '') or '' }}"></label>
+  </div>
+
+  <div class="section-title">Attributes</div>
+  <div class="grid">
+    <label>Gloss
+      {% set _gl = ((r['gloss_level'] if r and 'gloss_level' in r else '') or '').strip() %}
+      {% set gls = opt_gloss or [] %}
+      {% set gls_lower = gls | map('lower') | list %}
+      <select name="gloss_level">
+        <option value="">Select…</option>
+        {% for g in gls %}
+          <option value="{{ g }}" {% if _gl|lower==g|lower %}selected{% endif %}>{{ g }}</option>
+        {% endfor %}
+        {% if _gl and (_gl|lower not in gls_lower) %}
+          <option value="{{ _gl }}" selected>(Custom) {{ _gl }}</option>
+        {% endif %}
+      </select>
+    </label>
+    <label>Finish
+      {% set _fn = ((r['finish'] if r and 'finish' in r else '') or '').strip() %}
+      {% set fins = opt_finishes or [] %}
+      {% set fins_lower = fins | map('lower') | list %}
+      <select name="finish">
+        <option value="">Select…</option>
+        {% for f in fins %}
+          <option value="{{ f }}" {% if _fn|lower==f|lower %}selected{% endif %}>{{ f }}</option>
+        {% endfor %}
+        {% if _fn and (_fn|lower not in fins_lower) %}
+          <option value="{{ _fn }}" selected>(Custom) {{ _fn }}</option>
+        {% endif %}
+      </select>
+    </label>
+    <label>Int / Ext
+      {% set _ie = ((r['int_ext'] if r and 'int_ext' in r else '') or '').strip() %}
+      {% set ies = opt_int_ext or [] %}
+      {% set ies_lower = ies | map('lower') | list %}
+      <select name="int_ext">
+        <option value="">Select…</option>
+        {% for ie in ies %}
+          <option value="{{ ie }}" {% if _ie|lower==ie|lower %}selected{% endif %}>{{ ie }}</option>
+        {% endfor %}
+        {% if _ie and (_ie|lower not in ies_lower) %}
+          <option value="{{ _ie }}" selected>(Custom) {{ _ie }}</option>
+        {% endif %}
+      </select>
+    </label>
+    <label class="full"><input type="checkbox" name="metallic" {% if r and r['metallic'] %}checked{% endif %}> Metallic<input type="hidden" name="metallic" value="off"></label>
+    <label class="full"><input type="checkbox" name="needs_clear" {% if r and r['needs_clear'] %}checked{% endif %}> Needs Clear?<input type="hidden" name="needs_clear" value="off"></label>
+    <label>In Stock (kg)<input type="number" step="0.01" name="in_stock" value="{{ r['in_stock'] if r and 'in_stock' in r and r['in_stock'] is not none else '' }}"></label>
+  </div>
+
+  <div class="section-title">Docs & Links</div>
+  <div class="grid">
+    <label>Additional Code<input name="additional_code" value="{{ (r['additional_code'] if r and 'additional_code' in r else '') or '' }}"></label>
+    <label>MSDS URL<input name="msds_url" value="{{ (r['msds_url'] if r and 'msds_url' in r else '') or '' }}" placeholder="https://..."></label>
+    <label>SDS URL<input name="sds_url" value="{{ (r['sds_url'] if r and 'sds_url' in r else '') or '' }}" placeholder="https://..."></label>
+    <label>Web Link<input name="web_link" value="{{ (r['web_link'] if r and 'web_link' in r else '') or '' }}" placeholder="https://..."></label>
+    <label class="full">Picture URL<input name="picture_url" value="{{ (r['picture_url'] if r and 'picture_url' in r else '') or '' }}" placeholder="https://..."></label>
+  </div>
+
+  <div class="section-title">Notes</div>
+  <div class="grid">
+    <label class="full">Notes<input name="notes" value="{{ (r['notes'] if r and 'notes' in r else '') or '' }}"></label>
+    <label class="full">Additional Info<textarea name="additional_info" rows="3">{{ (r['additional_info'] if r and 'additional_info' in r else '') or '' }}</textarea></label>
+    <label class="full">Aliases<input name="aliases" value="{{ (r['aliases'] if r and 'aliases' in r else '') or '' }}" placeholder="comma separated"></label>
+  </div>
+
+  <div class="section-title">Pricing</div>
+  <div class="grid">
+    <label>Price per KG<input type="number" step="0.01" name="price_per_kg" value="{{ r['price_per_kg'] if r and 'price_per_kg' in r and r['price_per_kg'] is not none else '' }}"></label>
+    <label>Charge/LB<input type="number" step="0.01" name="charge_per_lb" value="{{ r['charge_per_lb'] if r and 'charge_per_lb' in r and r['charge_per_lb'] is not none else '' }}"></label>
+    <label>Weight Box KG<input type="number" step="0.01" name="weight_box_kg" value="{{ r['weight_box_kg'] if r and 'weight_box_kg' in r and r['weight_box_kg'] is not none else '' }}"></label>
+    <label>Last Price Check<input type="date" name="last_price_check" value="{{ (r['last_price_check'] if r and 'last_price_check' in r else '') or '' }}"></label>
+    <label>Shipping Cost<input type="number" step="0.01" name="shipping_cost" value="{{ r['shipping_cost'] if r and 'shipping_cost' in r and r['shipping_cost'] is not none else '' }}"></label>
+  </div>
+

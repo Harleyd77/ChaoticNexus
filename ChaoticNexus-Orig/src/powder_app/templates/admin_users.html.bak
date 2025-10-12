@@ -1,0 +1,139 @@
+﻿<!doctype html>
+<html data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="utf-8" />
+  <title>Manage Users</title>
+  <meta name="color-scheme" content="dark light">
+  <script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var saved=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.style.backgroundColor = saved==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{margin:0;background:#0e141b;color:#e6edf3;font-family:system-ui,Segoe UI,Roboto,Arial}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:900px;margin:0 auto;padding:18px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #1f2a37;background:#0f1720;color:#9fb0c0;border-radius:10px}
+    .btn.primary{background:#3b82f6;border-color:transparent;color:#fff}
+    .version-pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid #2a3b58;background:#1b2430;color:#c6d4e2;font-size:12px}
+    .card{background:linear-gradient(180deg,#111923,#0f1720);border:1px solid #1f2a37;border-radius:14px;padding:16px;margin-bottom:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #1f2a37}
+    input{padding:8px;border:1px solid #1f2a37;border-radius:8px;background:#0f1720;color:#e6edf3}
+    label{display:block;margin-bottom:8px}
+  </style>
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+  <script>
+    function confirmDelete(username){
+      return confirm('Delete user ' + username + '?');
+    }
+  </script>
+  </head>
+  <body>
+    <div class="wrap">
+      {% if saved %}
+        <div style="margin-bottom:12px;padding:10px;border-radius:10px;background:#0b3a2a;border:1px solid #135a3f;color:#cff7e1">Saved.</div>
+      {% endif %}
+      {% if err == 'exists' %}
+        <div style="margin-bottom:12px;padding:10px;border-radius:10px;background:#3a0b0b;border:1px solid #5a1313;color:#ffd0d0">Username already exists.</div>
+      {% elif err == 'self' %}
+        <div style="margin-bottom:12px;padding:10px;border-radius:10px;background:#3a0b0b;border:1px solid #5a1313;color:#ffd0d0">You cannot delete yourself.</div>
+      {% elif err == 'pw' %}
+        <div style="margin-bottom:12px;padding:10px;border-radius:10px;background:#3a0b0b;border:1px solid #5a1313;color:#ffd0d0">Password required.</div>
+      {% endif %}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <a class="btn" href="/admin">Back to Admin</a>
+        </div>
+        <div>
+          <a class="btn" href="/logout">Logout ({{ me_username or 'admin' }})</a>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><h1 style="margin:0">Users</h1><span class="version-pill">Version 1.2</span></div>
+
+      <div class="card">
+        <h2 style="margin-top:0">Add User</h2>
+        <form method="post" action="/admin/users/add" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+          <label>Username
+            <input type="text" name="username" placeholder="username" required />
+          </label>
+          <label>Password
+            <input type="password" name="password" placeholder="password" required />
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;margin:0 8px 8px 8px">
+            <input type="checkbox" name="is_admin" /> Admin
+          </label>
+          <button class="btn primary" type="submit">Add</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0">Existing Users</h2>
+        <table>
+          <thead>
+            <tr><th>Username</th><th>Admin</th><th>Permissions</th><th>Set Password</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+              <tr>
+                <td>{{ u.username }}</td>
+                <td style="white-space:nowrap">
+                  <form method="post" action="/admin/users/{{ u.id }}/toggle_admin">
+                    <button class="btn" type="submit">{{ 'Yes' if u.is_admin else 'No' }}</button>
+                  </form>
+                </td>
+                <td>
+                  {% if u.is_admin %}
+                    <span style="color:#9fb0c0">Admins see everything.</span>
+                  {% else %}
+                    <form method="post" action="/admin/users/{{ u.id }}/perms" style="display:grid;grid-template-columns:repeat(2, minmax(180px, 1fr));gap:6px">
+                      <label><input type="checkbox" name="see_intake" {% if u.perms.see_intake %}checked{% endif %}/> Intake Form</label>
+                      <label><input type="checkbox" name="see_railing" {% if u.perms.see_railing %}checked{% endif %}/> Railing Intake</label>
+                      <label><input type="checkbox" name="see_jobs" {% if u.perms.see_jobs %}checked{% endif %}/> Job Database</label>
+                      <label><input type="checkbox" name="see_job_screen" {% if u.perms.see_job_screen %}checked{% endif %}/> Daily Hit List</label>
+                      <label><input type="checkbox" name="see_archived" {% if u.perms.see_archived %}checked{% endif %}/> Archived Jobs</label>
+                      <label><input type="checkbox" name="see_powders" {% if u.perms.see_powders %}checked{% endif %}/> Powders</label>
+                      <label><input type="checkbox" name="see_customers" {% if u.perms.see_customers %}checked{% endif %}/> Customers</label>
+                      <label><input type="checkbox" name="see_csv" {% if u.perms.see_csv %}checked{% endif %}/> CSV Downloads</label>
+                      <div style="grid-column:1/-1;display:flex;justify-content:flex-end;margin-top:6px">
+                        <button class="btn" type="submit">Save</button>
+                      </div>
+                    </form>
+                  {% endif %}
+                </td>
+                <td>
+                  <form method="post" action="/admin/users/{{ u.id }}/set_password" style="display:flex;gap:6px">
+                    <input type="password" name="password" placeholder="new password" required />
+                    <button class="btn" type="submit">Update</button>
+                  </form>
+                </td>
+                <td>
+                  <form method="post" action="/admin/users/{{ u.id }}/delete" onsubmit="return confirmDelete('{{ u.username }}')">
+                    <button class="btn" type="submit">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            {% else %}
+              <tr><td colspan="5" style="color:#9fb0c0">No users yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </body>
+  </html>
+
+

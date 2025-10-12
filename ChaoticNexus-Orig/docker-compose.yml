@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ChaoticNexusDB
+      POSTGRES_USER: Harley
+      POSTGRES_PASSWORD: chaotic
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - chaoticnexus_network
+
+  chaoticnexus:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3777:5000"
+    environment:
+      - FLASK_DEBUG=0
+      - GUNICORN_RELOAD=1
+      - DB_BACKEND=postgres
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGDATABASE=ChaoticNexusDB
+      - PGUSER=Harley
+      - PGPASSWORD=chaotic
+    depends_on:
+      - postgres
+    volumes:
+      - ./storage:/app/storage
+      - ./src:/app/src
+      - ./frontend:/app/frontend
+    networks:
+      - chaoticnexus_network
+
+volumes:
+  postgres_data:
+
+networks:
+  chaoticnexus_network:
+    driver: bridge

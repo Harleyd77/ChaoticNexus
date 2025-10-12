@@ -1,0 +1,37 @@
+== Chaotic Nexus Status Report ==
+Generated: 2025-10-11T16:02:13-07:00
+Root: .
+
+## Tree (top 2 levels)
+./analysis/
+./app/
+./app/blueprints/
+./app/components/
+./app/models/
+./app/public/
+./app/repositories/
+./app/rules/
+./app/services/
+./app/src/
+./app/static/
+./app/templates/
+./ChaoticNexus-Orig/
+./ChaoticNexus-Orig/.agent-os/
+./ChaoticNexus-Orig/.cursor/
+./ChaoticNexus-Orig/deploy/
+./ChaoticNexus-Orig/frontend/
+./ChaoticNexus-Orig/src/
+./ChaoticNexus-Orig/storage/
+./ChaoticNexus-Orig/tools/
+./ChaoticNexus-Orig/.venv/
+./_data/
+./.git/
+./.git/branches/
+./.git/hooks/
+./.git/info/
+./.git/objects/
+./.git/refs/
+./_logs/
+./pgdata/
+./tools/
+./.vscode/

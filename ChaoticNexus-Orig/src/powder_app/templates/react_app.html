@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+  <title>{{ super() }} | PowderApp</title>
+<script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var saved=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.style.backgroundColor = saved==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+<script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+<script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='dist/assets/index.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div id="root"></div>
+  
+  <!-- Fallback for when React fails to load -->
+  <noscript>
+    <div style="text-align: center; padding: 2rem; font-family: system-ui, sans-serif;">
+      <h1>JavaScript Required</h1>
+      <p>This React application requires JavaScript to run. Please enable JavaScript in your browser.</p>
+      <a href="/nav" style="color: #3b82f6; text-decoration: none;">← Back to Original App</a>
+    </div>
+  </noscript>
+{% endblock %}

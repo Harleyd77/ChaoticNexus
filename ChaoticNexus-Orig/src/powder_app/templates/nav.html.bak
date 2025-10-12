@@ -1,0 +1,278 @@
+﻿<!doctype html>
+<html data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}" data-style="{{ request.cookies.get('vpc_style', 'classic') }}">
+<head>
+  <meta charset="utf-8">
+  <title>VPC &middot; Navigation EXP 1.2 [DEV COPY]</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="{{ branding_favicon or url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <meta name="color-scheme" content="dark light">
+  <!-- New unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <style>
+    /* Page-specific overrides - use theme system variables */
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px}
+
+    /* Topbar */
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand h1{font-size:20px;margin:0}
+    .sub{color:var(--color-text-muted);font-size:13px}
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid transparent;
+      border-radius:10px;cursor:pointer
+    }
+    .btn:hover{opacity:0.95}
+    /* Ensure topbar buttons are high-contrast and readable */
+    .topbar .btn{
+      background: var(--color-accent) !important;
+      color: #fff !important;
+      border-color: transparent !important;
+    }
+    .topbar .btn:focus-visible{outline:2px solid #ffffff66;outline-offset:2px}
+    .pill{
+      font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--color-border);background:var(--color-surface-muted);color:var(--color-text-muted)
+    }
+    .vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;clip:rect(0 0 0 0);overflow:hidden}
+
+    /* Grid of cards */
+    .section{margin-top:32px;}
+    .section:first-of-type{margin-top:0;}
+    .section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+    .section-head h2{margin:0;font-size:18px;}
+    .section-head p{margin:0;color:var(--color-text-muted);font-size:13px;}
+
+    .section-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+    .card{
+      background:var(--color-surface);border:1px solid var(--color-border);
+      border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;gap:10px;min-height:135px;
+      box-shadow:var(--shadow-sm);
+    }
+    .card h2{margin:0;font-size:17px;}
+    .card p{margin:0;color:var(--color-text-muted);font-size:13px;}
+    .card .actions{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+    .section-grid .actions .btn, .section-grid .actions button.btn {
+      background: var(--color-accent) !important;
+      color: #fff !important;
+      border-color: transparent !important;
+      min-width: 160px;
+      justify-content: center;
+    }
+    
+    /* Enhanced button styling for navigation */
+    .section-grid .actions {
+      display: flex !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+      margin-top: auto !important;
+    }
+    
+    .section-grid .actions .btn {
+      flex: 1 1 auto !important;
+      min-width: 140px !important;
+      max-width: 200px !important;
+    }
+    .hint{color:var(--color-text-muted);font-size:13px}
+
+    @media (max-width:1000px){ .section-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    @media (max-width:640px){ .section-grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <!-- DEVELOPMENT COPY BANNER -->
+  <div style="
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    text-align: center;
+    padding: 12px 20px;
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 3px solid #991b1b;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  ">
+    🚧 DEVELOPMENT COPY - /home/harley/Projects/PowderApp1.4-dev - LIVE RELOAD TEST 🚧
+  </div>
+  <div class="wrap">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="brand">
+        <img src="{{ branding_page_logo or url_for('static', filename='logos/ChaoticCPngNoBkgr.PNG') }}" alt="VPC Logo" style="height:50px;width:auto;object-fit:contain;">
+        <div>
+          <h1>Victoria Powder Coating - Chaotic Edition</h1>
+          <div class="sub">PowderApp 1.4</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <!-- Theme menu will be injected here by global-theme-menu.js -->
+        {% if is_admin %}
+          <span class="pill">Admin</span>
+          <a class="btn" href="/logout">Logout</a>
+        {% elif me_username %}
+          <span class="pill">User: {{ me_username }}</span>
+          <a class="btn" href="/logout">Logout</a>
+        {% else %}
+          <a class="btn" href="/login">Admin Login</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Sections -->
+    {% set has_operations = (is_admin or perms.see_intake or perms.see_railing or perms.see_job_screen) %}
+    {% set has_records = (is_admin or perms.see_jobs or perms.see_archived or perms.see_powders or perms.see_customers) %}
+    {% set has_admin_tools = session.get('is_admin') %}
+
+    {% if has_operations %}
+    <section class="section">
+      <div class="section-head">
+        <h2>Daily Operations</h2>
+        <p>Quick links for intake and production work.</p>
+      </div>
+      <div class="section-grid">
+        {% if is_admin or perms.see_intake %}
+        <div class="card">
+          <h2>Production Intake</h2>
+          <p>Log new jobs into the system.</p>
+          <div class="actions">
+            <a class="btn primary" href="/intake_form">Open Form</a>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if is_admin or perms.see_railing %}
+        <div class="card">
+          <h2>Railing Intake</h2>
+          <p>Capture railing-specific work orders.</p>
+          <div class="actions">
+            <a class="btn" href="/railing_intake">Railing Form</a>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if is_admin or perms.see_job_screen %}
+        <div class="card">
+          <h2>Sprayer Batches</h2>
+          <p>Run batches, track usage, update inventory.</p>
+          <div class="actions">
+            <a class="btn" href="/sprayer/hitlist">Hit List</a>
+            <a class="btn" href="/sprayer/batches">Batches</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Daily Hit List</h2>
+          <p>Control what shows on the production screen.</p>
+          <div class="actions">
+            <a class="btn" href="/jobs/screen">Open Hit List</a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if has_records %}
+    <section class="section">
+      <div class="section-head">
+        <h2>Records &amp; Tracking</h2>
+        <p>Manage jobs, customers, and powder inventory.</p>
+      </div>
+      <div class="section-grid">
+        {% if is_admin or perms.see_jobs %}
+        <div class="card">
+          <h2>Job Database</h2>
+          <p>Review active and completed work.</p>
+          <div class="actions">
+            <a class="btn primary" href="/jobs">Open Jobs</a>
+            <a class="btn" href="/jobs/kanban">Kanban Board</a>
+            <a class="btn" href="/jobs/completed">Completed</a>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if is_admin or perms.see_archived %}
+        <div class="card">
+          <h2>Archived Jobs</h2>
+          <p>Access long-term job history.</p>
+          <div class="actions">
+            <a class="btn" href="/jobs?archived=1">View Archive</a>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if is_admin or perms.see_powders %}
+        <div class="card">
+          <h2>Powder Inventory</h2>
+          <p>Maintain colors, stock, and specs.</p>
+          <div class="actions">
+            <a class="btn primary" href="/powders">Open Inventory</a>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if is_admin or perms.see_customers %}
+        <div class="card">
+          <h2>Customers</h2>
+          <p>Keep contact and account details current.</p>
+          <div class="actions">
+            <a class="btn primary" href="/customers">Customer List</a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if has_admin_tools %}
+    <section class="section">
+      <div class="section-head">
+        <h2>Admin &amp; Tools</h2>
+        <p>Configure the app and export data.</p>
+      </div>
+      <div class="section-grid">
+        {% if is_admin %}
+        <div class="card">
+          <h2>Admin Panel</h2>
+          <p>Feature toggles and appearance settings.</p>
+          <div class="actions">
+            <a class="btn primary" href="/admin">Open Admin</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Users</h2>
+          <p>Manage logins, roles, and permissions.</p>
+          <div class="actions">
+            <a class="btn" href="/admin/users">Manage Users</a>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if show_csv and session.get('is_admin') %}
+        <div class="card">
+          <h2>Data Exports</h2>
+          <p class="hint">Download CSV snapshots for offline work.</p>
+          <div class="actions">
+            <a class="btn" href="/jobs.csv">Jobs CSV</a>
+            <a class="btn" href="/powders.csv">Powders CSV</a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+
+  <!-- Unified theme system JS -->
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+</body>
+</html>

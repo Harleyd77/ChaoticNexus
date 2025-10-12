@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121826;
+      --panel-2: #0f1623;
+      --card: #1a2333;
+      --text: #e6eef7;
+      --muted: #9fb3c8;
+      --border: #20304a;
+      --accent: #4cc9f0;
+      --danger: #ef4444;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --radius: 16px;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: linear-gradient(180deg, var(--panel-2), var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header.topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: color-mix(in oklab, var(--panel), transparent 40%);
+      border-bottom: 1px solid #1f2a3b;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(6px);
+    }
+    .topbar .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar h1 {
+      font-size: 20px;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: #0f1726;
+      color: #dce6ff;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .2s ease, background .2s ease;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filters label {
+      display: flex;
+      flex-direction: column;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .filters input[type="text"],
+    .filters select {
+      margin-top: 4px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f1726;
+      color: var(--text);
+      min-width: 200px;
+    }
+    .filters .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    .kanban-board {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      align-items: stretch;
+    }
+    .kanban-column {
+      background: color-mix(in oklab, var(--panel), transparent 8%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 320px;
+    }
+    .kanban-column .col-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .kanban-column .col-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      color: #cfe3ff;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #29364f;
+      background: #182235;
+      color: #dce6ff;
+    }
+    .badge.timer { background: rgba(34,197,94,.15); border-color: rgba(34,197,94,.4); color: #4ade80; }
+    .dropzone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 6px;
+      border-radius: 12px;
+      background: color-mix(in oklab, var(--panel), transparent 35%);
+      min-height: 120px;
+      transition: border .2s ease, background .2s ease;
+    }
+    .dropzone.is-dragover {
+      border: 1px dashed var(--accent);
+      background: color-mix(in oklab, var(--panel), transparent 10%);
+    }
+    .kanban-empty {
+      border: 1px dashed rgba(148, 163, 184, .4);
+      color: var(--muted);
+      text-align: center;
+      padding: 18px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+    .kanban-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 8px 16px rgba(0,0,0,.18);
+      cursor: grab;
+    }
+    .kanban-card.is-dragging {
+      opacity: 0.6;
+      cursor: grabbing;
+    }
+    .kanban-card.is-pending {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .kanban-card.at-risk {
+      border-left: 3px solid var(--danger);
+    }
+    .kanban-card.is-running {
+      border-left: 3px solid var(--ok);
+    }
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 650;
+      margin: 0;
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .badge.status {
+      background: rgba(79, 70, 229, .18);
+      border-color: rgba(99, 102, 241, .45);
+      color: #a5b4fc;
+    }
+    .badge.priority {
+      background: rgba(217, 119, 6, .18);
+      border-color: rgba(217, 119, 6, .4);
+      color: #fbbf24;
+    }
+    .badge.color-chip {
+      background: rgba(45, 212, 191, .12);
+      border-color: rgba(45, 212, 191, .4);
+      color: #5eead4;
+    }
+    .badge.risk {
+      background: rgba(239, 68, 68, .18);
+      border-color: rgba(239, 68, 68, .5);
+      color: #fca5a5;
+    }
+    .badge.running {
+      background: rgba(34, 197, 94, .18);
+      border-color: rgba(34, 197, 94, .4);
+      color: #86efac;
+    }
+    .due-line {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .card-description {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.4;
+      color: color-mix(in srgb, var(--text) 70%, transparent);
+    }
+    .card-description[hidden] { display: none; }
+    .legend {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend .chip { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, .92);
+      color: #e2e8f0;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      border: 1px solid rgba(148, 163, 184, .3);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 20;
+    }
+    #toast.visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    #toast.error {
+      background: rgba(127, 29, 29, .92);
+      border-color: rgba(248, 113, 113, .6);
+      color: #fee2e2;
+    }
+    @media (max-width: 780px) {
+      .filters label { width: 100%; }
+      .filters input[type="text"], .filters select { width: 100%; min-width: 0; }
+      .kanban-board { grid-template-columns: 1fr; }
+    }
+  </style>
+  <title>{{ super() }} | Jobs Kanban</title>
+<script>
+    (function () {
+      try {
+        var match = document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var theme = (match ? decodeURIComponent(match[1]) : null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.backgroundColor = theme === 'dark' ? '#0e141b' : '#f7f9fc';
+      } catch (err) {}
+    })();
+  </script>
+<script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+<script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<header class="topbar">
+    <div class="row">
+      <h1>Jobs Kanban</h1>
+      <div class="actions" style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">
+        <a class="btn" href="/jobs">Table View</a>
+      </div>
+    </div>
+    <form class="filters" method="get">
+      <label>
+        Search
+        <input type="text" name="search" value="{{ filters.search }}" placeholder="Search company, contact, color, notes" autocomplete="off" spellcheck="false" />
+      </label>
+      <label>
+        Color
+        <select name="color">
+          <option value="">All colors</option>
+          {% for color in color_options %}
+          <option value="{{ color }}" {% if color == filters.color %}selected{% endif %}>{{ color }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Status
+        <select name="status">
+          <option value="">All statuses</option>
+          {% for status in status_options %}
+          <option value="{{ status }}" {% if status == filters.status %}selected{% endif %}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <div class="actions">
+        <button class="btn" type="submit">Apply</button>
+        <a class="btn" href="{{ url_for('jobs.jobs_kanban') }}">Reset</a>
+      </div>
+    </form>
+    <div class="legend">
+      <span><span class="chip" style="background: var(--danger);"></span> Due within 24h</span>
+      <span><span class="chip" style="background: var(--ok);"></span> Timer department</span>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="kanban-board">
+      {% for column in columns_meta %}
+      <section class="kanban-column" data-column="{{ column.key }}">
+        <div class="col-head">
+          <div class="col-title">{{ column.label }}</div>
+          <span class="badge" data-count-for="{{ column.key }}">{{ columns[column.key]|length }}</span>
+          {% if column.timer %}
+          <span class="badge timer">Tracks Time</span>
+          {% endif %}
+        </div>
+        <div class="dropzone" data-dropzone="{{ column.key }}">
+          {% for job in columns[column.key] %}
+          <article class="kanban-card{% if job.at_risk %} at-risk{% endif %}{% if job.is_running %} is-running{% endif %}" draggable="true" data-job-id="{{ job.id }}" data-department="{{ column.key }}" data-status="{{ job.status_slug }}">
+            <div class="card-header">
+              <h3 class="card-title" data-field="title">#{{ job.id }} - {{ job.company or 'No Company' }}</h3>
+              <div class="card-meta">
+                <span class="badge status" data-field="status">{{ job.status or 'Unknown' }}</span>
+                <span class="badge priority" data-field="priority"{% if not job.priority %} hidden{% endif %}>{{ job.priority }}</span>
+                <span class="badge color-chip" data-field="color"{% if not job.color %} hidden{% endif %}>{{ job.color }}</span>
+                <span class="badge risk" data-field="risk"{% if not job.at_risk %} hidden{% endif %}>At Risk</span>
+                <span class="badge running" data-field="running"{% if not job.is_running %} hidden{% endif %}>In Progress</span>
+              </div>
+            </div>
+            <div class="due-line">
+              <span>Due:</span>
+              <span data-field="due">{{ job.due_pretty or '-' }}</span>
+            </div>
+            <p class="card-description" data-field="description"{% if not job.description %} hidden{% endif %}>{{ job.description }}</p>
+            <div class="card-actions" style="margin-top: 8px; display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+              <select onchange="updateJobStatus({{ job.id }}, this.value)" style="font-size: 11px; padding: 2px 4px; background: var(--panel, #111923); color: var(--text, #e6edf3); border: 1px solid var(--border, #1f2a37); border-radius: 4px; min-width: 80px;">
+                <option value="">Set Status</option>
+                <option value="In Progress" {% if job.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                <option value="Waiting" {% if job.status == 'Waiting' %}selected{% endif %}>Waiting</option>
+                <option value="On Hold" {% if job.status == 'On Hold' %}selected{% endif %}>On Hold</option>
+                <option value="Ready" {% if job.status == 'Ready' %}selected{% endif %}>Ready</option>
+                <option value="Complete" {% if job.status == 'Complete' %}selected{% endif %}>Complete</option>
+              </select>
+              <a href="/jobs/{{ job.id }}/edit" class="btn" style="font-size: 11px; padding: 4px 8px;">Edit</a>
+            </div>
+          </article>
+          {% endfor %}
+          <div class="kanban-empty" data-empty="{{ column.key }}"{% if columns[column.key]|length %} hidden{% endif %}>No jobs here</div>
+        </div>
+      </section>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    console.log('Kanban JavaScript loading...');
+    const dropzones = document.querySelectorAll('[data-dropzone]');
+    const cards = document.querySelectorAll('.kanban-card');
+    const toast = document.getElementById('toast');
+    let draggedCard = null;
+    
+    console.log('Found dropzones:', dropzones.length);
+    console.log('Found cards:', cards.length);
+    console.log('Found toast element:', !!toast);
+
+    function showToast(message, type = 'success') {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.remove('error');
+      if (type === 'error') {
+        toast.classList.add('error');
+      }
+      toast.classList.add('visible');
+      setTimeout(() => {
+        toast.classList.remove('visible');
+        toast.classList.remove('error');
+      }, 2200);
+    }
+
+    function refreshCounts() {
+      dropzones.forEach((zone) => {
+        const key = zone.dataset.dropzone;
+        const count = zone.querySelectorAll('.kanban-card').length;
+        const counter = document.querySelector(`[data-count-for="${key}"]`);
+        if (counter) {
+          counter.textContent = count;
+        }
+        const emptyState = zone.querySelector('.kanban-empty');
+        if (emptyState) {
+          emptyState.hidden = count > 0;
+        }
+      });
+    }
+
+    function updateCardFromPayload(card, payload) {
+      if (!card || !payload) return;
+      card.dataset.department = payload.department || '';
+      card.dataset.status = payload.status_slug || '';
+      card.classList.toggle('at-risk', !!payload.at_risk);
+      card.classList.toggle('is-running', !!payload.is_running);
+
+      const title = card.querySelector('[data-field="title"]');
+      if (title) {
+        title.textContent = `#${payload.id} - ${payload.company || 'No Company'}`;
+      }
+      const status = card.querySelector('[data-field="status"]');
+      if (status) {
+        status.textContent = payload.status || 'Unknown';
+        status.hidden = !payload.status;
+      }
+      const priority = card.querySelector('[data-field="priority"]');
+      if (priority) {
+        if (payload.priority) {
+          priority.textContent = payload.priority;
+          priority.hidden = false;
+        } else {
+          priority.hidden = true;
+        }
+      }
+      const color = card.querySelector('[data-field="color"]');
+      if (color) {
+        if (payload.color) {
+          color.textContent = payload.color;
+          color.hidden = false;
+        } else {
+          color.hidden = true;
+        }
+      }
+      const risk = card.querySelector('[data-field="risk"]');
+      if (risk) {
+        risk.hidden = !payload.at_risk;
+      }
+      const running = card.querySelector('[data-field="running"]');
+      if (running) {
+        running.hidden = !payload.is_running;
+      }
+      const due = card.querySelector('[data-field="due"]');
+      if (due) {
+        due.textContent = payload.due_pretty || '-';
+      }
+      const description = card.querySelector('[data-field="description"]');
+      if (description) {
+        if (payload.description) {
+          description.textContent = payload.description;
+          description.hidden = false;
+        } else {
+          description.hidden = true;
+        }
+      }
+    }
+
+    cards.forEach((card) => {
+      card.addEventListener('dragstart', (event) => {
+        console.log('Drag started on card:', card.dataset.jobId);
+        draggedCard = card;
+        event.dataTransfer.setData('text/plain', card.dataset.jobId);
+        event.dataTransfer.effectAllowed = 'move';
+        card.classList.add('is-dragging');
+      });
+      card.addEventListener('dragend', () => {
+        console.log('Drag ended');
+        card.classList.remove('is-dragging');
+        draggedCard = null;
+      });
+    });
+
+    dropzones.forEach((zone) => {
+      zone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        zone.classList.add('is-dragover');
+        event.dataTransfer.dropEffect = 'move';
+      });
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('is-dragover');
+      });
+      zone.addEventListener('drop', async (event) => {
+        event.preventDefault();
+        zone.classList.remove('is-dragover');
+        const jobId = event.dataTransfer.getData('text/plain') || (draggedCard && draggedCard.dataset.jobId);
+        console.log('Drop event - jobId:', jobId);
+        if (!jobId) {
+          console.log('No jobId found');
+          return;
+        }
+        const card = document.querySelector(`.kanban-card[data-job-id="${jobId}"]`);
+        if (!card) {
+          console.log('Card not found for jobId:', jobId);
+          return;
+        }
+        const targetDept = zone.dataset.dropzone;
+        console.log('Target department:', targetDept);
+        if (!targetDept) {
+          console.log('No target department');
+          return;
+        }
+        if (card.dataset.department === targetDept) {
+          zone.appendChild(card);
+          refreshCounts();
+          return;
+        }
+        try {
+          console.log('Making API call to move job:', { job_id: Number(jobId), department: targetDept });
+          card.classList.add('is-pending');
+          const response = await fetch('/api/jobs/kanban/move', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ job_id: Number(jobId), department: targetDept })
+          });
+          console.log('API response status:', response.status);
+          const data = await response.json().catch(() => ({}));
+          console.log('API response data:', data);
+          if (!response.ok || !data.ok) {
+            throw new Error((data && data.error) || 'Unable to move job');
+          }
+          updateCardFromPayload(card, data.job);
+          zone.appendChild(card);
+          showToast(`Moved job #${data.job.id} to ${data.job.department_label}`);
+        } catch (err) {
+          console.error('API call failed:', err);
+          showToast(err.message || 'Unable to move job', 'error');
+        } finally {
+          card.classList.remove('is-pending');
+          refreshCounts();
+        }
+      });
+    });
+
+    refreshCounts();
+
+    // Function to update job status
+    window.updateJobStatus = async function(jobId, newStatus) {
+      if (!newStatus) return;
+      
+      try {
+        const response = await fetch(`/jobs/${jobId}/edit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `status=${encodeURIComponent(newStatus)}`
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        // Update the status badge on the card
+        const card = document.querySelector(`[data-job-id="${jobId}"]`);
+        if (card) {
+          const statusBadge = card.querySelector('[data-field="status"]');
+          if (statusBadge) {
+            statusBadge.textContent = newStatus;
+            statusBadge.hidden = !newStatus;
+          }
+        }
+        
+        showToast(`Status updated to "${newStatus}"`, 'success');
+      } catch (err) {
+        console.error('Failed to update status:', err);
+        showToast('Failed to update status', 'error');
+      }
+    };
+  </script>
+{% endblock %}

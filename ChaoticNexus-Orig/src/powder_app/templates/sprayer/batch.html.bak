@@ -1,0 +1,362 @@
+﻿<!doctype html>
+<html lang="en" data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="utf-8" />
+  <title>Sprayer Batch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="{{ branding_favicon or url_for('static', filename='logos/favicon-1.png.PNG') }}" />
+  <meta http-equiv="Content-Language" content="en" />
+  <meta name="google" content="notranslate" />
+  <meta name="color-scheme" content="dark light" />
+  <script>
+    (function () {
+      try {
+        var match = document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var theme = (match ? decodeURIComponent(match[1]) : null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.backgroundColor = theme === 'dark' ? '#0e141b' : '#f7f9fc';
+      } catch (err) {}
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121826;
+      --panel-2: #0f1623;
+      --card: #1a2333;
+      --text: #e6eef7;
+      --muted: #9fb3c8;
+      --border: #20304a;
+      --accent: #4cc9f0;
+      --radius: 16px;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: linear-gradient(180deg, var(--panel-2), var(--bg));
+      color: var(--text);
+    }
+    header {
+      position: sticky;
+      top: 0;
+      background: #0f1623cc;
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #1f2a3b;
+      padding: 10px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: #0f1726;
+      color: #d9e7ff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+    .card {
+      background: #121826;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .mini {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .board {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr 1fr;
+    }
+    .column {
+      background: linear-gradient(180deg, var(--panel), #0e1421);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      min-height: 40vh;
+    }
+    .col-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 6px 10px;
+    }
+    .col-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      color: #cfe3ff;
+    }
+    .col-count {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+    .job-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 14px 28px rgba(0,0,0,.12);
+    }
+    .card-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: start;
+    }
+    .job-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .job-title .sub {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+    .job-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #1b2430;
+      color: #cfe3ff;
+      border: 1px solid #2a3b58;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .board {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+</head>
+<body>
+  <!-- Theme menu will be injected by global-theme-menu.js -->
+
+  <header>
+    <a class="btn" href="/sprayer/batches">Back</a>
+    <div style="font-weight:700;">Batch #{{ sb.id }}</div>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+      <div class="mini">Started {{ sb.started_at }}</div>
+      {% if is_admin and not sb.ended_at %}
+      <div class="batch-controls" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn" type="button" onclick="controlBatch('start_all', this)">Start all</button>
+        <button class="btn" type="button" onclick="controlBatch('pause_all', this)">Pause all</button>
+        <button class="btn" type="button" onclick="controlBatch('resume_all', this)">Resume all</button>
+        <button class="btn" type="button" onclick="controlBatch('stop_all', this)">Stop all</button>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="mini">Supplier: <strong>{{ sb.manufacturer or '—' }}</strong> — Color: <strong>{{ sb.powder_color }}</strong></div>
+      <div class="mini">Batch weight start: <strong>{{ '%.2f'|format(sb.start_weight_kg) }} kg</strong></div>
+    </div>
+
+    <div class="board">
+      <section class="column">
+        <div class="col-head">
+          <div class="col-title">In This Batch</div>
+          <div class="col-count">{{ attached|length }}</div>
+        </div>
+        <div class="list">
+          {% for j in attached %}
+          <article class="job-card">
+            <div class="card-header">
+              <div class="job-title">#{{ j.id }} — {{ j.company or '' }}<span class="sub">{{ j.color and ('— ' ~ j.color) or '' }}</span></div>
+              <div class="job-meta">Due: {{ j.due_by or '—' }}</div>
+            </div>
+            {% if j.description %}
+            <div class="mini" style="margin-top:6px;">{{ j.description }}</div>
+            {% endif %}
+            <div class="toolbar">
+              <span class="pill">Start kg {{ '%.2f'|format(sb.start_weight_kg) }}</span>
+              {% set running = j.is_running|default(false) %}
+              {% set paused = j.is_paused|default(false) %}
+              {% set complete = j.is_complete|default(j.end_ts is not none) %}
+              {% set tracked_minutes = j.elapsed_minutes if j.elapsed_minutes is defined else (j.time_min or 0) %}
+              {% if tracked_minutes %}
+                <span class="pill">Tracked {{ '%.1f'|format(tracked_minutes) }} min</span>
+              {% endif %}
+              {% if running %}
+                <span class="pill" style="background:#15803d;border-color:#15803d;">Running</span>
+              {% elif paused %}
+                <span class="pill" style="background:#92400e;border-color:#92400e;">Paused</span>
+              {% elif complete %}
+                <span class="pill" style="background:#334155;border-color:#334155;">Completed</span>
+              {% endif %}
+              {% if j.start_ts %}
+                <span class="pill">Start {{ j.start_ts[11:16] }}</span>
+              {% endif %}
+              {% if j.end_ts %}
+                <span class="pill">End {{ j.end_ts[11:16] }}</span>
+              {% endif %}
+              {% if is_admin and not sb.ended_at and not complete %}
+                {% if running %}
+                  <button class="btn" type="button" onclick="markEnd({{ sb.id }}, {{ j.id }}, this)">Stop</button>
+                {% else %}
+                  <button class="btn" type="button" onclick="markStart({{ sb.id }}, {{ j.id }}, this)">{{ 'Resume' if paused else 'Start' }}</button>
+                  <button class="btn" type="button" onclick="markEnd({{ sb.id }}, {{ j.id }}, this)">Stop</button>
+                {% endif %}
+              {% endif %}
+              <a class="btn" href="/jobs/{{ j.id }}" title="View job details">Details</a>
+              {% if is_admin and not sb.ended_at %}
+              <form method="post" action="/sprayer/batches/{{ sb.id }}/job/{{ j.id }}/remove" style="display:inline;">
+                <button class="btn" type="submit">Remove</button>
+              </form>
+              {% endif %}
+            </div>
+          </article>
+          {% endfor %}
+          {% if not attached %}<div class="mini">No jobs added yet.</div>{% endif %}
+        </div>
+      </section>
+
+      <section class="column">
+        <div class="col-head">
+          <div class="col-title">Available for This Color</div>
+          <div class="col-count">{{ candidates|length }}</div>
+        </div>
+        <div class="list">
+          {% for j in candidates %}
+          <article class="job-card">
+            <div class="card-header">
+              <div class="job-title">#{{ j.id }} — {{ j.company or '' }}<span class="sub">{{ j.color and ('— ' ~ j.color) or '' }}</span></div>
+              <div class="job-meta">Due: {{ j.due_by or '—' }}</div>
+            </div>
+            {% if j.description %}
+            <div class="mini" style="margin-top:6px;">{{ j.description }}</div>
+            {% endif %}
+            {% if is_admin and not sb.ended_at %}
+            <div class="toolbar">
+              <form method="post" action="/sprayer/batches/{{ sb.id }}/add_job">
+                <input type="hidden" name="job_id" value="{{ j.id }}" />
+                <button class="btn" type="submit">Add to Batch</button>
+              </form>
+              <a class="btn" href="/jobs/{{ j.id }}" title="View job details">Details</a>
+            </div>
+            {% endif %}
+          </article>
+          {% endfor %}
+          {% if not candidates %}<div class="mini">No matching jobs.</div>{% endif %}
+        </div>
+      </section>
+    </div>
+
+    {% if is_admin %}
+    <div class="card">
+      {% if not sb.ended_at %}
+      <form method="post" action="/sprayer/batches/{{ sb.id }}/close" style="display:grid; gap:10px;">
+        <div class="mini">When all jobs for this color are done, weigh the hopper and enter the end weight:</div>
+        <div>
+          <label>
+            End weight (kg)
+            <input name="end_weight_kg" type="number" step="0.01" min="0" required />
+          </label>
+        </div>
+        {% if attached %}
+        <div class="mini">Tick jobs to update status on close:</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          {% for j in attached %}
+          <label class="job-card" style="display:flex;align-items:center;gap:8px;">
+            <span style="flex:1;">#{{ j.id }} — {{ j.company or '' }}</span>
+            <span class="mini">Sprayed</span>
+            <input type="checkbox" name="mark_sprayed" value="{{ j.id }}" />
+            <span class="mini" style="margin-left:8px;">Finished</span>
+            <input type="checkbox" name="mark_finished" value="{{ j.id }}" />
+          </label>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <button class="btn" type="submit">Close Batch &amp; Update Inventory</button>
+        <div class="mini">Closing computes used kg (start − end), allocates time per job from start → end, and decrements powder inventory.</div>
+      </form>
+      {% else %}
+      <div class="mini">Closed {{ sb.ended_at }} — Used {{ '%.2f'|format(sb.used_kg or 0) }} kg — Duration {{ '%.0f'|format(sb.duration_min or 0) }} min</div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <script>
+    const BATCH_ID = {{ sb.id }};
+
+    async function controlBatch(action, button) {
+      if (button) {
+        button.disabled = true;
+      }
+      try {
+        const response = await fetch(`/sprayer/batches/${BATCH_ID}/${action}`, { method: 'POST' });
+        if (!response.ok) throw new Error(await response.text());
+        window.location.reload();
+      } catch (err) {
+        alert('Failed: ' + (err.message || err));
+      } finally {
+        if (button) {
+          button.disabled = false;
+        }
+      }
+    }
+
+    async function markStart(batchId, jobId, button) {
+      try {
+        const response = await fetch(`/sprayer/batches/${batchId}/job/${jobId}/start`, { method: 'POST' });
+        if (!response.ok) throw new Error(await response.text());
+        window.location.reload();
+      } catch (err) {
+        alert('Failed: ' + (err.message || err));
+      }
+    }
+
+    async function markEnd(batchId, jobId, button) {
+      try {
+        const response = await fetch(`/sprayer/batches/${batchId}/job/${jobId}/end`, { method: 'POST' });
+        if (!response.ok) throw new Error(await response.text());
+        window.location.reload();
+      } catch (err) {
+        alert('Failed: ' + (err.message || err));
+      }
+    }
+  </script>
+</body>
+</html>

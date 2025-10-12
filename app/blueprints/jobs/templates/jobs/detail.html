@@ -1,0 +1,143 @@
+{% extends "_layouts/base.html" %}
+
+{% block title %}Job #{{ job.id }}{% endblock %}
+
+{% block content %}
+<section class="space-y-8">
+  <header class="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-5 shadow-lg shadow-slate-950/40 ring-1 ring-white/5">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Job Detail</p>
+      <h1 class="text-2xl font-semibold tracking-tight text-slate-100">
+        Job #{{ job.id }} &mdash; {{ job.customer }}
+      </h1>
+      <p class="text-sm text-slate-400">
+        Reference {{ job.reference or "N/A" }} • Status {{ job.status or "Unknown" }} • Due {{ job.due_pretty or job.due or "N/A" }}
+      </p>
+    </div>
+    <div class="ml-auto flex flex-wrap items-center gap-3">
+      <a
+        href="{{ url_for('jobs.index') }}"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+      >
+        Back to Jobs
+      </a>
+      <a
+        href="{{ url_for('jobs.kanban') }}"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+      >
+        Open Kanban
+      </a>
+      <a
+        href="#"
+        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+        data-pending-route
+        data-pending-target="/jobs/{{ job.id }}/edit"
+      >
+        Edit Job
+      </a>
+    </div>
+  </header>
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    <section class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">Overview</h2>
+      <dl class="mt-4 space-y-3 text-sm text-slate-300">
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Customer</dt>
+          <dd class="mt-1 text-slate-100">{{ job.customer or "—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Contact</dt>
+          <dd class="mt-1 text-slate-100">{{ job.contact_name or "—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Purchase Order</dt>
+          <dd class="mt-1 text-slate-100">{{ job.reference or "—" }}</dd>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2">
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Due By</dt>
+            <dd class="mt-1 text-slate-100">{{ job.due_pretty or job.due or "—" }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Department</dt>
+            <dd class="mt-1 text-slate-100">{{ job.department or "—" }}</dd>
+          </div>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Coating / Colour</dt>
+          <dd class="mt-1 text-slate-100">{{ job.coating or job.color or "—" }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">Notes</h2>
+      <div class="mt-4 space-y-4 text-sm leading-6 text-slate-300">
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Description</h3>
+          <p class="mt-2 whitespace-pre-line">{{ job.description or "No description captured." }}</p>
+        </div>
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Internal Notes</h3>
+          <p class="mt-2 whitespace-pre-line">{{ job.notes or "No internal notes yet." }}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">Photos</h2>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+        data-pending-route
+        data-pending-target="/jobs/{{ job.id }}/photos"
+      >
+        Manage Photos
+      </button>
+    </div>
+    {% if not photos %}
+      <div class="mt-4 rounded-xl border border-slate-800/60 bg-slate-950/60 p-8 text-center text-sm text-slate-400">
+        No photos uploaded yet.
+      </div>
+    {% else %}
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {% for photo in photos %}
+          <figure class="overflow-hidden rounded-xl border border-slate-800/70 bg-slate-950/70">
+            <div class="aspect-video bg-slate-800">
+              <img
+                src="{{ photo.url }}"
+                alt="{{ photo.label }}"
+                class="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <figcaption class="px-3 py-2 text-xs text-slate-300">{{ photo.label }}</figcaption>
+          </figure>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  <footer class="flex flex-wrap gap-3">
+    <a
+      href="#"
+      class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+      data-pending-route
+      data-pending-target="/jobs/{{ job.id }}/worksheet"
+    >
+      Generate Work Order
+    </a>
+    <a
+      href="#"
+      class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+      data-pending-route
+      data-pending-target="/jobs/{{ job.id }}/history"
+    >
+      View History
+    </a>
+  </footer>
+</section>
+{% endblock %}

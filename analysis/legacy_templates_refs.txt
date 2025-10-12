@@ -1,0 +1,344 @@
+# analysis/legacy_templates_refs.txt
+Template src/powder_app/templates/MeasurementForm(Railings).html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/RailingIntake.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: customer_portal.dashboard, static
+
+Template src/powder_app/templates/_components/macros.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: Alert, Badge, Button, Card, Divider, Field, Section, Skeleton, Stat, Table
+  url_for endpoints: -
+
+Template src/powder_app/templates/_powder_form_fields.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: -
+
+Template src/powder_app/templates/admin_users.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/auth/login.html
+  extends: auth/login_base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: auth.logout_customer, customer_portal.dashboard, customer_portal.forgot_password, customer_portal.register, intake.intake_form
+
+Template src/powder_app/templates/auth/login_base.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/base.html
+  extends: -
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: base.nav, static
+
+Template src/powder_app/templates/customer_portal/base.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: customer_portal.dashboard, customer_portal.jobs_list, customer_portal.logout, customer_portal.profile, intake.intake_form, intake.railing_intake
+
+Template src/powder_app/templates/customer_portal/dashboard.html
+  extends: customer_portal/base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: customer_portal.job_detail, customer_portal.jobs_list, customer_portal.profile, intake.intake_form, intake.railing_intake
+
+Template src/powder_app/templates/customer_portal/job_detail.html
+  extends: customer_portal/base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: customer_portal.dashboard, customer_portal.edit_job, customer_portal.jobs_list
+
+Template src/powder_app/templates/customer_portal/job_edit.html
+  extends: customer_portal/base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: customer_portal.dashboard, customer_portal.job_detail, customer_portal.jobs_list
+
+Template src/powder_app/templates/customer_portal/job_submit.html
+  extends: customer_portal/base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: customer_portal.dashboard
+
+Template src/powder_app/templates/customer_portal/jobs_list.html
+  extends: customer_portal/base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: customer_portal.edit_job, customer_portal.job_detail, customer_portal.jobs_list, intake.intake_form, intake.railing_intake
+
+Template src/powder_app/templates/customer_portal/profile.html
+  extends: customer_portal/base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: -
+
+Template src/powder_app/templates/customer_portal/register.html
+  extends: customer_portal/base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: auth.login
+
+Template src/powder_app/templates/customers/admin_account_detail.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/customers/admin_accounts.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/customers/index.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/customers/profile.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/error.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: nav, static
+
+Template src/powder_app/templates/intake_form.backup.html
+  extends: -
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: -
+
+Template src/powder_app/templates/intake_form.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: customer_portal.dashboard, static
+
+Template src/powder_app/templates/intake_form.test.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/inventory.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: inventory.inventory_history, inventory.reorder_list, powders.powders_page
+
+Template src/powder_app/templates/inventory_history.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: inventory.inventory_page, powders.powder_edit
+
+Template src/powder_app/templates/job_edit.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/job_view.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/job_workorder.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: job_workorder_save, jobs_board, static
+
+Template src/powder_app/templates/jobs.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/jobs_kanban.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: jobs.jobs_kanban, static
+
+Template src/powder_app/templates/nav.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/powder_edit.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/powders.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/print_templates_admin.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: admin.admin_panel, jobs.jobs_board, static
+
+Template src/powder_app/templates/react_app.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/react_demo.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/reorder_list.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: inventory.inventory_history, inventory.inventory_page, powders.powder_edit
+
+Template src/powder_app/templates/sprayer/batch.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/sprayer/batches.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/sprayer/hitlist.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/sprayer_batch.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static
+
+Template src/powder_app/templates/sprayer_batches.html
+  extends: base.html
+  includes: -
+  from_imports: -
+  import_as: -
+  macros_defined: -
+  url_for endpoints: static

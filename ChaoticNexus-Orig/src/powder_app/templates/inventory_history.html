@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory History - {{ powder.powder_color }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Inventory History</h1>
+            <p class="text-gray-600 mt-2">{{ powder.powder_color }}</p>
+        </div>
+        <a href="{{ url_for('inventory.inventory_page') }}" 
+           class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Inventory
+        </a>
+    </div>
+
+    <!-- Current Stock Summary -->
+    <div class="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ history[0].new_value if history else 'N/A' }} kg</div>
+                <div class="text-sm text-gray-600">Current Stock</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ history|length }}</div>
+                <div class="text-sm text-gray-600">Total Changes</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">
+                    {% if history %}
+                        {{ history[-1].created_at[:10] if history[-1].created_at else 'N/A' }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+                <div class="text-sm text-gray-600">Last Updated</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Timeline -->
+    <div class="bg-white rounded-lg shadow-sm border">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">Change History</h2>
+        </div>
+        
+        {% if history %}
+        <div class="p-6">
+            <div class="flow-root">
+                <ul class="-mb-8">
+                    {% for record in history %}
+                    <li>
+                        <div class="relative pb-8">
+                            {% if not loop.last %}
+                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                            {% endif %}
+                            <div class="relative flex space-x-3">
+                                <div>
+                                    <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white
+                                        {% if record.change_type == 'manual_update' %}bg-blue-500{% elif 'adjustment' in record.change_type %}bg-green-500{% else %}bg-gray-500{% endif %}">
+                                        <i class="fas 
+                                            {% if record.change_type == 'manual_update' %}fa-edit
+                                            {% elif 'adjustment' in record.change_type %}fa-plus-minus
+                                            {% else %}fa-clock{% endif %} 
+                                            text-white text-sm"></i>
+                                    </span>
+                                </div>
+                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                    <div>
+                                        <p class="text-sm text-gray-900">
+                                            <span class="font-medium">
+                                                {% if record.change_type == 'manual_update' %}
+                                                    Manual Update
+                                                {% elif record.change_type == 'adjustment_add' %}
+                                                    Stock Added
+                                                {% elif record.change_type == 'adjustment_subtract' %}
+                                                    Stock Removed
+                                                {% else %}
+                                                    {{ record.change_type|title }}
+                                                {% endif %}
+                                            </span>
+                                            {% if record.old_value is not none and record.new_value is not none %}
+                                                <span class="text-gray-600">
+                                                    from {{ record.old_value }} kg to {{ record.new_value }} kg
+                                                </span>
+                                            {% elif record.new_value is not none %}
+                                                <span class="text-gray-600">
+                                                    set to {{ record.new_value }} kg
+                                                </span>
+                                            {% endif %}
+                                        </p>
+                                        {% if record.notes %}
+                                        <p class="text-sm text-gray-600 mt-1">{{ record.notes }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                        <time datetime="{{ record.created_at }}">
+                                            {{ record.created_at[:19] if record.created_at else 'Unknown' }}
+                                        </time>
+                                        {% if record.created_by %}
+                                        <p class="text-xs">{{ record.created_by }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% else %}
+        <div class="p-12 text-center">
+            <i class="fas fa-history text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No history found</h3>
+            <p class="text-gray-600">This powder hasn't had any inventory changes yet.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    {% if is_admin %}
+    <div class="mt-8 bg-white rounded-lg shadow-sm border p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+        <div class="flex space-x-4">
+            <button onclick="openUpdateModal()" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-edit mr-2"></i>Update Stock
+            </button>
+            <button onclick="openAdjustModal()" 
+                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-plus-minus mr-2"></i>Adjust Stock
+            </button>
+            <a href="{{ url_for('powders.powder_edit', pow_id=history[0].powder_id if history else 0) }}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-cog mr-2"></i>Edit Powder
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Update Stock Modal -->
+<div id="updateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Update Stock Level</h3>
+                <form id="updateForm">
+                    <input type="hidden" name="powder_id" value="{{ history[0].powder_id if history else '' }}">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Powder:</label>
+                        <p class="text-gray-900">{{ powder.powder_color }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="updateStock" class="block text-sm font-medium text-gray-700 mb-2">Stock Level (kg):</label>
+                        <input type="number" id="updateStock" name="on_hand_kg" step="0.1" min="0" required
+                               value="{{ history[0].new_value if history else 0 }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="updateNotes" class="block text-sm font-medium text-gray-700 mb-2">Notes (optional):</label>
+                        <textarea id="updateNotes" name="notes" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeUpdateModal()" 
+                                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Update Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Adjust Stock Modal -->
+<div id="adjustModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Adjust Stock Level</h3>
+                <form id="adjustForm">
+                    <input type="hidden" name="powder_id" value="{{ history[0].powder_id if history else '' }}">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Powder:</label>
+                        <p class="text-gray-900">{{ powder.powder_color }}</p>
+                        <p class="text-sm text-gray-600">Current: {{ history[0].new_value if history else 0 }} kg</p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Adjustment Type:</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="adjustment_type" value="add" checked class="mr-2">
+                                <span class="text-sm">Add to stock</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="adjustment_type" value="subtract" class="mr-2">
+                                <span class="text-sm">Remove from stock</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="adjustAmount" class="block text-sm font-medium text-gray-700 mb-2">Amount (kg):</label>
+                        <input type="number" id="adjustAmount" name="adjustment" step="0.1" min="0" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="adjustNotes" class="block text-sm font-medium text-gray-700 mb-2">Notes (optional):</label>
+                        <textarea id="adjustNotes" name="notes" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeAdjustModal()" 
+                                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                            Adjust Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Modal functions
+function openUpdateModal() {
+    document.getElementById('updateModal').classList.remove('hidden');
+}
+
+function closeUpdateModal() {
+    document.getElementById('updateModal').classList.add('hidden');
+    document.getElementById('updateForm').reset();
+}
+
+function openAdjustModal() {
+    document.getElementById('adjustModal').classList.remove('hidden');
+}
+
+function closeAdjustModal() {
+    document.getElementById('adjustModal').classList.add('hidden');
+    document.getElementById('adjustForm').reset();
+}
+
+// Form submissions
+document.getElementById('updateForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch(`/inventory/${formData.get('powder_id')}/update`, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error updating inventory');
+        }
+    });
+});
+
+document.getElementById('adjustForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch(`/inventory/${formData.get('powder_id')}/adjust`, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error adjusting inventory');
+        }
+    });
+});
+</script>
+{% endblock %}

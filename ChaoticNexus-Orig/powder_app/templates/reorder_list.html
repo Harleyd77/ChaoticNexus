@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Reorder List{% endblock %}
+
+{% block extra_head %}
+<style>
+.priority-out { border-left: 4px solid #dc2626; }
+.priority-low { border-left: 4px solid #d97706; }
+.reorder-card {
+    transition: all 0.2s ease-in-out;
+}
+.reorder-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Reorder List</h1>
+            <p class="text-gray-600 mt-2">Powders that need to be reordered</p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="printReorderList()" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-print mr-2"></i>Print List
+            </button>
+            <button onclick="exportReorderList()" 
+                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-download mr-2"></i>Export CSV
+            </button>
+            <a href="{{ url_for('inventory.inventory_page') }}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Inventory
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ total_items }}</div>
+                <div class="text-sm text-gray-600">Total Items to Reorder</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600">{{ reorder_items|selectattr('on_hand_kg', 'le', 0)|list|length + reorder_items|selectattr('in_stock', 'le', 0)|list|length }}</div>
+                <div class="text-sm text-gray-600">Out of Stock</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ total_items - (reorder_items|selectattr('on_hand_kg', 'le', 0)|list|length + reorder_items|selectattr('in_stock', 'le', 0)|list|length) }}</div>
+                <div class="text-sm text-gray-600">Low Stock</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reorder Items -->
+    {% if reorder_items %}
+    <div class="space-y-4">
+        {% for item in reorder_items %}
+        <div class="reorder-card bg-white border rounded-lg p-6 {% if (item.on_hand_kg or 0) <= 0 or (item.in_stock or 0) <= 0 %}priority-out{% else %}priority-low{% endif %}">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ item.powder_color }}</h3>
+                        {% if (item.on_hand_kg or 0) <= 0 or (item.in_stock or 0) <= 0 %}
+                            <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">OUT OF STOCK</span>
+                        {% else %}
+                            <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded">LOW STOCK</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium text-gray-700">Manufacturer:</span>
+                            <span class="text-gray-900">{{ item.manufacturer or 'N/A' }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Product Code:</span>
+                            <span class="text-gray-900">{{ item.product_code or 'N/A' }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Color Family:</span>
+                            <span class="text-gray-900">{{ item.color_family or 'N/A' }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-3">
+                        <div>
+                            <span class="font-medium text-gray-700">Current Stock:</span>
+                            <span class="text-gray-900">{{ item.on_hand_kg or item.in_stock or 0 }} kg</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Box Weight:</span>
+                            <span class="text-gray-900">{{ item.weight_box_kg or 'N/A' }} kg</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Price per kg:</span>
+                            <span class="text-gray-900">${{ item.price_per_kg or 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ml-6 flex flex-col space-y-2">
+                    <button onclick="markAsOrdered({{ item.id }})" 
+                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm font-medium">
+                        <i class="fas fa-check mr-1"></i>Mark as Ordered
+                    </button>
+                    <a href="{{ url_for('powders.powder_edit', pow_id=item.id) }}" 
+                       class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium text-center">
+                        <i class="fas fa-edit mr-1"></i>Edit Powder
+                    </a>
+                    <a href="{{ url_for('inventory.inventory_history', powder_id=item.id) }}" 
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium text-center">
+                        <i class="fas fa-history mr-1"></i>History
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white border rounded-lg p-12 text-center">
+        <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">All stocked up!</h3>
+        <p class="text-gray-600">No powders need to be reordered at this time.</p>
+    </div>
+    {% endif %}
+
+    <!-- Order Notes Section -->
+    {% if reorder_items %}
+    <div class="mt-8 bg-white border rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Order Notes</h3>
+        <textarea id="orderNotes" rows="4" placeholder="Add notes for your powder order..."
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+        <div class="mt-4 flex justify-end">
+            <button onclick="saveOrderNotes()" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-save mr-2"></i>Save Notes
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Mark as Ordered Modal -->
+<div id="orderedModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Mark as Ordered</h3>
+                <form id="orderedForm">
+                    <input type="hidden" id="orderedPowderId" name="powder_id">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Powder:</label>
+                        <p id="orderedPowderName" class="text-gray-900"></p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="orderedQuantity" class="block text-sm font-medium text-gray-700 mb-2">Quantity Ordered (kg):</label>
+                        <input type="number" id="orderedQuantity" name="quantity" step="0.1" min="0" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="orderedSupplier" class="block text-sm font-medium text-gray-700 mb-2">Supplier:</label>
+                        <input type="text" id="orderedSupplier" name="supplier" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="orderedNotes" class="block text-sm font-medium text-gray-700 mb-2">Notes:</label>
+                        <textarea id="orderedNotes" name="notes" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeOrderedModal()" 
+                                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                            Mark as Ordered
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Print functionality
+function printReorderList() {
+    const printContent = document.querySelector('.container').innerHTML;
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Reorder List - ${new Date().toLocaleDateString()}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .container { max-width: none; }
+                    .bg-white { background: white !important; }
+                    .text-gray-900 { color: black !important; }
+                    .text-gray-600 { color: #666 !important; }
+                    .border { border: 1px solid #ddd !important; }
+                    .rounded-lg { border-radius: 4px !important; }
+                    .shadow-sm { box-shadow: none !important; }
+                    .mb-8 { margin-bottom: 20px !important; }
+                    .mb-6 { margin-bottom: 15px !important; }
+                    .mb-4 { margin-bottom: 10px !important; }
+                    .p-6 { padding: 15px !important; }
+                    .space-y-4 > * + * { margin-top: 15px !important; }
+                    .grid { display: block !important; }
+                    .grid > * { margin-bottom: 10px !important; }
+                    .flex { display: block !important; }
+                    .hidden { display: none !important; }
+                    .priority-out { border-left: 4px solid #dc2626; padding-left: 15px; }
+                    .priority-low { border-left: 4px solid #d97706; padding-left: 15px; }
+                </style>
+            </head>
+            <body>
+                ${printContent}
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Export functionality
+function exportReorderList() {
+    const items = {{ reorder_items|tojson }};
+    const csvContent = [
+        ['Powder Color', 'Manufacturer', 'Product Code', 'Color Family', 'Current Stock (kg)', 'Box Weight (kg)', 'Price per kg ($)'],
+        ...items.map(item => [
+            item.powder_color,
+            item.manufacturer || '',
+            item.product_code || '',
+            item.color_family || '',
+            item.on_hand_kg || item.in_stock || 0,
+            item.weight_box_kg || '',
+            item.price_per_kg || ''
+        ])
+    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reorder_list_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Mark as ordered functionality
+function markAsOrdered(powderId) {
+    const item = {{ reorder_items|tojson }}.find(i => i.id === powderId);
+    document.getElementById('orderedPowderId').value = powderId;
+    document.getElementById('orderedPowderName').textContent = item.powder_color;
+    document.getElementById('orderedModal').classList.remove('hidden');
+}
+
+function closeOrderedModal() {
+    document.getElementById('orderedModal').classList.add('hidden');
+    document.getElementById('orderedForm').reset();
+}
+
+// Save order notes
+function saveOrderNotes() {
+    const notes = document.getElementById('orderNotes').value;
+    localStorage.setItem('reorderNotes', notes);
+    alert('Notes saved!');
+}
+
+// Load saved notes
+document.addEventListener('DOMContentLoaded', function() {
+    const savedNotes = localStorage.getItem('reorderNotes');
+    if (savedNotes) {
+        document.getElementById('orderNotes').value = savedNotes;
+    }
+});
+
+// Form submission for ordered items
+document.getElementById('orderedForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    // Here you would typically send this to your backend
+    // For now, we'll just show a success message
+    alert('Order marked successfully!');
+    closeOrderedModal();
+});
+</script>
+{% endblock %}

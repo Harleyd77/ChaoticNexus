@@ -1,0 +1,60 @@
+/**
+ * Customer Management Styles
+ * Minimal additional styles - most styling is via Tailwind classes
+ */
+
+/* Skeleton loading animation */
+.skeleton {
+  background: linear-gradient(90deg, #1a2533 25%, #20304a 50%, #1a2533 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Status badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-active {
+  background: rgba(37, 99, 235, 0.2);
+  color: rgb(147, 197, 253);
+  border: 1px solid rgba(29, 78, 216, 0.5);
+}
+
+.badge-queued {
+  background: rgba(180, 83, 9, 0.2);
+  color: rgb(253, 224, 71);
+  border: 1px solid rgba(161, 98, 7, 0.5);
+}
+
+.badge-completed {
+  background: rgba(21, 128, 61, 0.2);
+  color: rgb(134, 239, 172);
+  border: 1px solid rgba(22, 101, 52, 0.5);
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Print styles - hide CSV export if present */
+@media print {
+  button[class*="csv"],
+  a[class*="csv"],
+  .csv-export {
+    display: none !important;
+  }
+}
+

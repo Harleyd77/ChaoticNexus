@@ -1,0 +1,1286 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    @page { margin: 10mm; }
+    :root{
+      --bg:#f1f4fb;
+      --paper:#ffffff;
+      --ink:#1b1f27;
+      --accent:#0f6fe4;
+      --muted:#6c7a92;
+      --border:#c7cfdd;
+      --pill:#173d7a;
+    }
+    [data-theme="dark"] {
+      --bg:#0b0f14;
+      --paper:#111923;
+      --ink:#e7edf7;
+      --accent:#4cc9f0;
+      --muted:#9fb3c8;
+      --border:#243347;
+      --pill:#1e3b7a;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height:100vh;
+    }
+    .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;margin:-1px;padding:0}
+
+    .page{max-width:880px;margin:32px auto;padding:18px;}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+    .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;background:var(--paper);color:var(--ink);padding:8px 14px;font-size:13px;cursor:pointer;text-decoration:none}
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+    .btn:hover{box-shadow:0 2px 6px rgba(0,0,0,0.12)}
+    .status{font-size:13px;color:var(--muted)}
+    .status.ok{color:#1c8d4d}
+    .status.err{color:#d14b4b}
+
+    .worksheet{background:var(--paper);box-shadow:0 18px 48px rgba(15,30,70,0.18);border-radius:18px;padding:22px;border:1px solid var(--border)}
+    header.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:18px}
+    .branding{font-weight:700;font-size:15px;margin-bottom:6px}
+    .title{font-size:28px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:0}
+    .job-meta{display:flex;flex-direction:column;align-items:flex-end;font-size:14px;font-weight:600}
+    .job-meta label{display:flex;align-items:center;gap:6px;font-weight:600}
+    .job-meta input{width:110px;text-align:center}
+    .photo-flag{margin-top:8px;padding:4px 10px;border-radius:999px;background:var(--pill);color:#fff;font-size:12px;font-weight:600}
+    .photo-flag--none{background:#4a5568;color:#f1f4fb;}
+    [data-theme='light'] .photo-flag--none{background:#d7dce8;color:#1c2332;}
+
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:12px;}
+    .contact-grid .field{min-width:0;}
+    .notes-area textarea{min-height:220px;}
+
+    .field{display:flex;flex-direction:column;flex:1;min-width:150px}
+    .field.small{flex:0 0 130px}
+    .field.medium{flex:1 1 200px}
+    .field.large{flex:2 1 260px}
+    .field label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px}
+    input[type=text], select, textarea{
+      font-size:16px;
+      padding:6px 8px;
+      border:1px solid var(--border);
+      border-radius:6px;
+      background:var(--paper);
+      color:var(--ink);
+    }
+    select{appearance:none;background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 24 24" fill="none" stroke="%236c7a92" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+    textarea{min-height:160px;resize:vertical}
+    .parts-area textarea{min-height:260px}
+
+    .grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+    .grid-two .field{min-width:0;}
+    .primary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px;}
+    .primary-grid .field.large{grid-column:span 2;}
+    .notes-section{margin-bottom:12px;}
+    .parts-area,
+    .notes-area{grid-column:1 / -1;}
+    .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+    .footer-grid .field{min-width:0}
+    .footer-grid .field label{font-size:11px;margin-bottom:3px}
+    .footer-grid .field input{font-size:14px;padding:4px 6px}
+
+    @media print{
+      body{background:#fff;color:#000;font-size:12px}
+      .page{margin:0 auto;padding:0}
+      .worksheet{box-shadow:none;border:0;border-radius:0;padding:10px}
+      .no-print{display:none!important}
+      .theme-fab{display:none}
+      input[type=text], select, textarea{border:0;border-bottom:1px solid #000;padding:2px 0;background:transparent;color:#000;border-radius:0;box-shadow:none;font-size:12px}
+      select{background-image:none}
+      textarea{min-height:100px;}
+      .parts-area textarea{min-height:120px;}
+      .primary-grid,
+      .contact-grid{gap:8px;margin-bottom:8px;}
+      .footer-grid{gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid #000;}
+      .footer-grid .field label{font-size:10px;margin-bottom:2px;}
+      header.sheet-head{margin-bottom:10px;border-bottom:2px solid #000}
+    }
+
+    .drawer-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1200}
+    .drawer{display:none;position:fixed;top:0;right:0;height:100vh;width:min(480px,95vw);background:var(--paper);border-left:1px solid var(--border);box-shadow:-18px 0 40px rgba(0,0,0,0.35);z-index:1201;padding:24px;overflow:auto}
+    .drawer h2{margin-top:0}
+    .drawer label{display:block;margin-bottom:16px}
+    .drawer textarea{width:100%;min-height:120px}
+    .drawer .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+
+    /* Customizable Worksheet Styles */
+    .customizable-field {
+      position: relative;
+      background: var(--paper);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 8px;
+      transition: all 0.2s ease;
+      cursor: grab;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    .customizable-field:active {
+      cursor: grabbing;
+    }
+
+    .customizable-field:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .customizable-field.dragging {
+      opacity: 0.7;
+      transform: rotate(2deg);
+      z-index: 1000;
+      cursor: grabbing;
+    }
+
+    .customizable-field.drag-over {
+      border-color: var(--accent);
+      background: rgba(var(--accent-rgb), 0.05);
+    }
+
+    body.layout-mode .customizable-field {
+      cursor: grab;
+    }
+
+    body.layout-mode .customizable-field:active {
+      cursor: grabbing;
+    }
+
+    /* Print Preview Mode */
+    body.print-preview,
+    body.design-preview {
+      background: white !important;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.print-preview .page,
+    body.design-preview .page {
+      margin: 0;
+      padding: 0;
+      max-width: none;
+      background: white;
+    }
+
+    body.print-preview .worksheet,
+    body.design-preview .worksheet {
+      background: white !important;
+      box-shadow: none !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 10px !important;
+      margin: 0 !important;
+    }
+
+    body.print-preview .customizable-field,
+    body.design-preview .customizable-field {
+      background: white !important;
+      border: 1px solid #ddd !important;
+      margin-bottom: 8px !important;
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+      padding: 8px !important;
+      /* Preserve custom sizes */
+      width: auto !important;
+      height: auto !important;
+      min-width: 120px !important;
+      max-width: 300px !important;
+    }
+
+    body.print-preview .field-label,
+    body.design-preview .field-label {
+      color: #333 !important;
+      background: transparent !important;
+      font-weight: bold !important;
+      display: block !important;
+      margin-bottom: 4px !important;
+      cursor: text !important;
+    }
+
+    body.print-preview .field-label:hover,
+    body.design-preview .field-label:hover {
+      background: rgba(0, 0, 0, 0.1) !important;
+      color: #000 !important;
+    }
+
+    body.print-preview .field-label.editing,
+    body.design-preview .field-label.editing {
+      background: #007bff !important;
+      color: white !important;
+      border-radius: 4px !important;
+      padding: 2px 6px !important;
+    }
+
+    body.print-preview .field-label input,
+    body.design-preview .field-label input {
+      background: transparent !important;
+      border: none !important;
+      color: inherit !important;
+      font-size: inherit !important;
+      font-weight: inherit !important;
+      width: 100% !important;
+      outline: none !important;
+    }
+
+    body.print-preview .field-row,
+    body.design-preview .field-row {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 12px !important;
+      margin-bottom: 16px !important;
+      justify-content: flex-start !important;
+    }
+
+    body.print-preview .field-row .customizable-field,
+    body.design-preview .field-row .customizable-field {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 !important;
+      min-width: 150px !important;
+      margin-bottom: 0 !important;
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+
+    body.print-preview input,
+    body.design-preview input,
+    body.print-preview select,
+    body.design-preview select,
+    body.print-preview textarea,
+    body.design-preview textarea {
+      width: 100% !important;
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      font-size: 14px !important;
+    }
+
+    body.print-preview .sheet-head,
+    body.design-preview .sheet-head {
+      margin-bottom: 10px !important;
+      border-bottom: 2px solid #000 !important;
+      padding-bottom: 8px !important;
+    }
+
+    body.print-preview .branding,
+    body.design-preview .branding {
+      font-weight: bold !important;
+      font-size: 16px !important;
+    }
+
+    body.print-preview .title,
+    body.design-preview .title {
+      font-size: 20px !important;
+      font-weight: bold !important;
+      text-transform: uppercase !important;
+      margin: 8px 0 !important;
+    }
+
+    body.print-preview .job-meta,
+    body.design-preview .job-meta {
+      font-size: 12px !important;
+      text-align: right !important;
+    }
+
+    body.print-preview .controls,
+    body.print-preview .layout-controls,
+    body.print-preview .layout-toggle,
+    body.print-preview .print-preview-toggle,
+    body.print-preview .no-print {
+      display: none !important;
+    }
+
+    body.print-preview .field-resize-handle {
+      display: none !important;
+    }
+
+    /* Print preview container */
+    .print-preview-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      z-index: 1000;
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .print-preview-container .worksheet {
+      max-width: 8.5in;
+      margin: 0 auto;
+      background: white;
+      /* Ensure custom layout is preserved */
+      width: 100% !important;
+    }
+
+    .print-preview-container .field-row {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 12px !important;
+      margin-bottom: 16px !important;
+      justify-content: flex-start !important;
+    }
+
+    .print-preview-container .customizable-field {
+      /* Preserve custom sizes in print preview */
+      width: auto !important;
+      height: auto !important;
+      min-width: 120px !important;
+      max-width: 300px !important;
+      flex: 1 !important;
+    }
+
+    .field-label {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      cursor: text;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .field-label:hover {
+      background: var(--hover);
+      color: var(--text);
+    }
+
+    .field-label.editing {
+      background: var(--accent);
+      color: white;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .field-label input {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      width: 100%;
+      outline: none;
+    }
+
+    .field-resize-handle {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      cursor: nw-resize;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .customizable-field:hover .field-resize-handle {
+      opacity: 1;
+    }
+
+    .field-resize-handle::after {
+      content: '';
+      position: absolute;
+      bottom: 3px;
+      right: 3px;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-bottom: 8px solid var(--muted);
+      opacity: 0.6;
+    }
+
+    .customizable-container {
+      position: relative;
+      min-height: 400px;
+    }
+
+    .customizable-drop-zone {
+      position: relative;
+      background: rgba(var(--accent-rgb), 0.02);
+      border: 2px dashed transparent;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      min-height: 100px;
+    }
+
+    .customizable-drop-zone.active {
+      border-color: var(--accent);
+      background: rgba(var(--accent-rgb), 0.05);
+    }
+
+    .layout-controls {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+    }
+
+    .layout-controls.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .template-context {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .layout-toggle {
+      position: fixed;
+      top: 50px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 101;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .layout-toggle:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .print-preview-toggle {
+      background: #28a745;
+    }
+
+    .print-preview-toggle:hover {
+      background: #218838;
+    }
+
+    .print-preview-toggle.active {
+      background: #28a745;
+      box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+    }
+
+    /* Field row layout */
+    .field-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .field-row-large {
+      gap: 8px;
+    }
+
+    .field-row .customizable-field {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .field-large {
+      flex: 2 1 260px;
+    }
+
+    .field-medium {
+      flex: 1 1 200px;
+    }
+
+    .field-small {
+      flex: 0 0 130px;
+    }
+
+    /* Layout mode styles */
+    body.layout-mode .customizable-field {
+      cursor: move;
+      user-select: none;
+    }
+
+    body.layout-mode .field-label {
+      cursor: text;
+    }
+
+    /* Print optimizations */
+    @media print {
+      .customizable-field {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+        margin-bottom: 8px;
+        background: white !important;
+      }
+
+      .field-resize-handle {
+        display: none;
+      }
+
+      .layout-controls,
+      .layout-toggle,
+      .no-print {
+        display: none !important;
+      }
+
+      .customizable-container {
+        background: white !important;
+      }
+
+      .field-label {
+        color: #333 !important;
+        background: transparent !important;
+      }
+
+      .field-row {
+        display: block;
+        margin-bottom: 16px;
+      }
+
+      .field-row .customizable-field {
+        display: block;
+        margin-bottom: 12px;
+        border: 1px solid #ccc;
+        padding: 8px;
+      }
+
+      .customizable-field label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .customizable-field input,
+      .customizable-field select,
+      .customizable-field textarea {
+        width: 100%;
+        border: none;
+        background: transparent;
+        padding: 0;
+        font-size: 14px;
+      }
+    }
+  </style>
+  <title>{{ super() }} | Job #{{ job.id }} · {{ template_label }}</title>
+<script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var saved=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.style.backgroundColor = saved==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+<script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<!-- Theme menu will be injected by global-theme-menu.js -->
+
+  <!-- Layout Customization Toggle -->
+  <button class="layout-toggle no-print" type="button" onclick="toggleLayoutMode()" title="Customize Layout">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+      <line x1="9" y1="9" x2="9" y2="15"/>
+      <line x1="15" y1="9" x2="15" y2="15"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+    </svg>
+  </button>
+
+  <!-- Print Preview Toggle -->
+  <button class="layout-toggle no-print print-preview-toggle" type="button" onclick="togglePrintPreview()" title="Print Preview" style="right: 80px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="6 9 6 2 18 2 18 9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
+    </svg>
+  </button>
+
+  <!-- Layout Controls Panel -->
+  <div class="layout-controls no-print" id="layoutControls">
+    <h3 id="controlsTitle">Customize Layout</h3>
+    <div class="template-context">Using: {{ template_label }}</div>
+    <div style="margin-bottom: 12px;">
+      <button class="btn" onclick="resetLayout()">Reset to Default</button>
+      <button class="btn primary" onclick="saveLayout()">Save Layout</button>
+    </div>
+    <div id="controlsInstructions" style="font-size: 12px; color: var(--muted); margin-bottom: 8px;">
+      • Drag fields to reorder<br>
+      • Click labels to edit titles<br>
+      • Drag corners to resize<br>
+      • Use Reset to restore defaults
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="controls no-print">
+      <a class="btn" href="{{ url_for('jobs_board') }}">Back to Jobs</a>
+      <button class="btn primary" type="button" id="saveBtn">Save Worksheet</button>
+      <button class="btn" type="button" onclick="window.print()">Print</button>
+      {% if is_admin %}<button class="btn" type="button" id="optionsBtn">Edit Dropdowns</button>{% endif %}
+      <span id="statusMsg" class="status"></span>
+    </div>
+
+    <div class="worksheet" id="worksheet">
+      <div class="customizable-container" id="worksheetContainer">
+        <!-- Header section (non-customizable) -->
+        <header class="sheet-head">
+          <div>
+            <div class="branding">Victoria Powder Coating</div>
+            <div class="title">{{ template_label }}</div>
+          </div>
+          <div class="job-meta">
+            <div>Job #{{ job.id }}</div>
+            <label>Date:<input type="text" id="fieldDate" value="{{ worksheet_meta.get('date') if worksheet_meta else worksheet_date or '' }}" /></label>
+            {% if has_photos %}
+              <div class="photo-flag">Photos on file ({{ photos_count }})</div>
+            {% else %}
+              <div class="photo-flag photo-flag--none">No photos uploaded</div>
+            {% endif %}
+          </div>
+        </header>
+
+        <!-- Customizable Fields Container -->
+        <div class="customizable-drop-zone" id="fieldsContainer">
+          <!-- Fields will be dynamically generated by JavaScript -->
+        </div>
+      </div>
+  </div>
+
+  {% if is_admin %}
+  <div id="drawerBackdrop" class="drawer-backdrop no-print"></div>
+  <div id="optionsDrawer" class="drawer no-print">
+    <h2>Edit Work Order Dropdowns</h2>
+    <p style="font-size:13px;color:var(--muted);margin-top:-6px">One value per line or comma-separated. Changes apply to future worksheets.</p>
+    <form method="post" action="/admin/work-order-options">
+      <label><strong>Blast Options</strong>
+        <textarea name="blast">{{ (work_options.get('blast') or []) | join('\n') }}</textarea>
+      </label>
+      <label><strong>Tank Options</strong>
+        <textarea name="tank">{{ (work_options.get('tank') or []) | join('\n') }}</textarea>
+      </label>
+      <label><strong>Pretreatment Options</strong>
+        <textarea name="pretreatment">{{ (work_options.get('pretreatment') or []) | join('\n') }}</textarea>
+      </label>
+      <label><strong>Quote Options</strong>
+        <textarea name="quote">{{ (work_options.get('quote') or []) | join('\n') }}</textarea>
+      </label>
+      <div class="actions">
+        <button class="btn" type="button" id="optionsCancel">Cancel</button>
+        <button class="btn primary" type="submit">Save Lists</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    // Layout Customization System
+    let layoutMode = false;
+    let printPreviewMode = false;
+    let draggedElement = null;
+    let layoutData = {};
+    const TEMPLATE_TYPE = {{ template_type | tojson }};
+    const TEMPLATE_LABEL = {{ template_label | tojson }};
+
+    // Default field definitions
+    const defaultFields = [
+      { id: 'customer', key: 'customer', label: 'Customer', size: 'field-large' },
+      { id: 'blast', key: 'blast', label: 'Blast', size: 'field-small' },
+      { id: 'tank', key: 'tank', label: 'Tank /', size: 'field-small' },
+      { id: 'colour', key: 'colour', label: 'Colour', size: 'field-medium' },
+      { id: 'pretreatment', key: 'pretreatment', label: 'Pretreatment', size: 'field-small' },
+      { id: 'quote', key: 'quote', label: 'Quote', size: 'field-small' },
+      { id: 'po', key: 'po', label: 'PO#', size: 'field-medium' },
+      { id: 'promises', key: 'promises_by', label: 'Promises Needed By', size: 'field-medium' },
+      { id: 'parts', key: 'parts', label: 'Parts', size: 'field-large' },
+      { id: 'notes', key: 'notes', label: 'Notes', size: 'field-large' },
+      { id: 'fa_time', key: 'fa_time', label: 'F/A Time', size: 'field-small' },
+      { id: 'measured', key: 'measured_by', label: 'Measured / Counted By', size: 'field-small' },
+      { id: 'powder', key: 'powder_used', label: 'Powder Used', size: 'field-small' },
+      { id: 'blast_time', key: 'total_blast_time', label: 'Total Blast Time', size: 'field-small' },
+      { id: 'spray_time', key: 'total_spraying_time', label: 'Total Spraying Time', size: 'field-small' }
+    ];
+
+    // Load saved layout from server
+    async function loadLayout() {
+      try {
+        const response = await fetch(`/api/print-templates/${TEMPLATE_TYPE}`);
+        const data = await response.json();
+        
+        if (data.success && data.template && data.template.layout) {
+          layoutData = data.template.layout;
+          applyLayout();
+        } else {
+          createDefaultLayout();
+        }
+      } catch (e) {
+        console.warn('Failed to load template from server:', e);
+        createDefaultLayout();
+      }
+    }
+
+    function toggleLayoutMode() {
+      if (printPreviewMode) {
+        togglePrintPreview();
+        return;
+      }
+
+      layoutMode = !layoutMode;
+      const controls = document.getElementById('layoutControls');
+      const controlsTitle = document.getElementById('controlsTitle');
+      const container = document.getElementById('fieldsContainer');
+      const instructions = document.getElementById('controlsInstructions');
+
+      if (layoutMode) {
+        controls.classList.add('visible');
+        controlsTitle.textContent = `Customize Layout · ${TEMPLATE_LABEL}`;
+        container.classList.add('active');
+        document.body.classList.add('layout-mode', 'design-preview');
+        if (instructions) {
+          instructions.innerHTML = '• Drag fields to reorder<br>• Click labels to edit titles<br>• Drag corners to resize<br>• Use Reset to restore defaults';
+        }
+        // Enable drag and drop
+        document.querySelectorAll('.customizable-field').forEach(field => {
+          field.draggable = true;
+        });
+      } else {
+        controls.classList.remove('visible');
+        container.classList.remove('active');
+        document.body.classList.remove('layout-mode');
+        if (!printPreviewMode) {
+          document.body.classList.remove('design-preview');
+        }
+        // Disable drag and drop
+        document.querySelectorAll('.customizable-field').forEach(field => {
+          field.draggable = false;
+          field.classList.remove('dragging');
+        });
+      }
+    }
+
+    function togglePrintPreview() {
+      printPreviewMode = !printPreviewMode;
+
+      if (printPreviewMode) {
+        // Enter print preview mode
+        document.body.classList.add('print-preview', 'design-preview');
+        document.body.classList.remove('layout-mode');
+
+        const previewBtn = document.querySelector('.print-preview-toggle');
+        if (previewBtn) previewBtn.classList.add('active');
+
+        const controls = document.getElementById('layoutControls');
+        const controlsTitle = document.getElementById('controlsTitle');
+        const instructions = document.getElementById('controlsInstructions');
+        controls.classList.add('visible');
+        controlsTitle.textContent = `Print Preview · ${TEMPLATE_LABEL}`;
+        instructions.innerHTML = '• Viewing print layout<br>• Click labels to edit titles<br>• Use layout button to customize<br>• Click Print to print this view';
+
+        // Always load saved layout for print preview
+        loadLayout();
+
+        // Disable drag and drop in print preview
+        document.querySelectorAll('.customizable-field').forEach(field => {
+          field.draggable = false;
+          field.classList.remove('dragging');
+        });
+
+      } else {
+        // Exit print preview mode
+        document.body.classList.remove('print-preview');
+        if (layoutMode) {
+          document.body.classList.add('layout-mode', 'design-preview');
+        } else {
+          document.body.classList.remove('design-preview');
+        }
+
+        const previewBtn = document.querySelector('.print-preview-toggle');
+        if (previewBtn) previewBtn.classList.remove('active');
+
+        const controls = document.getElementById('layoutControls');
+        const controlsTitle = document.getElementById('controlsTitle');
+        const instructions = document.getElementById('controlsInstructions');
+        controlsTitle.textContent = `Customize Layout · ${TEMPLATE_LABEL}`;
+        instructions.innerHTML = '• Drag fields to reorder<br>• Click labels to edit titles<br>• Drag corners to resize<br>• Use Reset to restore defaults';
+
+        // Re-enable drag and drop
+        document.querySelectorAll('.customizable-field').forEach(field => {
+          field.draggable = layoutMode;
+        });
+      }
+    }
+
+    function applyLayout() {
+      const container = document.getElementById('fieldsContainer');
+      container.innerHTML = '';
+
+      if (layoutData.fields) {
+        // Group fields by row (for now, just create rows of 3 fields)
+        for (let i = 0; i < layoutData.fields.length; i += 3) {
+          const row = document.createElement('div');
+          row.className = 'field-row';
+
+          const fieldsInRow = layoutData.fields.slice(i, i + 3);
+          fieldsInRow.forEach(fieldData => {
+            const field = createFieldElement(fieldData);
+            // Apply custom sizes if they exist
+            if (fieldData.width && fieldData.width !== 'auto') {
+              field.style.width = fieldData.width;
+            }
+            if (fieldData.height && fieldData.height !== 'auto') {
+              field.style.height = fieldData.height;
+            }
+            row.appendChild(field);
+          });
+
+          container.appendChild(row);
+        }
+      } else {
+        createDefaultLayout();
+      }
+
+      // Setup event listeners after fields are created
+      setupEventListeners();
+    }
+
+    function createDefaultLayout() {
+      const container = document.getElementById('fieldsContainer');
+      container.innerHTML = '';
+
+      // Create rows based on default layout
+      const rows = [
+        ['customer', 'blast', 'tank'],
+        ['colour', 'pretreatment', 'quote'],
+        ['po', 'promises'],
+        ['parts', 'notes'],
+        ['fa_time', 'measured', 'powder'],
+        ['blast_time', 'spray_time']
+      ];
+
+      rows.forEach((rowFields, index) => {
+        const row = document.createElement('div');
+        row.className = 'field-row' + (index === 3 ? ' field-row-large' : '');
+
+        rowFields.forEach(fieldId => {
+          const fieldData = defaultFields.find(f => f.id === fieldId);
+          if (fieldData) {
+            const field = createFieldElement(fieldData);
+            row.appendChild(field);
+          }
+        });
+
+        container.appendChild(row);
+      });
+
+      setupEventListeners();
+    }
+
+    function createFieldElement(fieldData) {
+      const field = document.createElement('div');
+      field.className = `customizable-field ${fieldData.size}`;
+      field.dataset.fieldId = fieldData.id;
+      field.dataset.fieldKey = fieldData.key;
+      field.dataset.originalLabel = fieldData.originalLabel || fieldData.label;
+
+      field.innerHTML = `
+        <div class="field-label">${fieldData.label}</div>
+        <div class="field-resize-handle"></div>
+        ${getFieldInput(fieldData)}
+      `;
+
+      return field;
+    }
+
+    function getFieldInput(fieldData) {
+      // Create the appropriate input based on field type
+      const fieldKey = fieldData.key;
+      let inputHtml = '';
+
+      if (fieldKey === 'blast' || fieldKey === 'tank' || fieldKey === 'pretreatment' || fieldKey === 'quote') {
+        inputHtml = `<select id="field${fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1)}"></select>`;
+      } else if (fieldKey === 'parts' || fieldKey === 'notes') {
+        inputHtml = `<textarea id="field${fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1)}"></textarea>`;
+      } else {
+        inputHtml = `<input type="text" id="field${fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1)}" />`;
+      }
+
+      return inputHtml;
+    }
+
+    function setupEventListeners() {
+      // Label editing
+      document.querySelectorAll('.field-label').forEach(label => {
+        label.addEventListener('click', editLabel);
+      });
+
+      // Resize handles
+      document.querySelectorAll('.field-resize-handle').forEach(handle => {
+        handle.addEventListener('mousedown', startResize);
+      });
+
+      // Drag and drop
+      document.querySelectorAll('.customizable-field').forEach(field => {
+        field.addEventListener('dragstart', handleDragStart);
+        field.addEventListener('dragend', handleDragEnd);
+        field.addEventListener('dragover', handleDragOver);
+        field.addEventListener('drop', handleDrop);
+      });
+    }
+
+    function editLabel(e) {
+      if (!layoutMode && !printPreviewMode) return;
+
+      const label = e.target;
+      const currentText = label.textContent;
+
+      // Create input for editing
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = currentText;
+      input.className = 'field-label-input';
+
+      label.innerHTML = '';
+      label.appendChild(input);
+      label.classList.add('editing');
+      input.focus();
+
+      function saveEdit() {
+        const newText = input.value.trim() || currentText;
+        label.textContent = newText;
+        label.classList.remove('editing');
+        updateLayoutData();
+      }
+
+      input.addEventListener('blur', saveEdit);
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          saveEdit();
+        }
+      });
+    }
+
+    function startResize(e) {
+      if (!layoutMode) return;
+
+      e.preventDefault();
+      const field = e.target.closest('.customizable-field');
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startWidth = field.offsetWidth;
+      const startHeight = field.offsetHeight;
+
+      function resize(e) {
+        const newWidth = Math.max(150, startWidth + (e.clientX - startX));
+        const newHeight = Math.max(60, startHeight + (e.clientY - startY));
+
+        field.style.width = newWidth + 'px';
+        field.style.height = newHeight + 'px';
+      }
+
+      function stopResize() {
+        document.removeEventListener('mousemove', resize);
+        document.removeEventListener('mouseup', stopResize);
+        updateLayoutData();
+      }
+
+      document.addEventListener('mousemove', resize);
+      document.addEventListener('mouseup', stopResize);
+    }
+
+    function handleDragStart(e) {
+      if (!layoutMode) return;
+
+      draggedElement = e.target;
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', e.target.dataset.fieldId);
+    }
+
+    function handleDragEnd(e) {
+      if (!layoutMode) return;
+
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.customizable-field').forEach(field => {
+        field.classList.remove('drag-over');
+      });
+      draggedElement = null;
+      updateLayoutData();
+    }
+
+    function handleDragOver(e) {
+      if (!layoutMode) return;
+
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      e.target.classList.add('drag-over');
+    }
+
+    function handleDrop(e) {
+      if (!layoutMode) return;
+
+      e.preventDefault();
+      e.target.classList.remove('drag-over');
+
+      if (draggedElement && draggedElement !== e.target) {
+        const draggedId = e.dataTransfer.getData('text/plain');
+        const targetField = e.target.closest('.customizable-field');
+
+        if (targetField && draggedId) {
+          // Find the dragged field and target field
+          const draggedField = document.querySelector(`[data-field-id="${draggedId}"]`);
+          if (draggedField && targetField) {
+            // Swap positions
+            const draggedParent = draggedField.parentNode;
+            const targetParent = targetField.parentNode;
+
+            if (draggedParent === targetParent) {
+              // Same row - just swap
+              if (draggedField.nextSibling === targetField) {
+                draggedParent.insertBefore(targetField, draggedField);
+              } else {
+                draggedParent.insertBefore(draggedField, targetField);
+              }
+            } else {
+              // Different rows - move to target row
+              targetParent.insertBefore(draggedField, targetField);
+            }
+          }
+        }
+      }
+    }
+
+    function updateLayoutData() {
+      if (!layoutMode) return;
+
+      const fields = Array.from(document.querySelectorAll('.customizable-field')).map(field => ({
+        id: field.dataset.fieldId,
+        key: field.dataset.fieldKey,
+        label: field.querySelector('.field-label').textContent,
+        originalLabel: field.dataset.originalLabel,
+        size: field.className.match(/field-(small|medium|large)/)?.[1] || 'medium',
+        width: field.style.width || 'auto',
+        height: field.style.height || 'auto'
+      }));
+
+      layoutData = { fields };
+    }
+
+    async function saveLayout() {
+      updateLayoutData();
+      
+      try {
+        const response = await fetch('/api/print-templates', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            template_type: TEMPLATE_TYPE,
+            template_name: 'Default',
+            layout: layoutData,
+            is_default: true
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Layout saved successfully!');
+        } else {
+          alert('Failed to save layout: ' + (result.error || 'Unknown error'));
+        }
+      } catch (e) {
+        console.error('Error saving layout:', e);
+        alert('Failed to save layout. Please try again.');
+      }
+    }
+
+    async function resetLayout() {
+      if (confirm('Are you sure you want to reset the layout to default?')) {
+        try {
+          // Clear the saved template by saving an empty layout
+          layoutData = {};
+          await loadLayout(); // This will load default layout
+          location.reload();
+        } catch (e) {
+          console.error('Error resetting layout:', e);
+          location.reload();
+        }
+      }
+    }
+
+    // Initialize layout system
+    document.addEventListener('DOMContentLoaded', function() {
+      loadLayout();
+    });
+
+    const SAVE_URL = "{{ url_for('job_workorder_save', job_id=job.id) }}";
+    const OPTIONS = {{ (work_options or {}) | tojson }};
+    const META = {{ (worksheet_meta or {}) | tojson }};
+    const DEFAULTS = {{ (job_defaults or {}) | tojson }};
+
+    function valueFor(key){
+      if (META && META[key] !== undefined && META[key] !== null && META[key] !== '') {
+        return META[key];
+      }
+      return DEFAULTS && DEFAULTS[key] !== undefined && DEFAULTS[key] !== null ? DEFAULTS[key] : '';
+    }
+
+    function populateSelect(el, key){
+      if (!el) return;
+      const opts = Array.isArray(OPTIONS[key]) ? OPTIONS[key].slice() : [];
+      const current = valueFor(key);
+      if (current && !opts.includes(current)) {
+        opts.unshift(current);
+      }
+      if (!opts.length) {
+        opts.push('');
+      }
+      el.innerHTML = '';
+      opts.forEach(v => {
+        const option = document.createElement('option');
+        option.value = v;
+        option.textContent = v || '—';
+        el.appendChild(option);
+      });
+      if (current) {
+        el.value = current;
+      } else if (opts.length) {
+        el.value = opts[0];
+      }
+    }
+
+    function initField(id, key){
+      const el = document.getElementById(id);
+      if (!el) return;
+      const val = valueFor(key);
+      if (el.tagName === 'SELECT') {
+        populateSelect(el, key);
+      } else {
+        el.value = val || '';
+      }
+    }
+
+    function initAll(){
+      initField('fieldCustomer', 'customer');
+      initField('fieldBlast', 'blast');
+      initField('fieldTank', 'tank');
+      initField('fieldPretreatment', 'pretreatment');
+      initField('fieldColour', 'colour');
+      initField('fieldQuote', 'quote');
+      initField('fieldPO', 'po');
+      initField('fieldPromise', 'promises_by');
+      initField('fieldParts', 'parts');
+      initField('fieldNotes', 'notes');
+      initField('fieldFATime', 'fa_time');
+      initField('fieldMeasured', 'measured_by');
+      initField('fieldPowderUsed', 'powder_used');
+      initField('fieldBlastTime', 'total_blast_time');
+      initField('fieldSprayTime', 'total_spraying_time');
+      const dateInput = document.getElementById('fieldDate');
+      if (dateInput) {
+        dateInput.value = valueFor('date');
+      }
+      // Ensure selects reflect populated values (initField handles once, but ensure fallback if default blank)
+      ['fieldBlast','fieldTank','fieldPretreatment','fieldQuote'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (!el.value && el.options.length) {
+          el.value = el.options[0].value;
+        }
+      });
+    }
+
+    async function saveWorksheet(){
+      const status = document.getElementById('statusMsg');
+      if (status){ status.textContent=''; status.className='status'; }
+      const payload = {
+        customer: document.getElementById('fieldCustomer')?.value?.trim() || '',
+        blast: document.getElementById('fieldBlast')?.value || '',
+        tank: document.getElementById('fieldTank')?.value || '',
+        pretreatment: document.getElementById('fieldPretreatment')?.value || '',
+        colour: document.getElementById('fieldColour')?.value?.trim() || '',
+        quote: document.getElementById('fieldQuote')?.value || '',
+        po: document.getElementById('fieldPO')?.value?.trim() || '',
+        promises_by: document.getElementById('fieldPromise')?.value?.trim() || '',
+        parts: document.getElementById('fieldParts')?.value?.trim() || '',
+        notes: document.getElementById('fieldNotes')?.value?.trim() || '',
+        fa_time: document.getElementById('fieldFATime')?.value?.trim() || '',
+        measured_by: document.getElementById('fieldMeasured')?.value?.trim() || '',
+        powder_used: document.getElementById('fieldPowderUsed')?.value?.trim() || '',
+        total_blast_time: document.getElementById('fieldBlastTime')?.value?.trim() || '',
+        total_spraying_time: document.getElementById('fieldSprayTime')?.value?.trim() || '',
+        date: document.getElementById('fieldDate')?.value?.trim() || ''
+      };
+      try{
+        const res = await fetch(SAVE_URL, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok){
+          throw new Error(`Save failed (${res.status})`);
+        }
+        const data = await res.json();
+        if (status){
+          status.textContent = 'Saved';
+          status.className = 'status ok';
+        }
+        Object.assign(META, payload);
+      }catch(err){
+        if (status){
+          status.textContent = err && err.message ? err.message : 'Save failed';
+          status.className = 'status err';
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      initAll();
+      const saveBtn = document.getElementById('saveBtn');
+      if (saveBtn) saveBtn.addEventListener('click', saveWorksheet);
+      {% if is_admin %}
+      const optionsBtn = document.getElementById('optionsBtn');
+      const drawer = document.getElementById('optionsDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      const cancel = document.getElementById('optionsCancel');
+      function closeDrawer(){
+        if (drawer) drawer.style.display='none';
+        if (backdrop) backdrop.style.display='none';
+      }
+      function openDrawer(){
+        if (drawer) drawer.style.display='block';
+        if (backdrop) backdrop.style.display='block';
+      }
+      if (optionsBtn) optionsBtn.addEventListener('click', openDrawer);
+      if (cancel) cancel.addEventListener('click', function(e){ e.preventDefault(); closeDrawer(); });
+      if (backdrop) backdrop.addEventListener('click', closeDrawer);
+      {% endif %}
+    });
+  </script>
+{% endblock %}

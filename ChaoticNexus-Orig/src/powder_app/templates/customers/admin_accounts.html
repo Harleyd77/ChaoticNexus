@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+  <title>{{ super() }} | Customer Accounts · VPC Admin</title>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+  <!-- Theme menu will be injected by global-theme-menu.js -->
+
+  <!-- Top Bar -->
+  <div class="sticky top-0 z-40 bg-dark-panel/80 backdrop-blur-lg border-b border-dark-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-semibold text-dark-text">Customer Portal Accounts</h1>
+          <span id="accountCount" class="px-3 py-1 rounded-full bg-blue-900/40 text-blue-300 text-sm font-medium border border-blue-700/50">
+            {{ accounts|length }} accounts
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="/customers" class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">
+            Back to Customers
+          </a>
+          <a href="/nav" class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">
+            Back to Nav
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <!-- Search and Filters -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="relative flex-1 sm:flex-none">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search accounts..." 
+            class="w-full sm:w-64 px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text placeholder-dark-text/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+        </div>
+        <select id="statusFilter" class="px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="verified">Email Verified</option>
+          <option value="unverified">Email Unverified</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Accounts Table -->
+    <div class="bg-dark-card rounded-xl border border-dark-border overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-dark-panel border-b border-dark-border">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-dark-text/70 uppercase tracking-wider">Account</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-dark-text/70 uppercase tracking-wider">Company</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-dark-text/70 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-dark-text/70 uppercase tracking-wider">Last Login</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-dark-text/70 uppercase tracking-wider">Created</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-dark-text/70 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="accountsTableBody" class="divide-y divide-dark-border">
+            {% for account in accounts %}
+            <tr class="hover:bg-dark-hover/50 transition-colors" data-account-id="{{ account.id }}">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                      {{ account.first_name[0] if account.first_name else '?' }}{{ account.last_name[0] if account.last_name else '' }}
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-dark-text">
+                      {{ account.first_name or '' }} {{ account.last_name or '' }}
+                    </div>
+                    <div class="text-sm text-dark-text/60">{{ account.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-dark-text">{{ account.company_name or account.company or 'N/A' }}</div>
+                {% if account.contact_name and account.contact_name != account.first_name + ' ' + account.last_name %}
+                <div class="text-sm text-dark-text/60">{{ account.contact_name }}</div>
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ 'bg-green-900/40 text-green-300 border border-green-700/50' if account.is_active else 'bg-red-900/40 text-red-300 border border-red-700/50' }}">
+                    {{ 'Active' if account.is_active else 'Inactive' }}
+                  </span>
+                  {% if account.email_verified %}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/40 text-blue-300 border border-blue-700/50">
+                    Verified
+                  </span>
+                  {% endif %}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text/60">
+                {% if account.last_login %}
+                  {{ account.last_login.strftime('%Y-%m-%d') if account.last_login else 'Never' }}
+                {% else %}
+                  Never
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text/60">
+                {{ account.created_at.strftime('%Y-%m-%d') if account.created_at else 'Unknown' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="/admin/customer-accounts/{{ account.id }}" class="text-blue-400 hover:text-blue-300 transition-colors">
+                    View/Edit
+                  </a>
+                  <button onclick="toggleAccountStatus({{ account.id }}, {{ 'false' if account.is_active else 'true' }})" 
+                          class="text-{{ 'red' if account.is_active else 'green' }}-400 hover:text-{{ 'red' if account.is_active else 'green' }}-300 transition-colors">
+                    {{ 'Deactivate' if account.is_active else 'Activate' }}
+                  </button>
+                  <button onclick="deleteAccount({{ account.id }})" 
+                          class="text-red-400 hover:text-red-300 transition-colors">
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if not accounts %}
+    <div class="text-center py-12">
+      <div class="text-dark-text/60 text-lg mb-2">No customer accounts found</div>
+      <div class="text-dark-text/40 text-sm">Customer portal accounts will appear here once customers register.</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast" class="fixed top-4 right-4 z-50"></div>
+
+  <script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll('#accountsTableBody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    });
+
+    // Status filter functionality
+    document.getElementById('statusFilter').addEventListener('change', function(e) {
+      const filter = e.target.value;
+      const rows = document.querySelectorAll('#accountsTableBody tr');
+      
+      rows.forEach(row => {
+        if (!filter) {
+          row.style.display = '';
+          return;
+        }
+        
+        const isActive = row.querySelector('.bg-green-900\\/40') !== null;
+        const isVerified = row.querySelector('.bg-blue-900\\/40') !== null;
+        
+        let show = false;
+        switch(filter) {
+          case 'active':
+            show = isActive;
+            break;
+          case 'inactive':
+            show = !isActive;
+            break;
+          case 'verified':
+            show = isVerified;
+            break;
+          case 'unverified':
+            show = !isVerified;
+            break;
+        }
+        
+        row.style.display = show ? '' : 'none';
+      });
+    });
+
+    // Toggle account status
+    async function toggleAccountStatus(accountId, isActive) {
+      try {
+        const response = await fetch(`/api/admin/customer-accounts/${accountId}/toggle-active`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ is_active: isActive === 'true' })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          showToast(result.message, 'success');
+          // Reload the page to reflect changes
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          showToast(result.error || 'Failed to update account status', 'error');
+        }
+      } catch (error) {
+        showToast('Network error occurred', 'error');
+      }
+    }
+
+    // Delete account
+    async function deleteAccount(accountId) {
+      if (!confirm('Are you sure you want to delete this customer account? This action cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/admin/customer-accounts/${accountId}`, {
+          method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          showToast(result.message, 'success');
+          // Remove the row from the table
+          const row = document.querySelector(`tr[data-account-id="${accountId}"]`);
+          if (row) {
+            row.remove();
+          }
+        } else {
+          showToast(result.error || 'Failed to delete account', 'error');
+        }
+      } catch (error) {
+        showToast('Network error occurred', 'error');
+      }
+    }
+
+    // Toast notification system
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const toastElement = document.createElement('div');
+      
+      const bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600';
+      
+      toastElement.className = `${bgColor} text-white px-6 py-3 rounded-lg shadow-lg mb-2 transition-all duration-300 transform translate-x-full`;
+      toastElement.textContent = message;
+      
+      toast.appendChild(toastElement);
+      
+      // Animate in
+      setTimeout(() => {
+        toastElement.classList.remove('translate-x-full');
+      }, 100);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        toastElement.classList.add('translate-x-full');
+        setTimeout(() => {
+          if (toastElement.parentNode) {
+            toastElement.parentNode.removeChild(toastElement);
+          }
+        }, 300);
+      }, 5000);
+    }
+  </script>
+{% endblock %}

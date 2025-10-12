@@ -1,0 +1,123 @@
+{% extends "customer_portal/base.html" %}
+
+{% block title %}Submit New Job{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card bg-secondary">
+      <div class="card-header">
+        <h4 class="card-title mb-0">Submit New Job</h4>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="contact_name" class="form-label">Contact Name *</label>
+              <input type="text" class="form-control" id="contact_name" name="contact_name" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="company" class="form-label">Company *</label>
+              <input type="text" class="form-control" id="company" name="company" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="phone" name="phone">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="po" class="form-label">PO Number</label>
+              <input type="text" class="form-control" id="po" name="po">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="type" class="form-label">Job Type *</label>
+              <select class="form-select" id="type" name="type" required>
+                <option value="">Select job type...</option>
+                <option value="Powder Coating">Powder Coating</option>
+                <option value="Sandblasting">Sandblasting</option>
+                <option value="Painting">Painting</option>
+                <option value="Restoration">Restoration</option>
+                <option value="Custom">Custom Work</option>
+                <option value="Repair">Repair</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="priority" class="form-label">Priority</label>
+            <select class="form-select" id="priority" name="priority">
+              <option value="Normal">Normal</option>
+              <option value="Rush">Rush (+50%)</option>
+              <option value="Emergency">Emergency (+100%)</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="blast" class="form-label">Blasting Required?</label>
+              <select class="form-select" id="blast" name="blast">
+                <option value="">Not specified</option>
+                <option value="Light">Light Blasting</option>
+                <option value="Medium">Medium Blasting</option>
+                <option value="Heavy">Heavy Blasting</option>
+                <option value="None">No Blasting</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="prep" class="form-label">Surface Preparation</label>
+              <select class="form-select" id="prep" name="prep">
+                <option value="">Not specified</option>
+                <option value="Wash">Wash Only</option>
+                <option value="Light Sand">Light Sanding</option>
+                <option value="Heavy Sand">Heavy Sanding</option>
+                <option value="Chemical Strip">Chemical Strip</option>
+                <option value="Media Blast">Media Blast</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="color" class="form-label">Color/Finish</label>
+            <input type="text" class="form-control" id="color" name="color"
+                   placeholder="e.g., Gloss Black, RAL 9005, Custom Match">
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label">Job Description *</label>
+            <textarea class="form-control" id="description" name="description"
+                      rows="4" required
+                      placeholder="Describe the items to be coated, quantities, special requirements, etc."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="notes" class="form-label">Additional Notes</label>
+            <textarea class="form-control" id="notes" name="notes"
+                      rows="3"
+                      placeholder="Any additional information, special handling requirements, etc."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="due_by" class="form-label">Preferred Completion Date</label>
+            <input type="date" class="form-control" id="due_by" name="due_by">
+            <div class="form-text">Leave blank if no specific deadline</div>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{{ url_for('customer_portal.dashboard') }}" class="btn btn-secondary me-md-2">Cancel</a>
+            <button type="submit" class="btn btn-primary">Submit Job</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

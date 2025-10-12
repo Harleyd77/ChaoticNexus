@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="icon" href="{{ branding_favicon or url_for('static', filename='logos/favicon-1.png.PNG') }}" />
+
+  <!-- Prevent FOUC: set theme color early -->
+  <script>
+    (function () {
+      try {
+        var m = document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var t = (m ? decodeURIComponent(m[1]) : null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.style.backgroundColor = t === 'dark' ? '#0e141b' : '#f7f9fc';
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- The ONLY stylesheet for server pages -->
+  <link href="{{ url_for('static', filename='dist/app.css') }}" rel="stylesheet" />
+
+  {% block extra_head %}{% endblock %}
+  <title>{% block title %}Victoria Powder Coating{% endblock %}</title>
+</head>
+<body class="min-h-screen text-slate-100 bg-[#0e141b]">
+  {% block site_header %}
+  <div style="padding:12px">
+    <a href="{{ url_for('base.nav') }}" style="display:inline-block">
+      <img src="{{ branding_page_logo or url_for('static', filename='logos/ChaoticCPngNoBkgr.PNG') }}" alt="Site Logo" style="height:40px;width:auto;object-fit:contain">
+    </a>
+  </div>
+  {% endblock %}
+  {% block content %}{% endblock %}
+  {% block scripts %}{% endblock %}
+  
+  <!-- Theme system scripts -->
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+</body>
+</html>
+

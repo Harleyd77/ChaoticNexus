@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Management{% endblock %}
+
+{% block extra_head %}
+<style>
+.stock-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.stock-out {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+.stock-low {
+    background-color: #fffbeb;
+    color: #d97706;
+}
+.stock-good {
+    background-color: #f0fdf4;
+    color: #16a34a;
+}
+.inventory-card {
+    transition: all 0.2s ease-in-out;
+}
+.inventory-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Inventory Management</h1>
+            <p class="text-gray-600 mt-2">Track and manage powder stock levels</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{{ url_for('inventory.reorder_list') }}" 
+               class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-shopping-cart mr-2"></i>Reorder List
+            </a>
+            <a href="{{ url_for('powders.powders_page') }}" 
+               class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-plus mr-2"></i>Add Powder
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Powders</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_powders }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">In Stock</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ in_stock|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="flex items-center">
+                <div class="p-3 bg-yellow-100 rounded-lg">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Low Stock</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ low_stock|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="flex items-center">
+                <div class="p-3 bg-red-100 rounded-lg">
+                    <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Out of Stock</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ out_of_stock|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="bg-white rounded-lg shadow-sm border mb-6">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8 px-6">
+                <button onclick="showAll()" class="filter-tab active py-4 px-1 border-b-2 font-medium text-sm" data-filter="all">
+                    All Powders
+                </button>
+                <button onclick="showOutOfStock()" class="filter-tab py-4 px-1 border-b-2 font-medium text-sm" data-filter="out">
+                    Out of Stock ({{ out_of_stock|length }})
+                </button>
+                <button onclick="showLowStock()" class="filter-tab py-4 px-1 border-b-2 font-medium text-sm" data-filter="low">
+                    Low Stock ({{ low_stock|length }})
+                </button>
+                <button onclick="showInStock()" class="filter-tab py-4 px-1 border-b-2 font-medium text-sm" data-filter="good">
+                    In Stock ({{ in_stock|length }})
+                </button>
+            </nav>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search powders..." 
+                               class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-gray-700">Low stock threshold:</label>
+                    <input type="number" id="thresholdInput" value="{{ low_stock_threshold }}" step="0.1" min="0"
+                           class="w-20 px-2 py-1 border border-gray-300 rounded text-sm">
+                    <span class="text-sm text-gray-500">kg</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Grid -->
+        <div class="p-6">
+            <div id="inventoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for powder in powders %}
+                <div class="inventory-card bg-white border rounded-lg p-6" 
+                     data-powder-id="{{ powder.id }}"
+                     data-powder-color="{{ powder.powder_color|lower }}"
+                     data-manufacturer="{{ powder.manufacturer|lower if powder.manufacturer else '' }}"
+                     data-stock="{{ (powder.on_hand_kg or powder.in_stock or 0) }}">
+                    
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="font-semibold text-lg text-gray-900">{{ powder.powder_color }}</h3>
+                            {% if powder.manufacturer %}
+                            <p class="text-sm text-gray-600">{{ powder.manufacturer }}</p>
+                            {% endif %}
+                            {% if powder.product_code %}
+                            <p class="text-xs text-gray-500">{{ powder.product_code }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="text-right">
+                            {% set stock_kg = powder.on_hand_kg or powder.in_stock or 0 %}
+                            {% if stock_kg <= 0 %}
+                                <span class="stock-status stock-out">Out of Stock</span>
+                            {% elif stock_kg <= low_stock_threshold %}
+                                <span class="stock-status stock-low">Low Stock</span>
+                            {% else %}
+                                <span class="stock-status stock-good">In Stock</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Current Stock:</span>
+                            <span class="font-medium">{{ stock_kg }} kg</span>
+                        </div>
+                        
+                        {% if powder.weight_box_kg %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Box Weight:</span>
+                            <span class="text-sm">{{ powder.weight_box_kg }} kg</span>
+                        </div>
+                        {% endif %}
+
+                        {% if powder.last_weighed_at %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Last Weighed:</span>
+                            <span class="text-sm">{{ powder.last_weighed_at[:10] }}</span>
+                        </div>
+                        {% endif %}
+
+                        <div class="flex space-x-2 pt-2">
+                            <button onclick="openUpdateModal({{ powder.id }}, '{{ powder.powder_color }}', {{ stock_kg }})"
+                                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                <i class="fas fa-edit mr-1"></i>Update
+                            </button>
+                            <button onclick="openAdjustModal({{ powder.id }}, '{{ powder.powder_color }}', {{ stock_kg }})"
+                                    class="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                <i class="fas fa-plus-minus mr-1"></i>Adjust
+                            </button>
+                            <a href="{{ url_for('inventory.inventory_history', powder_id=powder.id) }}"
+                               class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium text-center">
+                                <i class="fas fa-history mr-1"></i>History
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if not powders %}
+            <div class="text-center py-12">
+                <i class="fas fa-boxes text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No powders found</h3>
+                <p class="text-gray-600">Start by adding some powders to your inventory.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Update Stock Modal -->
+<div id="updateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Update Stock Level</h3>
+                <form id="updateForm">
+                    <input type="hidden" id="updatePowderId" name="powder_id">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Powder:</label>
+                        <p id="updatePowderName" class="text-gray-900"></p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="updateStock" class="block text-sm font-medium text-gray-700 mb-2">Stock Level (kg):</label>
+                        <input type="number" id="updateStock" name="on_hand_kg" step="0.1" min="0" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="updateNotes" class="block text-sm font-medium text-gray-700 mb-2">Notes (optional):</label>
+                        <textarea id="updateNotes" name="notes" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeUpdateModal()" 
+                                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Update Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Adjust Stock Modal -->
+<div id="adjustModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Adjust Stock Level</h3>
+                <form id="adjustForm">
+                    <input type="hidden" id="adjustPowderId" name="powder_id">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Powder:</label>
+                        <p id="adjustPowderName" class="text-gray-900"></p>
+                        <p class="text-sm text-gray-600">Current: <span id="adjustCurrentStock"></span> kg</p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Adjustment Type:</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="adjustment_type" value="add" checked class="mr-2">
+                                <span class="text-sm">Add to stock</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="adjustment_type" value="subtract" class="mr-2">
+                                <span class="text-sm">Remove from stock</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="adjustAmount" class="block text-sm font-medium text-gray-700 mb-2">Amount (kg):</label>
+                        <input type="number" id="adjustAmount" name="adjustment" step="0.1" min="0" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="adjustNotes" class="block text-sm font-medium text-gray-700 mb-2">Notes (optional):</label>
+                        <textarea id="adjustNotes" name="notes" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeAdjustModal()" 
+                                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                            Adjust Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter functionality
+function showAll() {
+    filterPowders('all');
+    updateActiveTab('all');
+}
+
+function showOutOfStock() {
+    filterPowders('out');
+    updateActiveTab('out');
+}
+
+function showLowStock() {
+    filterPowders('low');
+    updateActiveTab('low');
+}
+
+function showInStock() {
+    filterPowders('good');
+    updateActiveTab('good');
+}
+
+function filterPowders(filter) {
+    const cards = document.querySelectorAll('.inventory-card');
+    const threshold = parseFloat(document.getElementById('thresholdInput').value);
+    
+    cards.forEach(card => {
+        const stock = parseFloat(card.dataset.stock);
+        let show = false;
+        
+        switch(filter) {
+            case 'all':
+                show = true;
+                break;
+            case 'out':
+                show = stock <= 0;
+                break;
+            case 'low':
+                show = stock > 0 && stock <= threshold;
+                break;
+            case 'good':
+                show = stock > threshold;
+                break;
+        }
+        
+        card.style.display = show ? 'block' : 'none';
+    });
+}
+
+function updateActiveTab(filter) {
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active', 'border-blue-500', 'text-blue-600');
+        tab.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    const activeTab = document.querySelector(`[data-filter="${filter}"]`);
+    if (activeTab) {
+        activeTab.classList.add('active', 'border-blue-500', 'text-blue-600');
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+}
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const cards = document.querySelectorAll('.inventory-card');
+    
+    cards.forEach(card => {
+        const powderColor = card.dataset.powderColor;
+        const manufacturer = card.dataset.manufacturer;
+        
+        if (powderColor.includes(searchTerm) || manufacturer.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+// Threshold change
+document.getElementById('thresholdInput').addEventListener('change', function() {
+    const currentFilter = document.querySelector('.filter-tab.active').dataset.filter;
+    filterPowders(currentFilter);
+});
+
+// Modal functions
+function openUpdateModal(powderId, powderName, currentStock) {
+    document.getElementById('updatePowderId').value = powderId;
+    document.getElementById('updatePowderName').textContent = powderName;
+    document.getElementById('updateStock').value = currentStock;
+    document.getElementById('updateModal').classList.remove('hidden');
+}
+
+function closeUpdateModal() {
+    document.getElementById('updateModal').classList.add('hidden');
+    document.getElementById('updateForm').reset();
+}
+
+function openAdjustModal(powderId, powderName, currentStock) {
+    document.getElementById('adjustPowderId').value = powderId;
+    document.getElementById('adjustPowderName').textContent = powderName;
+    document.getElementById('adjustCurrentStock').textContent = currentStock;
+    document.getElementById('adjustModal').classList.remove('hidden');
+}
+
+function closeAdjustModal() {
+    document.getElementById('adjustModal').classList.add('hidden');
+    document.getElementById('adjustForm').reset();
+}
+
+// Form submissions
+document.getElementById('updateForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch(`/inventory/${formData.get('powder_id')}/update`, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error updating inventory');
+        }
+    });
+});
+
+document.getElementById('adjustForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch(`/inventory/${formData.get('powder_id')}/adjust`, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error adjusting inventory');
+        }
+    });
+});
+</script>
+{% endblock %}

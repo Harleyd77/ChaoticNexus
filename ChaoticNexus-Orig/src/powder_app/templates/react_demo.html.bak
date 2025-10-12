@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PowderApp - ReactBits Demo</title>
+  <link rel="icon" href="{{ url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <meta name="color-scheme" content="dark light">
+  
+  <!-- Theme detection script -->
+  <script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var saved=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.style.backgroundColor = saved==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+  
+  <!-- Include your existing theme CSS -->
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+  
+  <!-- ReactBits-style demo CSS -->
+  <style>
+    /* ReactBits Demo Styles */
+    .react-demo {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .demo-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .demo-title {
+      font-size: 3rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .demo-subtitle {
+      font-size: 1.25rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+    
+    .demo-section {
+      margin-bottom: 3rem;
+    }
+    
+    .demo-section h2 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+    
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .demo-card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 14px 28px rgba(0,0,0,.12);
+      transition: all 0.2s ease;
+    }
+    
+    .demo-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 0 rgba(0,0,0,.06), 0 20px 36px rgba(0,0,0,.16);
+      border-color: var(--primary);
+    }
+    
+    .demo-card h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    
+    .demo-card p {
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    
+    .demo-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    
+    .demo-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      min-height: 40px;
+    }
+    
+    .demo-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      border-color: var(--primary);
+    }
+    
+    .demo-button.primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .demo-button.secondary {
+      background: color-mix(in oklab, var(--panel-2), black 20%);
+      color: var(--muted);
+    }
+    
+    .demo-button.success {
+      background: #10b981;
+      color: white;
+      border-color: #10b981;
+    }
+    
+    .demo-button.warning {
+      background: #f59e0b;
+      color: white;
+      border-color: #f59e0b;
+    }
+    
+    .demo-button.danger {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+    }
+    
+    .demo-button.outline {
+      background: transparent;
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    
+    .demo-button.ghost {
+      background: transparent;
+      color: var(--muted);
+      border-color: transparent;
+    }
+    
+    .demo-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .demo-stat {
+      background: linear-gradient(135deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .demo-stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .demo-stat-label {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+    
+    .demo-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    
+    .demo-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: color-mix(in oklab, var(--panel), var(--primary) 5%);
+      border: 1px solid color-mix(in oklab, var(--border), var(--primary) 20%);
+      border-radius: 8px;
+    }
+    
+    .demo-feature-icon {
+      width: 2rem;
+      height: 2rem;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .demo-feature-text {
+      color: var(--text);
+      font-weight: 500;
+    }
+    
+    .demo-code {
+      background: color-mix(in oklab, var(--panel-2), black 10%);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.875rem;
+      color: var(--text);
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    
+    .demo-nav {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .demo-nav a {
+      padding: 0.5rem 1rem;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .demo-nav a:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="react-demo">
+    <div class="demo-container">
+      <!-- Header -->
+      <div class="demo-header">
+        <h1 class="demo-title">ReactBits Integration Demo</h1>
+        <p class="demo-subtitle">Modern React components integrated with your PowderApp theme</p>
+        <div class="demo-nav">
+          <a href="/nav">← Back to Original App</a>
+        </div>
+      </div>
+
+      <!-- Stats Section -->
+      <div class="demo-section">
+        <h2>Dashboard Stats</h2>
+        <div class="demo-stats">
+          <div class="demo-stat">
+            <div class="demo-stat-value">24</div>
+            <div class="demo-stat-label">Active Jobs</div>
+          </div>
+          <div class="demo-stat">
+            <div class="demo-stat-value">156</div>
+            <div class="demo-stat-label">Customers</div>
+          </div>
+          <div class="demo-stat">
+            <div class="demo-stat-value">89</div>
+            <div class="demo-stat-label">Powder Colors</div>
+          </div>
+          <div class="demo-stat">
+            <div class="demo-stat-value">7</div>
+            <div class="demo-stat-label">Completed Today</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Button Variants -->
+      <div class="demo-section">
+        <h2>ReactBits Button Components</h2>
+        <div class="demo-buttons">
+          <button class="demo-button">Default</button>
+          <button class="demo-button primary">Primary</button>
+          <button class="demo-button secondary">Secondary</button>
+          <button class="demo-button success">Success</button>
+          <button class="demo-button warning">Warning</button>
+          <button class="demo-button danger">Danger</button>
+          <button class="demo-button outline">Outline</button>
+          <button class="demo-button ghost">Ghost</button>
+        </div>
+      </div>
+
+      <!-- Card Components -->
+      <div class="demo-section">
+        <h2>ReactBits Card Components</h2>
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h3>Job Management</h3>
+            <p>Create, edit, and track production jobs with an intuitive interface.</p>
+            <button class="demo-button primary">Open Jobs</button>
+          </div>
+          <div class="demo-card">
+            <h3>Customer Portal</h3>
+            <p>Manage customer information and communication efficiently.</p>
+            <button class="demo-button">View Customers</button>
+          </div>
+          <div class="demo-card">
+            <h3>Powder Inventory</h3>
+            <p>Track powder colors, specifications, and stock levels.</p>
+            <button class="demo-button">Manage Powders</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="demo-section">
+        <h2>ReactBits Features</h2>
+        <div class="demo-features">
+          <div class="demo-feature">
+            <div class="demo-feature-icon">🎨</div>
+            <div class="demo-feature-text">Beautiful, accessible components</div>
+          </div>
+          <div class="demo-feature">
+            <div class="demo-feature-icon">🌙</div>
+            <div class="demo-feature-text">Dark/light theme support</div>
+          </div>
+          <div class="demo-feature">
+            <div class="demo-feature-icon">📱</div>
+            <div class="demo-feature-text">Responsive design</div>
+          </div>
+          <div class="demo-feature">
+            <div class="demo-feature-icon">⚡</div>
+            <div class="demo-feature-text">Fast and performant</div>
+          </div>
+          <div class="demo-feature">
+            <div class="demo-feature-icon">🔧</div>
+            <div class="demo-feature-text">Easy to customize</div>
+          </div>
+          <div class="demo-feature">
+            <div class="demo-feature-icon">🎯</div>
+            <div class="demo-feature-text">TypeScript ready</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Example -->
+      <div class="demo-section">
+        <h2>Integration Code</h2>
+        <div class="demo-code">
+// ReactBits Button Component
+&lt;Button variant="primary" size="lg"&gt;
+  Create New Job
+&lt;/Button&gt;
+
+// ReactBits Card Component
+&lt;Card&gt;
+  &lt;CardHeader&gt;
+    &lt;CardTitle&gt;Job #47&lt;/CardTitle&gt;
+    &lt;CardDescription&gt;Acme Railings&lt;/CardDescription&gt;
+  &lt;/CardHeader&gt;
+  &lt;CardContent&gt;
+    &lt;p&gt;Prep 12 balcony pickets...&lt;/p&gt;
+  &lt;/CardContent&gt;
+&lt;/Card&gt;
+        </div>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="demo-section">
+        <h2>Next Steps</h2>
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h3>1. Install Dependencies</h3>
+            <p>Install Node.js and npm to build the React frontend.</p>
+            <div class="demo-code">
+cd frontend
+npm install
+npm run build
+            </div>
+          </div>
+          <div class="demo-card">
+            <h3>2. Fix Python Environment</h3>
+            <p>Set up Python virtual environment and install Flask dependencies.</p>
+            <div class="demo-code">
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+            </div>
+          </div>
+          <div class="demo-card">
+            <h3>3. Start Development</h3>
+            <p>Run both Flask backend and React frontend for full development experience.</p>
+            <div class="demo-code">
+# Terminal 1: Flask
+python3 src/powder_app/main.py
+
+# Terminal 2: React
+cd frontend
+npm run dev
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle functionality
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      document.documentElement.style.backgroundColor = newTheme === 'dark' ? '#0e141b' : '#f7f9fc';
+      
+      // Save to cookie and localStorage
+      try {
+        document.cookie = `vpc_theme=${newTheme}; path=/; max-age=31536000`;
+        localStorage.setItem('vpc_theme', newTheme);
+      } catch (e) {
+        console.warn('Could not save theme preference:', e);
+      }
+    }
+
+    // Add some interactivity to buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const buttons = document.querySelectorAll('.demo-button');
+      buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          if (this.textContent.includes('Primary') || this.textContent.includes('Success')) {
+            e.preventDefault();
+            alert('ReactBits button clicked! This would trigger React component actions.');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

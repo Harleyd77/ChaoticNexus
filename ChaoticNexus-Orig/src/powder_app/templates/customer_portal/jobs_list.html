@@ -1,0 +1,137 @@
+{% extends "customer_portal/base.html" %}
+
+{% block title %}My Jobs{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col">
+    <h1>My Jobs</h1>
+    <p class="text-muted">View and manage all your submitted jobs</p>
+  </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="row mb-4">
+  <div class="col">
+    <form method="GET" class="card bg-secondary">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="search" class="form-label">Search</label>
+            <input type="text" class="form-control" id="search" name="search"
+                   value="{{ search_query or '' }}" placeholder="Search by description, PO, etc.">
+          </div>
+          <div class="col-md-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status">
+              <option value="">All Statuses</option>
+              <option value="Pending Approval" {{ 'selected' if status_filter == 'Pending Approval' else '' }}>Pending Approval</option>
+              <option value="Not Started" {{ 'selected' if status_filter == 'Not Started' else '' }}>Not Started</option>
+              <option value="In Progress" {{ 'selected' if status_filter == 'In Progress' else '' }}>In Progress</option>
+              <option value="Quality Check" {{ 'selected' if status_filter == 'Quality Check' else '' }}>Quality Check</option>
+              <option value="Ready for Pickup" {{ 'selected' if status_filter == 'Ready for Pickup' else '' }}>Ready for Pickup</option>
+              <option value="Completed" {{ 'selected' if status_filter == 'Completed' else '' }}>Completed</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-grid">
+              <a href="{{ url_for('customer_portal.jobs_list') }}" class="btn btn-outline-secondary">Clear</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Jobs Table -->
+<div class="row">
+  <div class="col">
+    <div class="card bg-secondary">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Jobs</h5>
+        <div class="btn-group">
+          <a href="{{ url_for('intake.intake_form') }}" class="btn btn-primary btn-sm">Production Intake</a>
+          <a href="{{ url_for('intake.railing_intake') }}" class="btn btn-outline-primary btn-sm">Railing Intake</a>
+        </div>
+      </div>
+      <div class="card-body">
+        {% if jobs %}
+          <div class="table-responsive">
+            <table class="table table-dark table-hover">
+              <thead>
+                <tr>
+                  <th>Job #</th>
+                  <th>Date Submitted</th>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Due Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for job in jobs %}
+                <tr>
+                  <td><strong>#{{ job.id }}</strong></td>
+                  <td>{{ job.created_at[:10] if job.created_at else 'N/A' }}</td>
+                  <td>{{ job.description[:60] }}{{ '...' if job.description and job.description|length > 60 else '' }}</td>
+                  <td>{{ job.type or 'N/A' }}</td>
+                  <td>
+                    <span class="badge
+                      {% if job.status == 'Completed' %}bg-success
+                      {% elif job.status == 'Ready for Pickup' %}bg-info
+                      {% elif job.status == 'In Progress' %}bg-warning
+                      {% elif job.status == 'Not Started' %}bg-secondary
+                      {% elif job.status == 'Pending Approval' %}bg-primary
+                      {% else %}bg-light text-dark{% endif %}">
+                      {{ job.status }}
+                    </span>
+                  </td>
+                  <td>{{ job.due_by if job.due_by else 'No due date' }}</td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <a href="{{ url_for('customer_portal.job_detail', job_id=job.id) }}"
+                         class="btn btn-sm btn-outline-primary">View</a>
+                      {% if job.status in ['Pending Approval', 'Not Started'] %}
+                      <a href="{{ url_for('customer_portal.edit_job', job_id=job.id) }}"
+                         class="btn btn-sm btn-outline-warning">Edit</a>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <p class="text-muted mb-3">
+              {% if search_query or status_filter %}
+                No jobs match your current filters.
+              {% else %}
+                You haven't submitted any jobs yet.
+              {% endif %}
+            </p>
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="{{ url_for('intake.intake_form') }}" class="btn btn-primary">
+                Production Intake
+              </a>
+              <a href="{{ url_for('intake.railing_intake') }}" class="btn btn-outline-primary">
+                Railing Intake
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

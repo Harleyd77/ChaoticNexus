@@ -1,0 +1,259 @@
+{% extends "_layouts/base.html" %}
+
+{% block title %}Operations Hub{% endblock %}
+
+{% set perms = perms or {} %}
+{% set is_admin = is_admin or False %}
+{% set me_username = me_username or None %}
+{% set has_operations = is_admin
+  or perms.get("see_intake")
+  or perms.get("see_railing")
+  or perms.get("see_job_screen")
+%}
+{% set has_records = is_admin
+  or perms.get("see_jobs")
+  or perms.get("see_archived")
+  or perms.get("see_powders")
+  or perms.get("see_customers")
+%}
+{% set has_admin_tools = is_admin or session.get("is_admin") %}
+
+{% set primary_btn = "inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300" %}
+{% set secondary_btn = "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300" %}
+{% set pending_links = [
+  "/intake_form",
+  "/railing_intake",
+  "/sprayer/hitlist",
+  "/sprayer/batches",
+  "/jobs/screen",
+  "/jobs",
+  "/jobs/kanban",
+  "/jobs/completed",
+  "/jobs?archived=1",
+  "/powders",
+  "/customers",
+  "/config",
+  "/api/print-templates"
+] %}
+
+{% macro action_button(label, href, kind="primary") -%}
+  {%- set css = primary_btn if kind == "primary" else secondary_btn -%}
+  {%- set pending = href in pending_links -%}
+  <a
+    href="{{ '#' if pending else href }}"
+    class="{{ css }} {% if pending %}opacity-65 hover:opacity-80{% endif %}"
+    {% if pending %}
+      data-pending-route="true"
+      data-pending-target="{{ href }}"
+      title="Route pending migration"
+    {% endif %}
+  >
+    <span>{{ label }}</span>
+    {% if pending %}
+      <span class="ml-2 text-[10px] font-semibold uppercase tracking-wide text-amber-300">Soon</span>
+    {% endif %}
+  </a>
+{%- endmacro %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<section class="space-y-10 text-slate-100">
+  <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/80 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/40 ring-1 ring-white/5">
+    <div class="flex flex-wrap items-center justify-between gap-6">
+      <div class="flex items-center gap-4">
+        <img
+          src="{{ branding_page_logo or url_for('static', filename='img/logo.svg') }}"
+          alt="Chaotic Nexus logo"
+          class="h-14 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
+        />
+        <div>
+          <p class="text-xs uppercase tracking-wider text-slate-400">Victoria Powder Coating</p>
+          <h1 class="text-2xl font-semibold tracking-tight">Chaotic Nexus</h1>
+          <p class="text-sm text-slate-400">Operational control for production, inventory, and customer care.</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-800/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-300"
+        >
+          {% if is_admin %}
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span>Admin</span>
+          {% elif me_username %}
+            <span class="h-2 w-2 rounded-full bg-sky-400"></span>
+            <span>{{ me_username }}</span>
+          {% else %}
+            <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+            <span>Guest</span>
+          {% endif %}
+        </div>
+        {% if is_admin or me_username %}
+          <a href="/logout" class="{{ primary_btn }}">Logout</a>
+        {% else %}
+          <a href="/login" class="{{ primary_btn }}">Admin Login</a>
+        {% endif %}
+      </div>
+  </div>
+  <p class="text-sm text-slate-400">
+      Theme controls appear in the global header. Use the quick links below to open the most-used operational views.
+    </p>
+  </div>
+
+  <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+    Routes marked <span class="font-semibold uppercase tracking-wide">Soon</span> are placeholders until their blueprints are migrated from the legacy app.
+  </div>
+
+  {% if has_operations %}
+    <section class="space-y-4">
+      <header class="flex flex-wrap items-baseline justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold">Daily Operations</h2>
+          <p class="text-sm text-slate-400">Intake flows and tools for the production floor.</p>
+        </div>
+      </header>
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {% if is_admin or perms.get("see_intake") %}
+          <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+            <div>
+              <h3 class="text-lg font-semibold">Production Intake</h3>
+              <p class="text-sm text-slate-400">Capture new jobs and route them into the workflow.</p>
+            </div>
+            <div class="mt-auto flex flex-wrap gap-3">
+              {{ action_button("Open Form", "/intake_form", "primary") }}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if is_admin or perms.get("see_railing") %}
+          <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+            <div>
+              <h3 class="text-lg font-semibold">Railing Intake</h3>
+              <p class="text-sm text-slate-400">Specialised workflow for railing projects.</p>
+            </div>
+            <div class="mt-auto flex flex-wrap gap-3">
+              {{ action_button("Railing Form", "/railing_intake", "secondary") }}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if is_admin or perms.get("see_job_screen") %}
+          <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+            <div>
+              <h3 class="text-lg font-semibold">Sprayer Batches</h3>
+              <p class="text-sm text-slate-400">Prepare batches, track usage, and sync with inventory.</p>
+            </div>
+            <div class="mt-auto flex flex-wrap gap-3">
+              {{ action_button("Hit List", "/sprayer/hitlist", "secondary") }}
+              {{ action_button("Batches", "/sprayer/batches", "secondary") }}
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+            <div>
+              <h3 class="text-lg font-semibold">Daily Hit List</h3>
+              <p class="text-sm text-slate-400">Control what appears on the production floor display.</p>
+            </div>
+            <div class="mt-auto flex flex-wrap gap-3">
+              {{ action_button("Open Hit List", "/jobs/screen", "secondary") }}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if has_records %}
+    <section class="space-y-4">
+      <header class="flex flex-wrap items-baseline justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold">Records &amp; Tracking</h2>
+          <p class="text-sm text-slate-400">Administration views for jobs, customers, and powders.</p>
+        </div>
+      </header>
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {% if is_admin or perms.get("see_jobs") %}
+          <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+            <div>
+              <h3 class="text-lg font-semibold">Job Database</h3>
+              <p class="text-sm text-slate-400">Review active, queued, and completed work.</p>
+            </div>
+            <div class="mt-auto flex flex-wrap gap-3">
+              {{ action_button("Open Jobs", "/jobs", "primary") }}
+              {{ action_button("Kanban Board", "/jobs/kanban", "secondary") }}
+              {{ action_button("Completed", "/jobs/completed", "secondary") }}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if is_admin or perms.get("see_archived") %}
+          <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+            <div>
+              <h3 class="text-lg font-semibold">Archived Jobs</h3>
+              <p class="text-sm text-slate-400">Access long-term work history and audit trails.</p>
+            </div>
+            <div class="mt-auto flex flex-wrap gap-3">
+              {{ action_button("View Archive", "/jobs?archived=1", "secondary") }}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if is_admin or perms.get("see_powders") %}
+          <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+            <div>
+              <h3 class="text-lg font-semibold">Powder Inventory</h3>
+              <p class="text-sm text-slate-400">Manage colour catalogues, stock levels, and specs.</p>
+            </div>
+            <div class="mt-auto flex flex-wrap gap-3">
+              {{ action_button("Open Inventory", "/powders", "primary") }}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if is_admin or perms.get("see_customers") %}
+          <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+            <div>
+              <h3 class="text-lg font-semibold">Customer Records</h3>
+              <p class="text-sm text-slate-400">Administer accounts, contacts, and communication logs.</p>
+            </div>
+            <div class="mt-auto flex flex-wrap gap-3">
+              {{ action_button("Manage Customers", "/customers", "secondary") }}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if has_admin_tools %}
+    <section class="space-y-4">
+      <header class="flex flex-wrap items-baseline justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold">Administration</h2>
+          <p class="text-sm text-slate-400">Configuration, templates, and advanced tooling.</p>
+        </div>
+      </header>
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+          <div>
+            <h3 class="text-lg font-semibold">Settings &amp; Branding</h3>
+            <p class="text-sm text-slate-400">Control global options, branding assets, and price matrices.</p>
+          </div>
+          <div class="mt-auto flex flex-wrap gap-3">
+            {{ action_button("Open Settings", "/config", "secondary") }}
+          </div>
+        </div>
+        <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
+          <div>
+            <h3 class="text-lg font-semibold">Print Templates</h3>
+            <p class="text-sm text-slate-400">Manage print/export layouts for jobs and customer comms.</p>
+          </div>
+          <div class="mt-auto flex flex-wrap gap-3">
+            {{ action_button("Template Manager", "/api/print-templates", "secondary") }}
+          </div>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+</section>
+{% endblock %}

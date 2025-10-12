@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en" data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="{{ url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <title>{{ c.company }} · Customer Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              bg: '#0e141b',
+              panel: '#111923',
+              card: '#151e2a',
+              border: '#1f2a37',
+              text: '#e6edf3',
+              muted: '#9fb0c0',
+              hover: '#172235',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+</head>
+<body class="dark bg-dark-bg text-dark-text min-h-screen">
+  <!-- Toast container -->
+  <div id="toast" data-testid="toast" class="fixed top-4 right-4 z-50"></div>
+  
+  <!-- DEV BANNER -->
+  <div style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; text-align: center; padding: 12px 20px; font-weight: bold; font-size: 16px; border-bottom: 3px solid #991b1b;">
+    🚧 DEVELOPMENT COPY 🚧
+  </div>
+
+  <!-- Theme button automatically injected by global-theme-menu.js -->
+
+  <!-- Top Bar -->
+  <div class="sticky top-0 z-40 bg-dark-panel/80 backdrop-blur-lg border-b border-dark-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h1 class="text-xl font-semibold text-dark-text">{{ c.company }}</h1>
+          <p class="text-sm text-dark-muted">Customer Profile</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <a href="/customers" class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">
+            ← Back
+          </a>
+          <a href="/jobs?company={{ c.company|urlencode }}" class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">
+            Jobs Board
+          </a>
+          {% if is_admin %}
+          <button id="editBtn" data-testid="edit-toggle" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors">
+            Edit
+          </button>
+          <button id="saveBtn" data-testid="save" class="hidden px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors">
+            Save
+          </button>
+          <button id="cancelBtn" data-testid="cancel" class="hidden px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">
+            Cancel
+          </button>
+          {% endif %}
+          {% if c.email %}
+          <a href="mailto:{{ c.email }}" class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">
+            📧 Email
+          </a>
+          {% endif %}
+          {% if c.phone %}
+          <a href="tel:{{ c.phone }}" class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">
+            📞 Call
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-testid="unsaved-guard" id="profileForm">
+      <!-- Main Column -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Essential Information -->
+        <section class="bg-dark-panel rounded-xl border border-dark-border p-6">
+          <h2 class="text-lg font-semibold text-dark-text mb-4">Essential Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="essentialFields">
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Company</label>
+              <div class="field-value text-dark-text">{{ c.company }}</div>
+              <input type="text" name="company" value="{{ c.company }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Contact Name</label>
+              <div class="field-value text-dark-text">{{ c.contact_name or '—' }}</div>
+              <input type="text" name="contact_name" value="{{ c.contact_name or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Phone</label>
+              <div class="field-value text-dark-text">{{ c.phone or '—' }}</div>
+              <input type="tel" name="phone" value="{{ c.phone or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Email</label>
+              <div class="field-value text-dark-text">{{ c.email or '—' }}</div>
+              <input type="email" name="email" value="{{ c.email or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+          </div>
+        </section>
+
+        <!-- Address Information -->
+        <section class="bg-dark-panel rounded-xl border border-dark-border p-6">
+          <h2 class="text-lg font-semibold text-dark-text mb-4">Address Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="addressFields">
+            <div class="field-group md:col-span-2">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Street</label>
+              <div class="field-value text-dark-text">{{ c.street or '—' }}</div>
+              <input type="text" name="street" value="{{ c.street or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">City</label>
+              <div class="field-value text-dark-text">{{ c.city or '—' }}</div>
+              <input type="text" name="city" value="{{ c.city or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Region/State</label>
+              <div class="field-value text-dark-text">{{ c.region or '—' }}</div>
+              <input type="text" name="region" value="{{ c.region or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Postal Code</label>
+              <div class="field-value text-dark-text">{{ c.postal_code or '—' }}</div>
+              <input type="text" name="postal_code" value="{{ c.postal_code or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Country</label>
+              <div class="field-value text-dark-text">{{ c.country or '—' }}</div>
+              <input type="text" name="country" value="{{ c.country or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+          </div>
+        </section>
+
+        <!-- Business Details -->
+        <section class="bg-dark-panel rounded-xl border border-dark-border p-6">
+          <h2 class="text-lg font-semibold text-dark-text mb-4">Business Details</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="businessFields">
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Website</label>
+              <div class="field-value text-dark-text">{{ c.website or '—' }}</div>
+              <input type="text" name="website" value="{{ c.website or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Tax ID</label>
+              <div class="field-value text-dark-text">{{ c.tax_id or '—' }}</div>
+              <input type="text" name="tax_id" value="{{ c.tax_id or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Account Number</label>
+              <div class="field-value text-dark-text">{{ c.account_number or '—' }}</div>
+              <input type="text" name="account_number" value="{{ c.account_number or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Terms</label>
+              <div class="field-value text-dark-text">{{ c.terms or '—' }}</div>
+              <input type="text" name="terms" value="{{ c.terms or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Status</label>
+              <div class="field-value text-dark-text">{{ c.status or '—' }}</div>
+              <input type="text" name="status" value="{{ c.status or '' }}" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div class="field-group md:col-span-2">
+              <label class="block text-sm font-medium text-dark-muted mb-2">Notes</label>
+              <div class="field-value text-dark-text">{{ c.notes or '—' }}</div>
+              <textarea name="notes" rows="3" class="field-input hidden w-full px-4 py-2 rounded-lg bg-dark-card border border-dark-border text-dark-text focus:outline-none focus:ring-2 focus:ring-blue-600">{{ c.notes or '' }}</textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Jobs -->
+        <section class="bg-dark-panel rounded-xl border border-dark-border p-6">
+          <h2 class="text-lg font-semibold text-dark-text mb-4">Recent Jobs</h2>
+          {% if jobs %}
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="border-b border-dark-border">
+                <tr>
+                  <th class="text-left py-2 px-2 text-xs font-medium text-dark-muted">Job #</th>
+                  <th class="text-left py-2 px-2 text-xs font-medium text-dark-muted">Type</th>
+                  <th class="text-left py-2 px-2 text-xs font-medium text-dark-muted">Description</th>
+                  <th class="text-left py-2 px-2 text-xs font-medium text-dark-muted">Status</th>
+                  <th class="text-left py-2 px-2 text-xs font-medium text-dark-muted">Due</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for job in jobs[:10] %}
+                <tr class="border-b border-dark-border last:border-0 hover:bg-dark-hover">
+                  <td class="py-3 px-2"><a href="/jobs/{{ job.id }}" class="text-sm text-blue-400 hover:text-blue-300">{{ job.id }}</a></td>
+                  <td class="py-3 px-2 text-sm text-dark-text">{{ job.type or '—' }}</td>
+                  <td class="py-3 px-2 text-sm text-dark-text truncate max-w-xs">{{ job.description or '—' }}</td>
+                  <td class="py-3 px-2"><span class="badge badge-{{ job.status }}">{{ job.status }}</span></td>
+                  <td class="py-3 px-2 text-sm text-dark-muted">{{ job.due_by or '—' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if jobs|length > 10 %}
+          <div class="mt-4 text-center">
+            <a href="/jobs?company={{ c.company|urlencode }}" class="text-sm text-blue-400 hover:text-blue-300">View all {{ jobs|length }} jobs →</a>
+          </div>
+          {% endif %}
+          {% else %}
+          <p class="text-sm text-dark-muted">No jobs yet</p>
+          {% endif %}
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Quick Stats -->
+        <section class="bg-dark-panel rounded-xl border border-dark-border p-6">
+          <h2 class="text-lg font-semibold text-dark-text mb-4">Quick Stats</h2>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-dark-muted">Total Jobs</span>
+              <span class="text-lg font-bold text-dark-text">{{ jobs|length }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-dark-muted">Customer Since</span>
+              <span class="text-sm font-medium text-dark-text">{{ c.created_at[:10] if c.created_at else '—' }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-dark-muted">Last Updated</span>
+              <span class="text-sm font-medium text-dark-text">{{ c.updated_at[:10] if c.updated_at else '—' }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="bg-dark-panel rounded-xl border border-dark-border p-6">
+          <h2 class="text-lg font-semibold text-dark-text mb-4">Quick Actions</h2>
+          <div class="space-y-2">
+            <a href="/jobs?company={{ c.company|urlencode }}" class="block px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium text-center transition-colors">
+              Create New Job
+            </a>
+            <a href="/jobs?company={{ c.company|urlencode }}" class="block px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium text-center transition-colors">
+              View All Jobs
+            </a>
+          </div>
+        </section>
+
+        <!-- Contacts -->
+        {% if contacts %}
+        <section class="bg-dark-panel rounded-xl border border-dark-border p-6">
+          <h2 class="text-lg font-semibold text-dark-text mb-4">Contacts</h2>
+          <div class="space-y-3">
+            {% for contact in contacts[:5] %}
+            <div class="text-sm">
+              <p class="font-medium text-dark-text">{{ contact.name }}</p>
+              {% if contact.phone %}<p class="text-dark-muted">📞 {{ contact.phone }}</p>{% endif %}
+              {% if contact.email %}<p class="text-dark-muted">📧 {{ contact.email }}</p>{% endif %}
+              {% if contact.role %}<p class="text-dark-muted text-xs">{{ contact.role }}</p>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+
+        <!-- Delete (Admin Only) -->
+        {% if is_admin %}
+        <section class="bg-dark-panel rounded-xl border border-red-900/50 p-6">
+          <h2 class="text-lg font-semibold text-red-400 mb-2">Danger Zone</h2>
+          <p class="text-sm text-dark-muted mb-4">This action cannot be undone</p>
+          <form method="POST" action="/customers/{{ c.id }}/delete" onsubmit="return confirm('Delete {{ c.company }} and all associated data? This cannot be undone.')">
+            <button type="submit" class="w-full px-4 py-2 rounded-lg bg-red-900/40 hover:bg-red-900/60 text-red-300 border border-red-700/50 text-sm font-medium transition-colors">
+              Delete Customer
+            </button>
+          </form>
+        </section>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="hidden fixed bottom-4 right-4 px-6 py-3 rounded-lg bg-green-600 text-white shadow-lg z-50 transition-all">
+    <div class="flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="toastMessage">Saved successfully</span>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      
+      const customerId = {{ c.id }};
+      let isEditMode = false;
+      let originalData = {};
+      let isDirty = false;
+
+      const editBtn = document.getElementById('editBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const toast = document.getElementById('toast');
+
+      if (editBtn) {
+        editBtn.addEventListener('click', enterEditMode);
+      }
+      if (saveBtn) {
+        saveBtn.addEventListener('click', saveChanges);
+      }
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', cancelEdit);
+      }
+
+      // Navigation guard
+      window.addEventListener('beforeunload', (e) => {
+        if (isDirty) {
+          e.preventDefault();
+          e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+          return e.returnValue;
+        }
+      });
+
+      // Track changes
+      document.addEventListener('input', (e) => {
+        if (e.target.classList.contains('field-input')) {
+          isDirty = true;
+        }
+      });
+
+      function enterEditMode() {
+        isEditMode = true;
+        isDirty = false;
+        
+        // Store original values
+        document.querySelectorAll('.field-input').forEach(input => {
+          originalData[input.name] = input.value;
+        });
+
+        // Toggle UI
+        editBtn.classList.add('hidden');
+        saveBtn.classList.remove('hidden');
+        cancelBtn.classList.remove('hidden');
+
+        // Show inputs, hide values
+        document.querySelectorAll('.field-value').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.field-input').forEach(el => el.classList.remove('hidden'));
+      }
+
+      function cancelEdit() {
+        if (isDirty && !confirm('Discard unsaved changes?')) {
+          return;
+        }
+
+        isEditMode = false;
+        isDirty = false;
+
+        // Restore original values
+        document.querySelectorAll('.field-input').forEach(input => {
+          if (originalData.hasOwnProperty(input.name)) {
+            input.value = originalData[input.name];
+          }
+        });
+
+        // Toggle UI
+        editBtn.classList.remove('hidden');
+        saveBtn.classList.add('hidden');
+        cancelBtn.classList.add('hidden');
+
+        // Hide inputs, show values
+        document.querySelectorAll('.field-value').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.field-input').forEach(el => el.classList.add('hidden'));
+      }
+
+      async function saveChanges() {
+        const data = {};
+        document.querySelectorAll('.field-input').forEach(input => {
+          data[input.name] = input.value;
+        });
+
+        try {
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Saving...';
+
+          const response = await fetch(`/api/customers/${customerId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          if (!response.ok) throw new Error('Failed to save');
+
+          const updated = await response.json();
+          
+          // Update UI with new values
+          document.querySelectorAll('.field-value').forEach(el => {
+            const input = el.parentElement.querySelector('.field-input');
+            if (input) {
+              const value = updated[input.name] || '—';
+              el.textContent = value;
+            }
+          });
+
+          // Exit edit mode
+          isEditMode = false;
+          isDirty = false;
+          editBtn.classList.remove('hidden');
+          saveBtn.classList.add('hidden');
+          cancelBtn.classList.add('hidden');
+          document.querySelectorAll('.field-value').forEach(el => el.classList.remove('hidden'));
+          document.querySelectorAll('.field-input').forEach(el => el.classList.add('hidden'));
+
+          // Show toast using motion.js
+          if (window.motion && window.motion.toast) {
+            window.motion.toast('Saved successfully', 'success');
+          } else {
+            showToast('Saved successfully');
+          }
+        } catch (error) {
+          alert('Failed to save changes: ' + error.message);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save';
+        }
+      }
+
+      function showToast(message) {
+        const toastMsg = document.getElementById('toastMessage');
+        if (toastMsg) toastMsg.textContent = message;
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 3000);
+      }
+    })();
+  </script>
+
+  <style>
+    .badge { @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium; }
+    .badge-queued { @apply bg-yellow-900/40 text-yellow-300 border border-yellow-700/50; }
+    .badge-in_work { @apply bg-blue-900/40 text-blue-300 border border-blue-700/50; }
+    .badge-waiting_material { @apply bg-orange-900/40 text-orange-300 border border-orange-700/50; }
+    .badge-ready_pickup { @apply bg-green-900/40 text-green-300 border border-green-700/50; }
+    .badge-completed { @apply bg-green-900/40 text-green-300 border border-green-700/50; }
+  </style>
+</body>
+</html>
+

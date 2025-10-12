@@ -1,0 +1,758 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    /* Consistent styling to match navigation and other pages */
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      background: var(--bg); 
+      color: var(--text); 
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    a { color: inherit; text-decoration: none; }
+    
+    .wrap { 
+      max-width: 1100px; 
+      margin: 0 auto; 
+      padding: 18px; 
+    }
+    
+    /* Consistent button styling */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      background: var(--primary);
+      color: white;
+    }
+    .btn:hover { 
+      opacity: 0.9; 
+      transform: translateY(-1px);
+    }
+    .btn.ghost {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn.ghost:hover {
+      background: var(--hover);
+    }
+    .btn.primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn.secondary {
+      background: var(--panel-2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn.is-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    
+    /* Page structure */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .page-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* Card styling */
+    .card, .edit-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius, 12px);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    /* Form styling */
+    .form-section {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: var(--text);
+    }
+    .section-hint {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0 0 16px 0;
+    }
+    
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    .grid.single-column {
+      grid-template-columns: 1fr;
+    }
+    .grid.pricing-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    /* Field styling */
+    .field-card {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .field-card.full {
+      grid-column: 1 / -1;
+    }
+    
+    .field-card input,
+    .field-card select,
+    .field-card textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: 14px;
+      transition: border-color 0.2s ease;
+    }
+    .field-card input:focus,
+    .field-card select:focus,
+    .field-card textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* Checkbox styling */
+    .checkbox-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .checkbox-card:hover {
+      background: var(--hover);
+    }
+    .checkbox-card input[type="checkbox"] {
+      margin: 0;
+    }
+    
+    /* Metric cards */
+    .metric-card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+    }
+    .metric-card__label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .metric-card__value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .metric-card__note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    /* Upload grid */
+    .upload-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .upload-card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .upload-card label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .upload-card input[type="file"] {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    
+    /* Form actions */
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    
+    /* Edit summary */
+    .edit-summary {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .edit-summary__info {
+      flex: 1;
+    }
+    .eyebrow {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .edit-summary h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--text);
+    }
+    .edit-summary__subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0;
+    }
+    .edit-summary__media {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .edit-summary__preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .edit-summary__preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .edit-summary__preview-placeholder {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .edit-summary__meta {
+      font-size: 14px;
+    }
+    .edit-summary__name {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .wrap { padding: 12px; }
+      .top { flex-direction: column; align-items: stretch; }
+      .page-actions { justify-content: center; }
+      .edit-summary { flex-direction: column; }
+      .grid { grid-template-columns: 1fr; }
+      .form-actions { justify-content: stretch; }
+      .form-actions .btn { flex: 1; justify-content: center; }
+    }
+  </style>
+  <title>{{ super() }} | {{ page_title or 'Edit Powder' }}</title>
+<script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var saved=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        var styleCookie=document.cookie.match(/(?:^|; )vpc_style=([^;]+)/);
+        var savedStyle=(styleCookie?decodeURIComponent(styleCookie[1]):null) || localStorage.getItem('vpc_style') || 'classic';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.setAttribute('data-style', savedStyle);
+        document.cookie = 'vpc_style=' + savedStyle + '; path=/; max-age=31536000; SameSite=Lax';
+        document.documentElement.style.backgroundColor = saved==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+<script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+<script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="wrap">
+    <div class="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}" role="alert">
+              {{ message }}
+              <button type="button" class="close" onclick="this.parentElement.remove()" aria-label="Close">×</button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+    <div class="top">
+      <div class="page-actions">
+        <a class="btn ghost" href="/powders">← Back to inventory</a>
+        {% if prev_id %}
+          <a class="btn" href="/powders/{{ prev_id }}/edit" title="Previous powder">Previous</a>
+        {% else %}
+          <span class="btn ghost is-disabled" aria-disabled="true">Previous</span>
+        {% endif %}
+        {% if next_id %}
+          <a class="btn" href="/powders/{{ next_id }}/edit" title="Next powder">Next</a>
+        {% else %}
+          <span class="btn ghost is-disabled" aria-disabled="true">Next</span>
+        {% endif %}
+      </div>
+      <div class="page-actions">
+        {% if is_admin %}
+          <button class="btn primary" type="button" onclick="openDrawer('powopts')" title="Edit dropdown options">Edit Dropdown Sets</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card edit-card">
+      {% set _pic = r.get('picture_url') or '' %}
+      {% if _pic and '://' not in _pic %}
+        {% set _pic = '/uploads/' ~ _pic %}
+      {% endif %}
+      <div class="edit-summary">
+        <div class="edit-summary__info">
+          <span class="eyebrow">Edit Powder</span>
+          <h1>{{ r.get('powder_color') or page_title or 'Powder' }}</h1>
+          <p class="edit-summary__subtitle">
+            Update powder attributes, pricing, documents, and appearance. Changes will apply immediately after saving.
+          </p>
+        </div>
+        <div class="edit-summary__media">
+          <div class="edit-summary__preview" id="pf_preview_wrap">
+            {% if _pic %}
+              <img id="pf_preview" src="{{ _pic }}" alt="Powder preview">
+            {% else %}
+              <div class="edit-summary__preview-placeholder" id="pf_preview_placeholder">No preview</div>
+              <img id="pf_preview" src="" alt="Powder preview" style="display:none;">
+            {% endif %}
+          </div>
+          <div class="edit-summary__meta">
+            <div class="edit-summary__name">{{ r.get('powder_color') or '—' }}</div>
+            <div class="muted">Manufacturer: {{ r.get('manufacturer') or '—' }}</div>
+            <div class="muted">Code: {{ r.get('product_code') or '—' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <form id="powder-edit-form" class="edit-form" method="post" action="/powders/save">
+        <input type="hidden" name="id" value="{{ r.get('id', '') }}">
+
+        <div class="form-section">
+          <div>
+            <p class="section-title">Basics</p>
+            <p class="section-hint">Primary descriptors used across inventory listings.</p>
+          </div>
+          <div class="grid">
+            <label class="field-card">Color
+              <input name="powder_color" value="{{ r.get('powder_color') or '' }}" required>
+            </label>
+            <label class="field-card">Color Family
+            {% set _cf = (r.get('color_family') or '').strip() %}
+            {% set fams = opt_families or [] %}
+            {% set fams_lower = fams | map('lower') | list %}
+            <select name="color_family">
+              <option value="">Select...</option>
+              {% for fam in fams %}
+                <option value="{{ fam }}" {% if _cf|lower==fam|lower %}selected{% endif %}>{{ fam }}</option>
+              {% endfor %}
+              {% if _cf and (_cf|lower not in fams_lower) %}
+                <option value="{{ _cf }}" selected>(Custom) {{ _cf }}</option>
+              {% endif %}
+            </select>
+            </label>
+            <label class="field-card">Manufacturer
+            {% set _mf = (r.get('manufacturer') or '').strip() %}
+            {% set mans = opt_manufacturers or [] %}
+            {% set mans_lower = mans | map('lower') | list %}
+            <select name="manufacturer">
+              <option value="">Select...</option>
+              {% for m in mans %}
+                <option value="{{ m }}" {% if _mf|lower==m|lower %}selected{% endif %}>{{ m }}</option>
+              {% endfor %}
+              {% if _mf and (_mf|lower not in mans_lower) %}
+                <option value="{{ _mf }}" selected>(Custom) {{ _mf }}</option>
+              {% endif %}
+            </select>
+            </label>
+            <label class="field-card">Product Code
+              <input name="product_code" value="{{ r.get('product_code') or '' }}">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div>
+            <p class="section-title">Attributes</p>
+            <p class="section-hint">Finish and usage details used for search filters and customer quotes.</p>
+          </div>
+          <div class="grid">
+            <label class="field-card">Gloss
+            {% set _gl = (r.get('gloss_level') or '').strip() %}
+            {% set gls = opt_gloss or [] %}
+            {% set gls_lower = gls | map('lower') | list %}
+            <select name="gloss_level">
+              <option value="">Select...</option>
+              {% for g in gls %}
+                <option value="{{ g }}" {% if _gl|lower==g|lower %}selected{% endif %}>{{ g }}</option>
+              {% endfor %}
+              {% if _gl and (_gl|lower not in gls_lower) %}
+                <option value="{{ _gl }}" selected>(Custom) {{ _gl }}</option>
+              {% endif %}
+            </select>
+          </label>
+            <label class="field-card">Finish
+            {% set _fn = (r.get('finish') or '').strip() %}
+            {% set fins = opt_finishes or [] %}
+            {% set fins_lower = fins | map('lower') | list %}
+            <select name="finish">
+              <option value="">Select...</option>
+              {% for f in fins %}
+                <option value="{{ f }}" {% if _fn|lower==f|lower %}selected{% endif %}>{{ f }}</option>
+              {% endfor %}
+              {% if _fn and (_fn|lower not in fins_lower) %}
+                <option value="{{ _fn }}" selected>(Custom) {{ _fn }}</option>
+              {% endif %}
+            </select>
+          </label>
+            <label class="field-card">Int / Ext
+            {% set _ie = (r.get('int_ext') or '').strip() %}
+            {% set ies = opt_int_ext or [] %}
+            {% set ies_lower = ies | map('lower') | list %}
+            <select name="int_ext">
+              <option value="">Select...</option>
+              {% for ie in ies %}
+                <option value="{{ ie }}" {% if _ie|lower==ie|lower %}selected{% endif %}>{{ ie }}</option>
+              {% endfor %}
+              {% if _ie and (_ie|lower not in ies_lower) %}
+                <option value="{{ _ie }}" selected>(Custom) {{ _ie }}</option>
+              {% endif %}
+            </select>
+          </label>
+            <label class="checkbox-card full">
+              <input type="checkbox" name="metallic" {% if r.get('metallic') %}checked{% endif %}>
+              Metallic
+              <input type="hidden" name="metallic" value="off">
+            </label>
+            <label class="checkbox-card full">
+              <input type="checkbox" name="needs_clear" {% if r.get('needs_clear') %}checked{% endif %}>
+              Needs Clear
+              <input type="hidden" name="needs_clear" value="off">
+            </label>
+            <label class="field-card">In Stock (kg)
+              <input type="number" step="0.01" name="in_stock" value="{{ r.get('in_stock') if r.get('in_stock') is not none else '' }}">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div>
+            <p class="section-title">Docs & Links</p>
+            <p class="section-hint">Reference material and documents available to the team.</p>
+          </div>
+          <div class="grid">
+            <label class="field-card">Additional Code
+              <input name="additional_code" value="{{ r.get('additional_code') or '' }}">
+            </label>
+            <label class="field-card">MSDS URL
+              <input name="msds_url" value="{{ r.get('msds_url') or '' }}" placeholder="https://...">
+            </label>
+            <label class="field-card">SDS URL
+              <input name="sds_url" value="{{ r.get('sds_url') or '' }}" placeholder="https://...">
+            </label>
+            <label class="field-card">Web Link
+              <input name="web_link" value="{{ r.get('web_link') or '' }}" placeholder="https://...">
+            </label>
+            <label class="field-card full">Picture URL
+              <input id="pf_picture_url" name="picture_url" value="{{ r.get('picture_url') or '' }}" placeholder="https://...">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div>
+            <p class="section-title">Notes</p>
+            <p class="section-hint">Internal details surfaced on powder detail views and job sheets.</p>
+          </div>
+          <div class="grid single-column">
+            <label class="field-card">Notes
+              <textarea name="notes" rows="3">{{ r.get('notes') or '' }}</textarea>
+            </label>
+            <label class="field-card">Cure Schedule
+              <textarea name="cure_schedule" rows="3">{{ r.get('cure_schedule') or '' }}</textarea>
+            </label>
+            <label class="field-card">Additional Info
+              <textarea name="additional_info" rows="3">{{ r.get('additional_info') or '' }}</textarea>
+            </label>
+            <label class="field-card">Aliases
+              <input name="aliases" value="{{ r.get('aliases') or '' }}" placeholder="comma separated">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div>
+            <p class="section-title">Pricing</p>
+            <p class="section-hint">Cost and markup calculations update as you change price or shipping.</p>
+          </div>
+          <div class="grid pricing-grid">
+            <label class="field-card">Price per KG (Cost)
+              <input id="price_per_kg" type="number" step="0.01" name="price_per_kg" value="{{ r.get('price_per_kg') if r.get('price_per_kg') is not none else '' }}">
+            </label>
+            <div class="metric-card">
+              <span class="metric-card__label">Charge per KG ({{ opt_markup_percentage or 0 }}% markup)</span>
+              <div class="metric-card__value" id="calc_charge_per_kg">
+                {% if r.get('charge_per_kg') is not none %}${{ "%.2f"|format(r.get('charge_per_kg')) }}{% else %}—{% endif %}
+              </div>
+              <div class="metric-card__note" id="calc_note_kg"></div>
+            </div>
+            <div class="metric-card">
+              <span class="metric-card__label">Charge per LB</span>
+              <div class="metric-card__value" id="calc_charge_per_lb">
+                {% if r.get('charge_per_lb') is not none %}${{ "%.2f"|format(r.get('charge_per_lb')) }}{% else %}—{% endif %}
+              </div>
+              <div class="metric-card__note" id="calc_note_lb"></div>
+            </div>
+            <label class="field-card">Weight Box KG
+              <input type="number" step="0.01" name="weight_box_kg" value="{{ r.get('weight_box_kg') if r.get('weight_box_kg') is not none else '' }}">
+            </label>
+            <label class="field-card">Last Price Check
+              <input type="date" name="last_price_check" value="{{ r.get('last_price_check') or '' }}">
+            </label>
+            <label class="field-card">Shipping Cost
+              <input type="number" step="0.01" name="shipping_cost" value="{{ r.get('shipping_cost') if r.get('shipping_cost') is not none else '' }}">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a class="btn ghost" href="/powders">Cancel</a>
+          <button class="btn primary" type="submit">Save Changes</button>
+        </div>
+      </form>
+
+      {% if r.get('id') %}
+      <div class="form-section">
+        <div>
+          <p class="section-title">Uploads</p>
+          <p class="section-hint">Attach brand documentation and images to keep everything centralized.</p>
+        </div>
+        <div class="upload-grid">
+          <form class="upload-card" method="post" enctype="multipart/form-data" action="/powders/{{ r.get('id') }}/upload/msds">
+            <label>Material Safety (MSDS)</label>
+            <input type="file" name="file" accept=".pdf">
+            <button class="btn secondary" type="submit">Upload MSDS</button>
+          </form>
+          <form class="upload-card" method="post" enctype="multipart/form-data" action="/powders/{{ r.get('id') }}/upload/sds">
+            <label>SDS / TDS</label>
+            <input type="file" name="file" accept=".pdf">
+            <button class="btn secondary" type="submit">Upload SDS</button>
+          </form>
+          <form class="upload-card" method="post" enctype="multipart/form-data" action="/powders/{{ r.get('id') }}/upload/picture">
+            <label>Powder Image</label>
+            <input type="file" name="file" accept="image/*">
+            <button class="btn secondary" type="submit">Upload Picture</button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% if is_admin %}
+  <!-- Slide-out drawer for Powder Options (admin only) -->
+  <div id="drawer_backdrop" style="display:none;position:fixed;inset:0;background:#0008;z-index:9998" onclick="closeDrawer()"></div>
+  <div id="drawer_powopts" style="display:none;position:fixed;top:0;right:0;height:100vh;width:min(640px,95vw);background:var(--panel);border-left:1px solid var(--border);z-index:9999;box-shadow:-10px 0 30px rgba(0,0,0,.35);padding:16px;overflow:auto">
+    <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:10px">
+      <h2 style="margin:0">Edit Powder Options</h2>
+      <button class="btn" type="button" onclick="closeDrawer()">Close</button>
+    </div>
+    <form method="post" action="/admin/powder-options" style="display:flex;flex-direction:column;gap:12px">
+      <label><strong>Color Families</strong><span class="muted" style="display:block;font-size:13px">One per line or comma-separated</span>
+        <textarea name="color_families" rows="6" style="width:100%">{{ (opt_families or []) | join('\n') }}</textarea>
+      </label>
+      <label><strong>Manufacturers</strong><span class="muted" style="display:block;font-size:13px">One per line or comma-separated</span>
+        <textarea name="manufacturers" rows="6" style="width:100%">{{ (opt_manufacturers or []) | join('\n') }}</textarea>
+      </label>
+      <label><strong>Gloss Levels</strong><span class="muted" style="display:block;font-size:13px">One per line or comma-separated</span>
+        <textarea name="gloss_levels" rows="6" style="width:100%">{{ (opt_gloss or []) | join('\n') }}</textarea>
+      </label>
+      <label><strong>Finishes</strong><span class="muted" style="display:block;font-size:13px">One per line or comma-separated</span>
+        <textarea name="finishes" rows="6" style="width:100%">{{ (opt_finishes or []) | join('\n') }}</textarea>
+      </label>
+      <label><strong>Interior/Exterior</strong><span class="muted" style="display:block;font-size:13px">One per line or comma-separated</span>
+        <textarea name="int_ext" rows="4" style="width:100%">{{ (opt_int_ext or []) | join('\n') }}</textarea>
+      </label>
+      <label><strong>Markup Percentage</strong><span class="muted" style="display:block;font-size:13px">Default markup % to calculate charge from cost (e.g., 25 for 25%)</span>
+        <input type="number" step="0.01" name="markup_percentage" value="{{ opt_markup_percentage or 0 }}" style="width:100%;padding:8px" placeholder="0">
+      </label>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button class="btn" type="button" onclick="closeDrawer()">Cancel</button>
+        <button class="btn primary" type="submit">Save Options</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    function openDrawer(which){
+      if(which==='powopts'){
+        var d=document.getElementById('drawer_powopts'); if(d) d.style.display='block';
+        var b=document.getElementById('drawer_backdrop'); if(b) b.style.display='block';
+      }
+    }
+    function closeDrawer(){
+      var d=document.getElementById('drawer_powopts'); if(d) d.style.display='none';
+      var b=document.getElementById('drawer_backdrop'); if(b) b.style.display='none';
+    }
+    (function(){
+      var input = document.getElementById('pf_picture_url');
+      var img = document.getElementById('pf_preview');
+      if(!input || !img) return;
+      function update(){
+        var v = (input.value||'').trim();
+        if(!v){ img.style.display='none'; return; }
+        if(v.indexOf('://') === -1 && v.indexOf('/uploads/') !== 0){ v = '/uploads/' + v; }
+        img.src = v; img.style.display='';
+      }
+      input.addEventListener('input', update);
+    })();
+
+    // Pricing calculations
+    (function(){
+      var priceInput = document.getElementById('price_per_kg');
+      var shippingInput = document.querySelector('input[name="shipping_cost"]');
+      var chargeKgDisplay = document.getElementById('calc_charge_per_kg');
+      var chargeLbDisplay = document.getElementById('calc_charge_per_lb');
+      var noteKg = document.getElementById('calc_note_kg');
+      var noteLb = document.getElementById('calc_note_lb');
+      var markupPercent = {{ opt_markup_percentage or 0 }};
+
+      if(!priceInput || !chargeKgDisplay || !chargeLbDisplay) return;
+
+      var hasChanged = false;
+
+      function calculateCharges(){
+        var pricePerKg = parseFloat(priceInput.value) || 0;
+        var shippingCost = parseFloat(shippingInput ? shippingInput.value : 0) || 0;
+
+        if(pricePerKg <= 0){
+          chargeKgDisplay.textContent = '—';
+          chargeLbDisplay.textContent = '—';
+          if(noteKg) noteKg.textContent = '';
+          if(noteLb) noteLb.textContent = '';
+          return;
+        }
+
+        // Calculate charge per kg with markup (including shipping)
+        var basePriceWithShipping = pricePerKg + shippingCost;
+        var chargePerKg = basePriceWithShipping * (1 + markupPercent / 100);
+
+        // Convert kg to lb (1 kg = 2.20462 lb)
+        var chargePerLb = chargePerKg / 2.20462;
+
+        // Display with currency formatting
+        chargeKgDisplay.textContent = '$' + chargePerKg.toFixed(2);
+        chargeLbDisplay.textContent = '$' + chargePerLb.toFixed(2);
+
+        // Show note if value changed
+        if(hasChanged){
+          if(noteKg) noteKg.textContent = 'Will update on save';
+          if(noteLb) noteLb.textContent = 'Will update on save';
+        }
+      }
+
+      // Calculate on page load
+      calculateCharges();
+
+      // Calculate on input change and mark as changed
+      if(priceInput){
+        priceInput.addEventListener('input', function(){
+          hasChanged = true;
+          calculateCharges();
+        });
+        priceInput.addEventListener('change', function(){
+          hasChanged = true;
+          calculateCharges();
+        });
+      }
+
+      // Also listen for shipping cost changes
+      if(shippingInput){
+        shippingInput.addEventListener('input', function(){
+          hasChanged = true;
+          calculateCharges();
+        });
+        shippingInput.addEventListener('change', function(){
+          hasChanged = true;
+          calculateCharges();
+        });
+      }
+    })();
+  </script>
+{% endblock %}

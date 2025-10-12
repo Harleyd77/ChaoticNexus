@@ -1,0 +1,219 @@
+{% extends "_layouts/base.html" %}
+
+{% block title %}Jobs Kanban{% endblock %}
+
+{% block content %}
+<section class="space-y-8">
+  <header class="flex flex-col gap-6 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/40 ring-1 ring-white/5">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-100">Jobs Kanban</h1>
+        <p class="text-sm text-slate-400">
+          Visualise job flow across departments. Drag cards to simulate hand-offs while the real API is wired up.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          href="{{ url_for('jobs.index') }}"
+          class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+        >
+          Table View
+        </a>
+      </div>
+    </div>
+
+    <form class="flex flex-wrap items-center gap-3" role="search">
+      <label class="flex min-w-[220px] flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+        <span>Search</span>
+        <input
+          class="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
+          type="search"
+          name="search"
+          placeholder="Company, colour, note..."
+          value="{{ filters.search }}"
+          data-pending-route
+          data-pending-target="/jobs/kanban/search"
+        />
+      </label>
+
+      <label class="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+        <span>Colour</span>
+        <select
+          class="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
+          name="color"
+          data-pending-route
+          data-pending-target="/jobs/kanban/filter"
+        >
+          <option value="">All colours</option>
+          {% for color in color_options %}
+            <option value="{{ color }}" {% if color == filters.color %}selected{% endif %}>{{ color }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+        <span>Status</span>
+        <select
+          class="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
+          name="status"
+          data-pending-route
+          data-pending-target="/jobs/kanban/filter"
+        >
+          <option value="">All statuses</option>
+          {% for status in status_options %}
+            <option value="{{ status }}" {% if status == filters.status %}selected{% endif %}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="flex gap-2">
+        <button
+          type="submit"
+          class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+          data-pending-route
+          data-pending-target="/jobs/kanban/apply"
+        >
+          Apply
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+          data-pending-route
+          data-pending-target="/jobs/kanban/reset"
+        >
+          Reset
+        </button>
+      </div>
+    </form>
+
+    <div class="flex flex-wrap items-center gap-4 text-xs text-slate-400">
+      <span class="inline-flex items-center gap-2">
+        <span class="h-2 w-2 rounded-full bg-rose-400"></span>
+        Due within 24h
+      </span>
+      <span class="inline-flex items-center gap-2">
+        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+        Timer department
+      </span>
+      <span class="ml-auto text-[11px] uppercase tracking-[0.3em] text-amber-300">
+        Drag interactions are local until API migration completes
+      </span>
+    </div>
+  </header>
+
+  <div class="grid gap-4 lg:grid-cols-5 md:grid-cols-3">
+    {% for column in columns_meta %}
+      <section
+        class="flex min-h-[320px] flex-col rounded-2xl border border-slate-800/70 bg-slate-900/70 p-4 shadow-lg shadow-slate-950/30"
+        data-kanban-column="{{ column.key }}"
+        data-kanban-label="{{ column.label }}"
+      >
+        <header class="flex items-center gap-3">
+          <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">{{ column.label }}</h2>
+          <span
+            class="ml-auto inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200"
+            data-kanban-count="{{ column.key }}"
+          >
+            {{ columns[column.key]|length }}
+          </span>
+          {% if column.timer %}
+            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+              Timer Dept.
+            </span>
+          {% endif %}
+        </header>
+
+        <div
+          class="mt-4 flex flex-1 flex-col gap-3 rounded-xl border border-slate-800/60 bg-slate-950/40 p-3"
+          data-kanban-dropzone="{{ column.key }}"
+        >
+          {% for job in columns[column.key] %}
+            <article
+              class="flex cursor-grab flex-col gap-3 rounded-xl border border-slate-800/70 bg-slate-900/80 p-4 shadow-md shadow-slate-950/40 transition hover:border-slate-600 hover:shadow-slate-950/60"
+              draggable="true"
+              data-kanban-card
+              data-job-id="{{ job.id }}"
+              data-department="{{ column.key }}"
+              data-status="{{ job.status_slug }}"
+            >
+              <header>
+                <h3 class="text-sm font-semibold text-slate-100">
+                  #{{ job.id }} &mdash; {{ job.customer }}
+                </h3>
+                <p class="mt-1 text-xs text-slate-400">{{ job.status }}</p>
+              </header>
+
+              <dl class="grid gap-2 text-xs text-slate-400">
+                <div>
+                  <dt class="font-semibold uppercase tracking-[0.2em] text-slate-500">Due</dt>
+                  <dd class="mt-1 text-slate-200" data-field="due">{{ job.due_pretty or "-" }}</dd>
+                </div>
+                <div>
+                  <dt class="font-semibold uppercase tracking-[0.2em] text-slate-500">Coating</dt>
+                  <dd class="mt-1 text-slate-200" data-field="color">
+                    {{ job.color or job.coating or "Unassigned" }}
+                  </dd>
+                </div>
+              </dl>
+
+              {% if job.description %}
+                <p class="text-sm leading-5 text-slate-300" data-field="description">{{ job.description }}</p>
+              {% endif %}
+
+              <div class="flex flex-wrap items-center gap-2 text-[11px]">
+                {% if job.priority %}
+                  <span class="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 font-semibold text-amber-200">
+                    {{ job.priority }}
+                  </span>
+                {% endif %}
+                {% if job.at_risk %}
+                  <span class="inline-flex items-center gap-2 rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-1 font-semibold text-rose-200">
+                    At Risk
+                  </span>
+                {% endif %}
+                {% if job.is_running %}
+                  <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 font-semibold text-emerald-200">
+                    In Progress
+                  </span>
+                {% endif %}
+              </div>
+
+              <footer class="flex flex-wrap gap-2 pt-2">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+                  data-pending-route
+                  data-pending-target="/jobs/{{ job.id }}/edit"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+                  data-kanban-status
+                  data-job-id="{{ job.id }}"
+                >
+                  Update Status
+                </button>
+              </footer>
+            </article>
+          {% endfor %}
+
+          <div
+            class="flex flex-1 items-center justify-center rounded-lg border border-dashed border-slate-700/50 py-10 text-xs text-slate-500"
+            data-kanban-empty="{{ column.key }}"
+            {% if columns[column.key]|length %}hidden{% endif %}
+          >
+            No jobs here
+          </div>
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block body_scripts %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/jobs-kanban.js') }}" defer></script>
+{% endblock %}

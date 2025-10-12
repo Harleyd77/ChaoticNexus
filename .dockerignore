@@ -1,0 +1,14 @@
+.git
+ChaoticNexus-Orig
+pgdata
+_data
+_logs
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+node_modules
+.venv
+.env
+status_report.txt

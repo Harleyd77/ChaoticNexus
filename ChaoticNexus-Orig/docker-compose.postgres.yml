@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: PowderAppDB
+      POSTGRES_USER: Harley
+      POSTGRES_PASSWORD: chaotic
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./storage/pgdata:/var/lib/postgresql/data
+

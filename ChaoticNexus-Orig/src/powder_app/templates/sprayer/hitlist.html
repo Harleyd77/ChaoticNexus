@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121826;
+      --panel-2: #0f1623;
+      --card: #1a2333;
+      --text: #e6eef7;
+      --muted: #9fb3c8;
+      --border: #20304a;
+      --accent: #4cc9f0;
+      --radius: 16px;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: linear-gradient(180deg, var(--panel-2), var(--bg));
+      color: var(--text);
+    }
+    header {
+      position: sticky;
+      top: 0;
+      background: #0f1623cc;
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #1f2a3b;
+      padding: 10px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: #0f1726;
+      color: #d9e7ff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+    .card {
+      background: #121826;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .mini {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .job-card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 14px 28px rgba(0,0,0,.12);
+      display: block;
+    }
+    .job-card.selected {
+      border-color: var(--accent);
+    }
+    .card-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: start;
+    }
+    .job-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .job-title .sub {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+    .job-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .group {
+      margin-top: 8px;
+    }
+    .group h3 {
+      margin: 8px 0 6px;
+      font-size: 13px;
+      color: #cfe3ff;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .job-card input[type="checkbox"] {
+      accent-color: var(--accent);
+      margin-right: 8px;
+    }
+  </style>
+  <title>{{ super() }} | Sprayer Hit List</title>
+<script>
+    (function () {
+      try {
+        var match = document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var theme = (match ? decodeURIComponent(match[1]) : null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.backgroundColor = theme === 'dark' ? '#0e141b' : '#f7f9fc';
+      } catch (err) {}
+    })();
+  </script>
+<script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+<script>
+    function autoPickPowder(box, powderId) {
+      const select = document.getElementById('powderSelect');
+      const card = box.closest('.job-card');
+      card.classList.toggle('selected', box.checked);
+      if (box.checked && select && powderId && select.value !== String(powderId)) {
+        select.value = String(powderId);
+        document.querySelectorAll('.job-card input[name="job_id"]').forEach((input) => {
+          const pid = input.closest('.job-card')?.dataset.powderId;
+          if (pid && pid !== String(powderId)) {
+            input.checked = false;
+            input.closest('.job-card')?.classList.remove('selected');
+          }
+        });
+        if (window.loadPowderCard) {
+          window.loadPowderCard(select.value);
+        }
+      }
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+<!-- Theme button automatically injected by global-theme-menu.js -->
+
+  <header>
+    <a class="btn" href="/nav">Back</a>
+    <div style="font-weight:700;">Sprayer Hit List</div>
+    <div class="mini" style="margin-left:auto;">Pick jobs and start a batch</div>
+  </header>
+
+  <div class="wrap">
+    {% if is_admin %}
+    <div class="card">
+      <h2>Start batch from selection</h2>
+      <form method="post" action="/sprayer/batches/start" id="startForm">
+        <div class="row">
+          <label>
+            Powder
+            <select id="powderSelect" name="powder_id" required>
+              <option value="">Select…</option>
+              {% for p in powders %}
+              <option value="{{ p.id }}">
+                {{ p.powder_color }}{% if p.manufacturer %} — {{ p.manufacturer }}{% endif %}{% if p.in_stock is not none %} ({{ '%.2f'|format(p.in_stock) }} kg){% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            Start weight (kg)
+            <input type="number" step="0.01" min="0.01" name="start_weight_kg" required placeholder="e.g., 18.60" />
+          </label>
+          <label>
+            Operator
+            <input type="text" name="operator" placeholder="Initials" />
+          </label>
+          <button class="btn" type="submit">Start</button>
+        </div>
+        <input type="hidden" name="role" value="primary" />
+        <input type="hidden" name="note" value="" />
+        <div class="mini" style="margin-top:8px;">Tip: checking a job auto-selects its powder and deselects others.</div>
+      </form>
+      <div id="powderCard" class="group"></div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <h2>On-screen jobs</h2>
+      {% if not jobs %}
+        <div class="mini">No on-screen jobs right now.</div>
+      {% else %}
+        <div class="list">
+          {% for j in jobs %}
+          <label class="job-card" data-powder-id="{{ j.powder_id }}">
+            <input type="checkbox" name="job_id" form="startForm" value="{{ j.id }}" onchange="autoPickPowder(this, '{{ j.powder_id }}')" />
+            <div class="card-header">
+              <div class="job-title">
+                #{{ j.id }} — {{ j.company or '' }}
+                <span class="sub">{{ (j.powder_color or j.color or '') ~ (j.manufacturer and (' — ' ~ j.manufacturer) or '') }}</span>
+              </div>
+              <div class="job-meta">Due: {{ j.due_by or '&mdash;' }}</div>
+            </div>
+            {% if j.description %}
+            <div class="mini" style="margin-top:6px;">{{ j.description }}</div>
+            {% endif %}
+            <div style="margin-top:8px;">
+              <a class="btn" href="/jobs/{{ j.id }}">Details</a>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const powderSelect = document.getElementById('powderSelect');
+      if (powderSelect) {
+        powderSelect.addEventListener('change', () => loadPowderCard(powderSelect.value));
+      }
+      window.loadPowderCard = async function (id) {
+        const powderCard = document.getElementById('powderCard');
+        if (!powderCard) return;
+        if (!id) {
+          powderCard.innerHTML = '';
+          return;
+        }
+        try {
+          const response = await fetch(`/powders/${encodeURIComponent(id)}.json`);
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          const picture = data.picture_url ? `/uploads/${data.picture_url}` : '';
+          const summary = [
+            data.manufacturer ? `<strong>${data.manufacturer}</strong>` : '',
+            data.product_code ? `Code: <strong>${data.product_code}</strong>` : '',
+            [data.finish || '', data.gloss_level || ''].filter(Boolean).join(' — '),
+            data.metallic ? 'Metallic' : '',
+            data.needs_clear ? 'Needs clear' : '',
+            data.int_ext ? `Use: ${data.int_ext}` : ''
+          ].filter(Boolean).join(' · ');
+          const inventory = data.in_stock != null ? `${Number(data.in_stock).toFixed(2)} kg in stock` : '';
+          const last = data.last_weighed_kg != null ? `Last weighed: ${Number(data.last_weighed_kg).toFixed(2)} kg @ ${data.last_weighed_at || ''}` : '';
+          const links = [
+            data.msds_url ? `<a class="btn" href="/uploads/${data.msds_url}" target="_blank" rel="noopener">MSDS</a>` : '',
+            data.sds_url ? `<a class="btn" href="/uploads/${data.sds_url}" target="_blank" rel="noopener">SDS</a>` : '',
+            data.web_link ? `<a class="btn" href="${data.web_link}" target="_blank" rel="noopener">Link</a>` : ''
+          ].filter(Boolean).join(' ');
+          powderCard.innerHTML = `
+            <h3>Selected Powder</h3>
+            <div class="job-card" style="display:grid;grid-template-columns:80px 1fr;gap:10px;">
+              <div>${picture ? `<img src="${picture}" alt="powder" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" />` : ''}</div>
+              <div>
+                <div class="job-title">${data.powder_color || ''}</div>
+                <div class="mini" style="margin-top:4px;">${summary}</div>
+                <div class="mini" style="margin-top:4px;">${inventory}</div>
+                <div class="mini" style="margin-top:2px;">${last}</div>
+                <div style="margin-top:8px;">${links}</div>
+              </div>
+            </div>`;
+          const startForm = document.getElementById('startForm');
+          const startInput = startForm && startForm.querySelector('input[name="start_weight_kg"]');
+          if (startInput && data.in_stock != null) {
+            startInput.value = Number(data.in_stock).toFixed(2);
+          }
+        } catch (err) {
+          powderCard.innerHTML = `<div class="mini">Failed to load powder details: ${(err.message || err)}</div>`;
+        }
+      };
+    })();
+  </script>
+{% endblock %}

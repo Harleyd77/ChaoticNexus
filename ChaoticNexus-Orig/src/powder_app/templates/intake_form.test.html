@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+  <title>{{ super() }} | Test Form</title>
+<script>
+      (function(){
+        try{
+          var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+          var s=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+          document.documentElement.setAttribute('data-theme', s);
+          document.documentElement.style.backgroundColor = s==='dark' ? '#0e141b' : '#f7f9fc';
+        }catch(e){}
+      })();
+    </script>
+<script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+<script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<h2>Test Production Intake Form Changes</h2>
+    <form method="POST" action="/submit">
+        <div>
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" required>
+        </div>
+        <div>
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" required>
+        </div>
+        <div>
+            <label for="company">Company:</label>
+            <input type="text" id="company" name="company" required>
+        </div>
+        <div>
+            <input type="submit" value="Test Submit">
+        </div>
+    </form>
+{% endblock %}

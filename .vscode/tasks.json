@@ -1,0 +1,9 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "Compose Up",   "type": "shell", "command": "docker compose up -d --build" },
+    { "label": "Compose Down", "type": "shell", "command": "docker compose down" },
+    { "label": "Logs: web",    "type": "shell", "command": "docker compose logs -f web" },
+    { "label": "Logs: db",     "type": "shell", "command": "docker compose logs -f postgres" }
+  ]
+}

@@ -1,0 +1,183 @@
+# analysis/legacy_routes_blueprints.txt
+Blueprint admin (var: bp, module: blueprints/admin.py)
+  routes:
+    - GET /admin -> admin_panel (endpoint: admin_panel)
+    - POST /admin/branding/favicon -> admin_branding_favicon_upload (endpoint: admin_branding_favicon_upload)
+    - POST /admin/branding/favicon/clear -> admin_branding_favicon_clear (endpoint: admin_branding_favicon_clear)
+    - POST /admin/branding/login_bg -> admin_branding_login_bg_upload (endpoint: admin_branding_login_bg_upload)
+    - POST /admin/branding/login_bg/clear -> admin_branding_login_bg_clear (endpoint: admin_branding_login_bg_clear)
+    - POST /admin/branding/login_title -> admin_branding_login_title_save (endpoint: admin_branding_login_title_save)
+    - POST /admin/branding/page_logo -> admin_branding_page_logo_upload (endpoint: admin_branding_page_logo_upload)
+    - POST /admin/branding/page_logo/clear -> admin_branding_page_logo_clear (endpoint: admin_branding_page_logo_clear)
+    - POST /admin/branding/select_logo -> admin_branding_select_logo (endpoint: admin_branding_select_logo)
+    - GET /admin/dbinfo -> admin_dbinfo (endpoint: admin_dbinfo)
+    - GET /admin/logos/list -> admin_logos_list (endpoint: admin_logos_list)
+    - POST /admin/powder-options -> admin_powder_options_save (endpoint: admin_powder_options_save)
+    - GET /admin/print-templates -> print_templates_admin (endpoint: print_templates_admin)
+    - POST /admin/ui -> admin_ui_save (endpoint: admin_ui_save)
+    - GET /admin/users -> admin_users (endpoint: admin_users)
+    - POST /admin/users/<int:user_id>/delete -> admin_users_delete (endpoint: admin_users_delete)
+    - POST /admin/users/<int:user_id>/perms -> admin_users_set_perms (endpoint: admin_users_set_perms)
+    - POST /admin/users/<int:user_id>/set_password -> admin_users_set_password (endpoint: admin_users_set_password)
+    - POST /admin/users/<int:user_id>/toggle_admin -> admin_users_toggle (endpoint: admin_users_toggle)
+    - POST /admin/users/add -> admin_users_add (endpoint: admin_users_add)
+    - POST /admin/work-order-options -> admin_work_order_options_save (endpoint: admin_work_order_options_save)
+    - POST /config/intake -> save_intake_config (endpoint: save_intake_config)
+    - GET /config/intake.json -> intake_config (endpoint: intake_config)
+    - POST /config/railing -> save_railing_config (endpoint: save_railing_config)
+    - GET /config/railing.json -> railing_config (endpoint: railing_config)
+
+Blueprint auth (var: bp, module: blueprints/auth.py)
+  routes:
+    - GET,POST /login -> login_view (endpoint: login) [decorators: public_endpoint]
+    - GET /logout -> logout (endpoint: logout)
+    - POST /logout/customer -> logout_customer (endpoint: logout_customer)
+  extra_rules:
+    - GET,POST /login/customer -> login_view (endpoint: customer_login)
+
+Blueprint base (var: bp, module: blueprints/base.py)
+  routes:
+    - GET / -> home (endpoint: home)
+    - GET /favicon.ico -> favicon (endpoint: favicon) [decorators: public_endpoint]
+    - GET /nav -> nav (endpoint: nav)
+    - GET /uploads/<path:name> -> uploaded_file (endpoint: uploaded_file) [decorators: public_endpoint]
+
+Blueprint customer_portal (var: customer_portal_bp, module: blueprints/customer_portal/__init__.py)
+  url_prefix: /customer
+  template_folder: ../../templates/customer_portal
+  static_folder: ../../static
+  routes:
+    - GET /dashboard -> dashboard (endpoint: dashboard) [decorators: require_customer_login]
+    - GET,POST /forgot-password -> forgot_password (endpoint: forgot_password) [decorators: public_endpoint]
+    - GET /jobs -> jobs_list (endpoint: jobs_list) [decorators: require_customer_login]
+    - GET /jobs/<int:job_id> -> job_detail (endpoint: job_detail) [decorators: require_customer_login]
+    - GET,POST /jobs/<int:job_id>/edit -> edit_job (endpoint: edit_job) [decorators: require_customer_login]
+    - GET,POST /jobs/submit -> submit_job (endpoint: submit_job) [decorators: require_customer_login]
+    - GET /logout -> logout (endpoint: logout)
+    - GET /profile -> profile (endpoint: profile) [decorators: require_customer_login]
+    - POST /profile -> update_profile (endpoint: update_profile) [decorators: require_customer_login]
+    - GET,POST /register -> register (endpoint: register) [decorators: public_endpoint]
+
+Blueprint customers (var: bp, module: blueprints/customers.py)
+  routes:
+    - GET /admin/customer-accounts -> admin_customer_accounts (endpoint: admin_customer_accounts)
+    - GET /admin/customer-accounts/<int:account_id> -> admin_customer_account_detail (endpoint: admin_customer_account_detail)
+    - GET /api/admin/customer-accounts -> api_admin_customer_accounts (endpoint: api_admin_customer_accounts)
+    - DELETE /api/admin/customer-accounts/<int:account_id> -> api_admin_delete_customer_account (endpoint: api_admin_delete_customer_account)
+    - PATCH /api/admin/customer-accounts/<int:account_id> -> api_admin_update_customer_account (endpoint: api_admin_update_customer_account)
+    - POST /api/admin/customer-accounts/<int:account_id>/password -> api_admin_reset_customer_password (endpoint: api_admin_reset_customer_password)
+    - POST /api/admin/customer-accounts/<int:account_id>/toggle-active -> api_admin_toggle_customer_account (endpoint: api_admin_toggle_customer_account)
+    - GET /api/customers -> api_customers_list (endpoint: api_customers_list)
+    - PATCH /api/customers/<int:customer_id> -> api_customer_update (endpoint: api_customer_update)
+    - GET /api/customers/<int:customer_id>/dashboard -> api_customer_dashboard (endpoint: api_customer_dashboard)
+    - GET /customers -> customers_page (endpoint: customers_page)
+    - GET /customers/<int:cust_id> -> customer_detail (endpoint: customer_detail)
+    - GET /customers/<int:cust_id>/contacts.json -> contacts_json (endpoint: contacts_json)
+    - POST /customers/<int:cust_id>/contacts/<int:ct_id>/delete -> contacts_delete (endpoint: contacts_delete)
+    - POST /customers/<int:cust_id>/contacts/<int:ct_id>/save -> contacts_save (endpoint: contacts_save)
+    - POST /customers/<int:cust_id>/contacts/add -> contacts_add (endpoint: contacts_add)
+    - POST /customers/<int:cust_id>/delete -> customers_delete (endpoint: customers_delete)
+    - POST /customers/<int:cust_id>/save -> customer_detail_save (endpoint: customer_detail_save)
+    - POST /customers/save -> customers_save (endpoint: customers_save)
+    - GET /customers/search.json -> customers_search (endpoint: customers_search)
+
+Blueprint dev (var: bp, module: blueprints/dev.py)
+  url_prefix: /dev
+  routes:
+    - GET /health -> health (endpoint: health)
+    - GET /mcp-checklist.json -> mcp_checklist (endpoint: mcp_checklist)
+
+Blueprint intake (var: bp, module: blueprints/intake.py)
+  routes:
+    - GET /intake_form -> intake_form (endpoint: intake_form)
+    - GET /railing_intake -> railing_intake (endpoint: railing_intake)
+    - POST /submit -> submit_form (endpoint: submit_form)
+
+Blueprint inventory (var: bp, module: blueprints/inventory.py)
+  routes:
+    - GET /inventory -> inventory_page (endpoint: inventory_page)
+    - POST /inventory/<int:powder_id>/adjust -> adjust_inventory (endpoint: adjust_inventory)
+    - POST /inventory/<int:powder_id>/update -> update_inventory (endpoint: update_inventory)
+    - GET /inventory/api/powders -> api_powders (endpoint: api_powders)
+    - GET /inventory/api/reorder -> api_reorder_list (endpoint: api_reorder_list)
+    - POST /inventory/api/update -> api_update_inventory (endpoint: api_update_inventory)
+    - GET /inventory/history/<int:powder_id> -> inventory_history (endpoint: inventory_history)
+    - GET /inventory/reorder -> reorder_list (endpoint: reorder_list)
+
+Blueprint jobs (var: bp, module: blueprints/jobs.py)
+  routes:
+    - POST /api/jobs/kanban/move -> jobs_kanban_move (endpoint: jobs_kanban_move)
+    - GET /jobs -> jobs_board (endpoint: jobs_board)
+    - GET /jobs.csv -> jobs_csv (endpoint: jobs_csv)
+    - GET /jobs/<int:job_id> -> job_detail (endpoint: job_detail)
+    - POST /jobs/<int:job_id>/archive -> archive_job (endpoint: archive_job)
+    - POST /jobs/<int:job_id>/complete -> jobs_complete (endpoint: jobs_complete)
+    - POST /jobs/<int:job_id>/delete -> jobs_delete (endpoint: jobs_delete)
+    - GET,POST /jobs/<int:job_id>/edit -> edit_job (endpoint: edit_job)
+    - GET /jobs/<int:job_id>/photos.json -> job_photos_json (endpoint: job_photos_json)
+    - POST /jobs/<int:job_id>/photos/<int:photo_id>/delete -> job_photo_delete (endpoint: job_photo_delete)
+    - POST /jobs/<int:job_id>/photos/upload -> job_photos_upload (endpoint: job_photos_upload)
+    - POST /jobs/<int:job_id>/reopen -> jobs_reopen (endpoint: jobs_reopen)
+    - POST /jobs/<int:job_id>/screen/add -> jobs_screen_add (endpoint: jobs_screen_add)
+    - POST /jobs/<int:job_id>/screen/remove -> jobs_screen_remove (endpoint: jobs_screen_remove)
+    - POST /jobs/<int:job_id>/unarchive -> unarchive_job (endpoint: unarchive_job)
+    - GET /jobs/<int:job_id>/worksheet -> job_workorder (endpoint: job_workorder)
+    - POST /jobs/<int:job_id>/worksheet/save -> job_workorder_save (endpoint: job_workorder_save)
+    - GET /jobs/completed -> jobs_completed (endpoint: jobs_completed)
+    - GET /jobs/kanban -> jobs_kanban (endpoint: jobs_kanban)
+    - POST /jobs/reorder -> jobs_reorder (endpoint: jobs_reorder)
+    - GET /jobs/screen -> jobs_screen (endpoint: jobs_screen)
+    - POST /jobs/screen/reorder -> jobs_screen_reorder (endpoint: jobs_screen_reorder)
+
+Blueprint migrate (var: bp, module: blueprints/migrate.py)
+  routes:
+    - GET /admin/migrate/add-charge-columns -> add_charge_columns (endpoint: add_charge_columns)
+
+Blueprint powders (var: bp, module: blueprints/powders.py)
+  routes:
+    - GET /powders -> powders_page (endpoint: powders_page)
+    - GET /powders.csv -> powders_csv (endpoint: powders_csv)
+    - GET /powders/<int:pow_id>.json -> powder_detail_json (endpoint: powder_detail_json)
+    - POST /powders/<int:pow_id>/delete -> powders_delete (endpoint: powders_delete)
+    - GET /powders/<int:pow_id>/edit -> powder_edit (endpoint: powder_edit)
+    - POST /powders/<int:pow_id>/upload/<field> -> powders_upload (endpoint: powders_upload)
+    - GET /powders/by_color.json -> powders_by_color (endpoint: powders_by_color)
+    - GET /powders/colors_full.json -> powders_colors_full (endpoint: powders_colors_full)
+    - GET /powders/families.json -> powders_families (endpoint: powders_families)
+    - POST /powders/import -> powders_import (endpoint: powders_import)
+    - GET /powders/new -> powder_new (endpoint: powder_new)
+    - POST /powders/save -> powders_save (endpoint: powders_save)
+
+Blueprint print_templates (var: bp, module: blueprints/print_templates.py)
+  routes:
+    - POST /api/print-templates -> save_template (endpoint: save_template)
+    - DELETE /api/print-templates/<int:template_id> -> delete_template (endpoint: delete_template)
+    - POST /api/print-templates/<int:template_id>/set-default -> set_default_template (endpoint: set_default_template)
+    - GET /api/print-templates/<template_type> -> get_template (endpoint: get_template)
+    - GET /api/print-templates/<template_type>/all -> list_templates (endpoint: list_templates)
+
+Blueprint react (var: react_bp, module: blueprints/react_frontend.py)
+  url_prefix: /react
+  routes:
+    - GET / -> index (endpoint: index) [decorators: public_endpoint]
+    - GET /<path:path> -> index (endpoint: index) [decorators: public_endpoint]
+    - POST /api/login -> api_login (endpoint: api_login) [decorators: public_endpoint]
+    - GET /assets/<path:filename> -> serve_assets (endpoint: serve_assets) [decorators: public_endpoint]
+
+Blueprint sprayer (var: bp, module: blueprints/sprayer.py)
+  routes:
+    - GET /sprayer/batches -> sprayer_batches (endpoint: sprayer_batches)
+    - GET /sprayer/batches/<int:batch_id> -> sprayer_batch_detail (endpoint: sprayer_batch_detail)
+    - POST /sprayer/batches/<int:batch_id>/add_job -> sprayer_batch_add_job (endpoint: sprayer_batch_add_job)
+    - POST /sprayer/batches/<int:batch_id>/close -> sprayer_batch_close (endpoint: sprayer_batch_close)
+    - POST /sprayer/batches/<int:batch_id>/job/<int:job_id>/end -> sprayer_job_end (endpoint: sprayer_job_end)
+    - POST /sprayer/batches/<int:batch_id>/job/<int:job_id>/remove -> sprayer_job_remove (endpoint: sprayer_job_remove)
+    - POST /sprayer/batches/<int:batch_id>/job/<int:job_id>/start -> sprayer_job_start (endpoint: sprayer_job_start)
+    - POST /sprayer/batches/<int:batch_id>/pause_all -> sprayer_batch_pause_all (endpoint: sprayer_batch_pause_all)
+    - POST /sprayer/batches/<int:batch_id>/resume_all -> sprayer_batch_resume_all (endpoint: sprayer_batch_resume_all)
+    - POST /sprayer/batches/<int:batch_id>/start_all -> sprayer_batch_start_all (endpoint: sprayer_batch_start_all)
+    - POST /sprayer/batches/<int:batch_id>/stop_all -> sprayer_batch_stop_all (endpoint: sprayer_batch_stop_all)
+    - POST /sprayer/batches/start -> sprayer_batches_start (endpoint: sprayer_batches_start)
+    - GET /sprayer/candidates.json -> sprayer_candidates_json (endpoint: sprayer_candidates_json)
+    - GET /sprayer/hitlist -> sprayer_hit_list (endpoint: sprayer_hit_list)
+    - GET /sprayer/hitlist.json -> sprayer_hitlist_json (endpoint: sprayer_hitlist_json)

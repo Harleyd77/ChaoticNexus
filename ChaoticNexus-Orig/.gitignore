@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+*.db
+*.sqlite
+/app/data/
+data/
+storage/
+.vscode/
+.venv/
+node_modules/
+dist/
+build/
+*.log

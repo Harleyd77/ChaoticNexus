@@ -1,0 +1,276 @@
+﻿<!doctype html>
+<html data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="utf-8">
+  <title>Edit Job #{{ job['id'] }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="color-scheme" content="dark light">
+  <script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var s=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', s);
+        document.documentElement.style.backgroundColor = s==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+  <style>
+    :root{--bg:#0e141b;--panel:#111923;--panel-2:#0f1720;--text:#e6edf3;--muted:#9fb0c0;--primary:#3b82f6;--border:#1f2a37;--input:#0c1218;--radius:12px}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;padding:20px}
+    .wrap{max-width:900px;margin:0 auto}
+    .top{display:flex;gap:8px;justify-content:space-between;margin-bottom:12px}
+    a.btn,button.btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--panel-2);color:var(--muted);cursor:pointer;text-decoration:none}
+    a.btn:hover,button.btn:hover{color:var(--text)}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+    h1{margin:0 0 6px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:14px}
+    .full{grid-column:1/-1}
+    label{display:block;margin:0 0 6px;color:var(--muted);font-weight:600}
+    .input-wrap{position:relative}
+    .input-wrap .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--primary)}
+    input,select,textarea{width:100%;padding:10px 12px;background:var(--input);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px}
+    .with-icon{padding-left:40px}
+    textarea{min-height:110px}
+    .row{display:flex;gap:8px;align-items:center}
+    .pill{background:#1b2430;color:#c6d4e2;padding:2px 8px;border-radius:999px;font-size:12px}
+    .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+    .danger{border-color:#7a2b2b;background:#4b1f1f;color:#ffd2d2}
+  </style>
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+</head>
+<body>
+  <!-- Theme menu will be injected by global-theme-menu.js -->
+  <div class="wrap">
+    <div class="top">
+      <a class="btn" href="/jobs">Back to Jobs</a>
+      <div class="row"></div>
+      <div class="row">
+        {% if job['archived'] %}
+          <form action="/jobs/{{job['id']}}/unarchive" method="post" class="row">
+            <button class="btn" type="submit">Unarchive</button>
+          </form>
+        {% else %}
+          <form action="/jobs/{{job['id']}}/archive" method="post" class="row">
+            <input type="text" name="reason" placeholder="Reason (optional)"/>
+            <button class="btn danger" type="submit" title="Hide from board">Archive</button>
+          </form>
+        {% endif %}
+        {% if not job['completed_at'] %}
+          <form action="/jobs/{{job['id']}}/complete" method="post" class="row" onsubmit="return confirm('Mark this job as completed?')" style="margin-left:8px">
+            <button class="btn" type="submit">Mark Completed</button>
+          </form>
+        {% else %}
+          <form action="/jobs/{{job['id']}}/reopen" method="post" class="row" onsubmit="return confirm('Reopen this job?')" style="margin-left:8px">
+            <button class="btn" type="submit">Reopen</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <h1>Edit Job #{{ job['id'] }}</h1>
+      <p class="pill">Created: {{ job['created_at'] }}</p>
+      <div style="margin:10px 0">
+        <h3 style="margin:0 0 6px">Photos</h3>
+        {% if photos %}
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          {% for p in photos %}
+            {% set fname = p['filename'] or '' %}
+            {% set is_pdf = fname.lower().endswith('pdf') %}
+            <div style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#0b1118">
+              {% if not is_pdf %}
+                <a href="/uploads/{{ p['filename'] }}" target="_blank">
+                  <img src="/uploads/{{ p['filename'] }}" alt="photo" style="width:160px;height:100px;object-fit:cover;display:block" onerror="this.style.display='none'">
+                </a>
+              {% else %}
+                <a href="/uploads/{{ p['filename'] }}" target="_blank" style="display:flex;align-items:center;justify-content:center;width:160px;height:100px;color:#e6eef7;text-decoration:none">
+                  <span style="font-size:32px">PDF</span>
+                </a>
+              {% endif %}
+              <div style="padding:6px 8px;color:#9fb0c0;font-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p['original_name'] or p['filename'] }}</div>
+              {% if is_admin %}
+              <form method="post" action="/jobs/{{ job['id'] }}/photos/{{ p['id'] }}/delete" onsubmit="return confirm('Delete this file?')" style="padding:6px 8px">
+                <button class="btn danger" type="submit">Delete</button>
+              </form>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        {% else %}
+          <div class="pill" style="display:inline-block">No photos yet</div>
+        {% endif %}
+        {% if is_admin %}
+        <form method="post" action="/jobs/{{ job['id'] }}/photos/upload" enctype="multipart/form-data" style="margin-top:8px">
+          <label style="display:block;margin:0 0 6px">Add more photos</label>
+          <input type="file" name="photos" accept="image/*,application/pdf" multiple />
+          <div class="actions" style="justify-content:flex-start;margin-top:8px">
+            <button class="btn" type="submit">Upload</button>
+          </div>
+        </form>
+        {% endif %}
+      </div>
+      <form method="post">
+        <div class="grid">
+          <div>
+            <label for="date_in">Date In</label>
+            <input type="date" id="date_in" name="date_in" value="{{ job['date_in'] or '' }}">
+          </div>
+          <div>
+            <label for="due_by">Due By</label>
+            <input type="date" id="due_by" name="due_by" value="{{ job['due_by'] or '' }}">
+          </div>
+
+          <div>
+            <label for="contact_name">Contact Name</label>
+            <input type="text" id="contact_name" name="contact_name" value="{{ job['contact_name'] or '' }}">
+          </div>
+          <div>
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" value="{{ job['company'] or '' }}">
+          </div>
+
+          <div>
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" name="phone" value="{{ job['phone'] or '' }}">
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{ job['email'] or '' }}">
+          </div>
+
+          <div>
+            <label for="po">PO</label>
+            <input type="text" id="po" name="po" value="{{ job['po'] or '' }}">
+          </div>
+          <div>
+            <label for="type">Category</label>
+            <select id="type" name="type">
+              {% for opt in (cfg['options'].get('category') or []) %}
+                <option value="{{opt}}" {% if job['type']==opt %}selected{% endif %}>{{opt}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority">
+              {% for opt in (cfg['options'].get('priority') or []) %}
+                <option value="{{opt}}" {% if job['priority']==opt %}selected{% endif %}>{{opt}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="blast">Sandblasting</label>
+            <select id="blast" name="blast">
+              {% for opt in (cfg['options'].get('blast') or []) %}
+                <option value="{{opt}}" {% if job['blast']==opt %}selected{% endif %}>{{opt}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="prep">Prep</label>
+            <select id="prep" name="prep">
+              {% for opt in (cfg['options'].get('prep') or []) %}
+                <option value="{{opt}}" {% if job['prep']==opt %}selected{% endif %}>{{opt}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="color">Color</label>
+            <input type="text" id="color" name="color" value="{{ job['color'] or '' }}">
+          </div>
+          <div>
+            <label for="department">Department</label>
+            <select id="department" name="department">
+              {% for d in departments %}
+                <option value="{{d}}" {% if job['department']==d %}selected{% endif %}>{{d}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="status">Status</label>
+            <input type="text" id="status" name="status" value="{{ job['status'] or '' }}" placeholder="e.g., In Progress, Waiting, On Hold">
+          </div>
+
+          <div class="full">
+            <label for="description">Description</label>
+            <textarea id="description" name="description">{{ job['description'] or '' }}</textarea>
+          </div>
+          <div class="full">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes">{{ job['notes'] or '' }}</textarea>
+          </div>
+
+          
+        </div>
+
+        <div class="actions">
+          <a class="btn" href="/jobs">Cancel</a>
+          <button class="btn" type="submit" style="background:var(--primary);border-color:transparent;color:white">Save Changes</button>
+          <!-- Use button with formaction to avoid nested form invalid HTML -->
+          <button class="btn danger" type="submit"
+                  formnovalidate
+                  formaction="/jobs/{{ job['id'] }}/delete"
+                  formmethod="post"
+                  onclick="return confirm('Permanently delete this job and its attachments? This cannot be undone.');"
+                  style="margin-left:auto">
+            Delete Job
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+  (function(){
+    const ICONS={
+      calendar:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+      user:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      building:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M9 8h6v13H9z"/><path d="M4 21V10h5"/></svg>',
+      phone:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92V21a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2 4.18 2 2 0 0 1 4 2h4.09a2 2 0 0 1 2 1.72l.57 3.26a2 2 0 0 1-.52 1.7L9 10a16 16 0 0 0 5 5l1.32-1.14a2 2 0 0 1 1.7-.52l3.26.57A2 2 0 0 1 22 16.92z"/></svg>',
+      mail:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>',
+      tag:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41L11 3H4v7l9.59 9.59a2 2 0 0 0 2.82 0l4.18-4.18a2 2 0 0 0 0-2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+      flag:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22V4h11l-1 3 3 1-1 3 3 1v7z"/></svg>',
+      wrench:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 1 0-5.66 5.66L3 18l3 3 6.04-6.04a4 4 0 0 0 2.66-8.66z"/></svg>',
+      droplet:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0L12 2.69z"/></svg>'
+    };
+    function addIconWrap(id, svg){
+      var el=document.getElementById(id); if(!el) return;
+      if(el.closest('.input-wrap')){ // already wrapped
+        const holder = el.closest('.input-wrap').querySelector('.icon');
+        if(holder) holder.innerHTML = svg;
+        el.classList.add('with-icon');
+        return;
+      }
+      var wrap=document.createElement('div'); wrap.className='input-wrap';
+      var parent=el.parentNode; parent.insertBefore(wrap, el);
+      wrap.appendChild(el);
+      el.classList.add('with-icon');
+      var span=document.createElement('span'); span.className='icon'; span.innerHTML=svg; wrap.insertBefore(span, el);
+    }
+    function init(){
+      addIconWrap('date_in', ICONS.calendar);
+      addIconWrap('due_by', ICONS.calendar);
+      addIconWrap('contact_name', ICONS.user);
+      addIconWrap('company', ICONS.building);
+      addIconWrap('phone', ICONS.phone);
+      addIconWrap('email', ICONS.mail);
+      addIconWrap('po', ICONS.tag);
+      addIconWrap('type', ICONS.tag);
+      addIconWrap('priority', ICONS.flag);
+      addIconWrap('blast', ICONS.wrench);
+      addIconWrap('prep', ICONS.wrench);
+      addIconWrap('color', ICONS.droplet);
+      addIconWrap('department', ICONS.building);
+      
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+  })();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,413 @@
+# analysis/legacy_tree.txt
+ChaoticNexus-Orig
+├── .agent-os
+│   ├── instructions
+│   │   ├── core
+│   │   │   ├── analyze-product.md
+│   │   │   ├── create-spec.md
+│   │   │   ├── create-tasks.md
+│   │   │   ├── execute-task.md
+│   │   │   ├── execute-tasks.md
+│   │   │   ├── plan-product.md
+│   │   │   └── post-execution-tasks.md
+│   │   └── meta
+│   │       ├── post-flight.md
+│   │       └── pre-flight.md
+│   ├── product
+│   │   ├── decisions.md
+│   │   ├── mission.md
+│   │   ├── roadmap.md
+│   │   └── tech-stack.md
+│   ├── specs
+│   │   ├── 2025-09-29-customer-job-portal
+│   │   │   ├── srd.md
+│   │   │   └── tasks.md
+│   │   └── 2025-09-29-customer-portal
+│   │       ├── srd.md
+│   │       └── tasks.md
+│   └── standards
+│       ├── code-style
+│       │   ├── css-style.md
+│       │   ├── html-style.md
+│       │   └── javascript-style.md
+│       ├── best-practices.md
+│       ├── code-style.md
+│       └── tech-stack.md
+├── .cursor
+│   └── rules
+│       ├── analyze-product.mdc
+│       ├── create-spec.mdc
+│       ├── create-tasks.mdc
+│       ├── execute-tasks.mdc
+│       └── plan-product.mdc
+├── deploy
+│   ├── deploy-unraid.ps1
+│   └── rebuild.sh
+├── frontend
+│   ├── components
+│   ├── public
+│   ├── src
+│   │   ├── components
+│   │   │   ├── ui
+│   │   │   │   ├── accordion.tsx
+│   │   │   │   ├── alert-dialog.tsx
+│   │   │   │   ├── alert.tsx
+│   │   │   │   ├── aspect-ratio.tsx
+│   │   │   │   ├── avatar.tsx
+│   │   │   │   ├── badge.tsx
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── calendar.tsx
+│   │   │   │   ├── card.tsx
+│   │   │   │   ├── carousel.tsx
+│   │   │   │   ├── checkbox.tsx
+│   │   │   │   ├── collapsible.tsx
+│   │   │   │   ├── command.tsx
+│   │   │   │   ├── context-menu.tsx
+│   │   │   │   ├── dialog.tsx
+│   │   │   │   ├── dropdown-menu.tsx
+│   │   │   │   ├── form.tsx
+│   │   │   │   ├── hover-card.tsx
+│   │   │   │   ├── input.tsx
+│   │   │   │   ├── label.tsx
+│   │   │   │   ├── menubar.tsx
+│   │   │   │   ├── navigation-menu.tsx
+│   │   │   │   ├── popover.tsx
+│   │   │   │   ├── progress.tsx
+│   │   │   │   ├── radio-group.tsx
+│   │   │   │   ├── resizable.tsx
+│   │   │   │   ├── scroll-area.tsx
+│   │   │   │   ├── select.tsx
+│   │   │   │   ├── separator.tsx
+│   │   │   │   ├── sheet.tsx
+│   │   │   │   ├── skeleton.tsx
+│   │   │   │   ├── slider.tsx
+│   │   │   │   ├── sonner.tsx
+│   │   │   │   ├── switch.tsx
+│   │   │   │   ├── table.tsx
+│   │   │   │   ├── tabs.tsx
+│   │   │   │   ├── textarea.tsx
+│   │   │   │   ├── toast.tsx
+│   │   │   │   ├── toaster.tsx
+│   │   │   │   ├── toggle-group.tsx
+│   │   │   │   ├── toggle.tsx
+│   │   │   │   └── tooltip.tsx
+│   │   │   ├── Button.jsx
+│   │   │   ├── Card.jsx
+│   │   │   └── Layout.jsx
+│   │   ├── contexts
+│   │   │   └── ThemeContext.jsx
+│   │   ├── hooks
+│   │   │   └── use-toast.ts
+│   │   ├── lib
+│   │   │   └── utils.ts
+│   │   ├── pages
+│   │   │   ├── Customers.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── IntakeForm.jsx
+│   │   │   ├── Inventory.jsx
+│   │   │   ├── Jobs.jsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── Powders.jsx
+│   │   │   ├── ReorderList.jsx
+│   │   │   └── ShadcnShowcase.tsx
+│   │   ├── utils
+│   │   │   └── cn.js
+│   │   ├── app.tailwind.css
+│   │   ├── App.tsx
+│   │   ├── index.css
+│   │   └── main.tsx
+│   ├── build.sh
+│   ├── components.json
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── README.md
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.js
+├── src
+│   └── powder_app
+│       ├── blueprints
+│       │   ├── customer_portal
+│       │   │   ├── __init__.py
+│       │   │   ├── auth.py
+│       │   │   ├── dashboard.py
+│       │   │   └── jobs.py
+│       │   ├── __init__.py
+│       │   ├── admin.py
+│       │   ├── auth.py
+│       │   ├── base.py
+│       │   ├── customers.py
+│       │   ├── dev.py
+│       │   ├── intake.py
+│       │   ├── inventory.py
+│       │   ├── jobs.py
+│       │   ├── migrate.py
+│       │   ├── powders.py
+│       │   ├── print_templates.py
+│       │   ├── react_frontend.py
+│       │   └── sprayer.py
+│       ├── core
+│       │   ├── __init__.py
+│       │   ├── branding.py
+│       │   ├── config.py
+│       │   ├── customer_auth.py
+│       │   ├── customers.py
+│       │   ├── db.py
+│       │   ├── errors.py
+│       │   ├── options.py
+│       │   ├── security.py
+│       │   ├── templates.py
+│       │   ├── uploads.py
+│       │   └── utils.py
+│       ├── services
+│       │   ├── __init__.py
+│       │   └── customers_service.py
+│       ├── static
+│       │   ├── css
+│       │   │   ├── components.css
+│       │   │   ├── customers.css
+│       │   │   └── theme.css
+│       │   ├── js
+│       │   │   ├── customers.js
+│       │   │   ├── dev-check.js
+│       │   │   ├── global-theme-menu.js
+│       │   │   ├── motion.js
+│       │   │   ├── theme.js
+│       │   │   └── ui-core.js
+│       │   ├── logos
+│       │   │   ├── beyond powder.jpeg
+│       │   │   ├── ChaoticCPng.PNG
+│       │   │   ├── ChaoticCPngNoBkgr.PNG
+│       │   │   ├── Copilot_20250907_112634.png
+│       │   │   ├── favicon-1.png.PNG
+│       │   │   ├── prismatic-powders.png
+│       │   │   ├── README.txt
+│       │   │   ├── tiger-drylac.webp
+│       │   │   ├── Tiger1.jpg
+│       │   │   └── u2443616598_monogram_logo_design_VPC_initials_elegant_and_bol_e8492e18-f44f-43f5-bd9b-83136258ebd7_1.png
+│       │   ├── favicon-1.png.PNG
+│       │   ├── theme.css
+│       │   └── theme.js
+│       ├── templates
+│       │   ├── _components
+│       │   │   ├── macros.html
+│       │   │   └── macros.html.bak
+│       │   ├── _layout
+│       │   ├── _partials
+│       │   ├── auth
+│       │   │   ├── login.html
+│       │   │   ├── login.html.bak
+│       │   │   ├── login_base.html
+│       │   │   └── login_base.html.bak
+│       │   ├── customer_portal
+│       │   │   ├── base.html
+│       │   │   ├── base.html.bak
+│       │   │   ├── dashboard.html
+│       │   │   ├── dashboard.html.bak
+│       │   │   ├── job_detail.html
+│       │   │   ├── job_detail.html.bak
+│       │   │   ├── job_edit.html
+│       │   │   ├── job_edit.html.bak
+│       │   │   ├── job_submit.html
+│       │   │   ├── job_submit.html.bak
+│       │   │   ├── jobs_list.html
+│       │   │   ├── jobs_list.html.bak
+│       │   │   ├── profile.html
+│       │   │   ├── profile.html.bak
+│       │   │   ├── register.html
+│       │   │   └── register.html.bak
+│       │   ├── customers
+│       │   │   ├── admin_account_detail.html
+│       │   │   ├── admin_accounts.html
+│       │   │   ├── index.html
+│       │   │   ├── index.html.bak
+│       │   │   ├── profile.html
+│       │   │   └── profile.html.bak
+│       │   ├── sprayer
+│       │   │   ├── batch.html
+│       │   │   ├── batch.html.bak
+│       │   │   ├── batches.html
+│       │   │   ├── batches.html.bak
+│       │   │   ├── hitlist.html
+│       │   │   └── hitlist.html.bak
+│       │   ├── _powder_form_fields.html
+│       │   ├── _powder_form_fields.html.bak
+│       │   ├── admin_users.html
+│       │   ├── admin_users.html.bak
+│       │   ├── base.html
+│       │   ├── error.html
+│       │   ├── error.html.bak
+│       │   ├── intake_form.backup.html
+│       │   ├── intake_form.backup.html.bak
+│       │   ├── intake_form.html
+│       │   ├── intake_form.html.bak
+│       │   ├── intake_form.test.html
+│       │   ├── intake_form.test.html.bak
+│       │   ├── IntakeSheetOnly.xlsm
+│       │   ├── inventory.html
+│       │   ├── inventory_history.html
+│       │   ├── job_edit.html
+│       │   ├── job_edit.html.bak
+│       │   ├── job_view.html
+│       │   ├── job_view.html.bak
+│       │   ├── job_workorder.html
+│       │   ├── job_workorder.html.bak
+│       │   ├── jobs.html
+│       │   ├── jobs.html.bak
+│       │   ├── jobs_kanban.html
+│       │   ├── jobs_kanban.html.bak
+│       │   ├── MeasurementForm(Railings).html
+│       │   ├── MeasurementForm(Railings).html.bak
+│       │   ├── nav.html
+│       │   ├── nav.html.bak
+│       │   ├── powder_edit.html
+│       │   ├── powder_edit.html.bak
+│       │   ├── powders.html
+│       │   ├── powders.html.bak
+│       │   ├── powders.html_Zone.Identifier
+│       │   ├── print_templates_admin.html
+│       │   ├── print_templates_admin.html.bak
+│       │   ├── RailingIntake.html
+│       │   ├── RailingIntake.html.bak
+│       │   ├── react_app.html
+│       │   ├── react_app.html.bak
+│       │   ├── react_demo.html
+│       │   ├── react_demo.html.bak
+│       │   ├── reorder_list.html
+│       │   ├── sprayer_batch.html
+│       │   ├── sprayer_batch.html.bak
+│       │   ├── sprayer_batches.html
+│       │   └── sprayer_batches.html.bak
+│       ├── __init__.py
+│       └── main.py
+├── storage
+│   ├── backups
+│   ├── data
+│   │   └── uploads
+│   │       ├── branding
+│   │       │   ├── ChaoticCPng-20250914021121.png
+│   │       │   ├── ChaoticCPngNoBkgr-20250914021250.png
+│   │       │   ├── ChaoticCPngNoBkgr-20250929051608.png
+│   │       │   ├── ChaoticLogoWhite-20250914022436.png
+│   │       │   ├── ChaoticLogoWhite-20250914022557.png
+│   │       │   ├── ChaoticLogoWhite-20251007071521.png
+│   │       │   ├── ChaoticLogoWhite-20251007073547.png
+│   │       │   ├── Copilot_20250907_112634-20250929051723.png
+│   │       │   └── u2443616598_skull_--ar_11_--v_7_fd1492cb-20250929235344.png
+│   │       ├── jobs
+│   │       │   └── nightnday-projects-ltd
+│   │       │       └── job-15
+│   │       │           ├── 20250926_093009_job15_1759539023_92d20b57.jpg
+│   │       │           └── 20250926_093534_job15_1759538968_e37f5e01.jpg
+│   │       ├── powders
+│   │       │   ├── beyond-powder
+│   │       │   │   ├── burnt-black-2234234234
+│   │       │   │   │   └── picture.jpg
+│   │       │   │   └── fire-red-l-09-09
+│   │       │   └── tiger-drylac
+│   │       │       ├── anodized-silver-138-91021
+│   │       │       │   └── picture.jpg
+│   │       │       ├── purple-power
+│   │       │       ├── ral-5019-4444345
+│   │       │       ├── sd-black-super-tex-59-81073
+│   │       │       │   └── picture.webp
+│   │       │       ├── semi-gloss-black
+│   │       │       └── solar-flat-black-149-5555
+│   │       ├── 20120707_192532_Android_job47_1757808485_ba98c4ab.jpg
+│   │       ├── 20250831_110342_job16_1756907411_d1f3341a.jpg
+│   │       ├── 20250831_110553_job16_1756909774_f5dbea83.jpg
+│   │       ├── 20250831_113057_job16_1756909789_393ddd17.jpg
+│   │       ├── 20250903_102338_job18_1756920441_64e2fd9d.jpg
+│   │       ├── 20250904_085514_job19_1757001352_f190b6be.jpg
+│   │       ├── 20250904_143257_job20_1757021749_20788b74.jpg
+│   │       ├── 20250905_093239_job24_1757090137_3d5cceeb.jpg
+│   │       ├── 20250905_093248_job25_1757090287_2148af55.jpg
+│   │       ├── 20250905_093305_job28_1757090806_a80208fa.jpg
+│   │       ├── 20250905_093309_job26_1757090473_93e892f5.jpg
+│   │       ├── 20250905_093315_job27_1757090684_07861c57.jpg
+│   │       ├── 20250905_095718_job29_1757092163_a0a9ea51.jpg
+│   │       ├── 20250905_095724_job29_1757092152_ec9b231b.jpg
+│   │       ├── 20250905_121204_job31_1757099601_e150f8ae.jpg
+│   │       ├── 20250908_132521_job40_1757363159_2e94c05a.jpg
+│   │       ├── 20250908_133045_job41_1757363545_c1918c5e.jpg
+│   │       ├── 20250910_070921_job44_1757519043_b580c6d9.jpg
+│   │       ├── 20250910_070927_job44_1757519032_93cf167d.jpg
+│   │       ├── 20250910_070937_job44_1757518996_e89e69ec.jpg
+│   │       ├── 20250911_082510_job45_1757606240_8915fcaf.jpg
+│   │       ├── 20250926_092956_job15_1759538885_5bda20fd.jpg
+│   │       ├── 20250926_143535_job60_1758922698_f73469d8.jpg
+│   │       ├── Absinthe_Distillery_-_Victorian_Liquor_job10_1759380557_7d6c1d13.png
+│   │       ├── app.db
+│   │       ├── Chaotic_Ind._Tarrot_job1_1759122326_8640616a.png
+│   │       ├── Chaotic_Ind._Tarrot_job48_1757814562_fe078fe0.png
+│   │       ├── EDrop_1759032168849_job7_1759215133_450ed827.jpeg
+│   │       ├── IMG_3321_job39_1757363028_1567aeb7.heic
+│   │       ├── Railing.Intake.Sheet_job14_1756871569_ae208ea9.pdf
+│   │       ├── Unfold_-_Minimal_Typographic_job15_1756883073_7945c62d.png
+│   │       ├── WIN_20250911_12_41_18_Pro_job46_1757619831_2a86170f.jpg
+│   │       └── ZapcoMonoStringer_job38_1757362255_a3722ac5.jpg
+│   └── pgdata
+├── tools
+│   ├── codemods
+│   │   └── convert_templates_to_base.py
+│   ├── migrations
+│   │   └── 001_customer_portal_schema.py
+│   ├── scripts
+│   │   └── seed_customer_portal.py
+│   ├── _check_paths.py
+│   ├── _dump_line.py
+│   ├── _inspect_powder.py
+│   ├── _list_routes.py
+│   ├── backup.ps1
+│   ├── backup.sh
+│   ├── check_schema.py
+│   ├── create_test_data.py
+│   ├── fix_encoding_artifacts.py
+│   ├── import_powders_csv.py
+│   ├── migrate_add_color_family.py
+│   ├── migrate_job_uploads.py
+│   ├── migrate_powder_uploads.py
+│   ├── migrate_sqlite_to_postgres.py
+│   ├── print_users.py
+│   ├── rebuild.sh
+│   ├── render_sprayer_pages.py
+│   ├── restore.ps1
+│   ├── restore_db.sh
+│   └── unlock_admin.py
+├── .dockerignore
+├── .env
+├── .gitignore
+├── ACCESS_NEW_LOGIN.md
+├── CLOUDFLARE_TUNNEL_SETUP.md
+├── cloudflared
+├── cloudflared-linux-amd64.deb
+├── cookies.txt
+├── CREDENTIALS.txt
+├── DESIGN_SYSTEM_IMPLEMENTATION.md
+├── docker-compose.postgres.yml
+├── docker-compose.yml
+├── Dockerfile
+├── IMPLEMENTATION_SUMMARY.md
+├── INVENTORY_MANAGEMENT.md
+├── LOGIN_PAGE_GUIDE.md
+├── MIGRATION_README.md
+├── powders.csv
+├── powders_fixed.csv
+├── powders_with_codes_links.csv
+├── powders_with_codes_links.csv_Zone.Identifier
+├── PRINT_TEMPLATES_GUIDE.md
+├── REACT_LOGIN_INTEGRATION.md
+├── REACTBITS_INTEGRATION.md
+├── README.md
+├── README_TEST_DATA.md
+├── requirements.txt
+├── SHADCN_INTEGRATION.md
+├── SINGLE_LOGIN_SYSTEM.md
+├── STYLING_REFACTOR_REPORT.md
+├── THEME_SYSTEM_SETUP.md
+├── THEME_SYSTEM_VERIFICATION.md
+├── This Is Linux On ChaoticComputer.txt
+└── This Is Linux On ChaoticComputer.txt_Zone.Identifier

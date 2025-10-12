@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    :root { color-scheme: dark light; }
+    body{
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px 20px;
+      position:relative;
+    }
+    .login-bg{position:fixed;inset:0;z-index:-1;background:{% if login_bg_url %}url('{{ login_bg_url }}') center/cover no-repeat fixed{% else %}radial-gradient(1000px 500px at 10% -10%,#18314f,transparent),linear-gradient(180deg,#0e141b,#0b1118){% endif %};filter:{% if login_bg_url %}brightness(0.55){% else %}none{% endif %}}
+    .login-wrap{width:100%;max-width:520px;margin:0 auto}
+    .login-title{text-align:center;margin:0 0 14px;font-size:30px;font-weight:700;letter-spacing:0.25px;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+    .subtitle{text-align:center;color:color-mix(in srgb,var(--muted),white 10%);margin-bottom:24px;font-size:15px}
+    .flash-messages{max-width:420px;margin:0 auto 18px}
+    .alert{margin-bottom:10px;border-radius:12px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--border),white 20%);background:color-mix(in srgb,var(--panel),white 12%);color:var(--text);box-shadow:0 12px 24px rgba(0,0,0,.18)}
+    .alert-info{border-color:color-mix(in srgb,var(--primary),white 25%);background:color-mix(in srgb,var(--primary),var(--panel) 82%)}
+    .alert-success{border-color:#10b981;background:color-mix(in srgb,#10b981,var(--panel) 78%);color:#065f46}
+    .alert-danger{border-color:#ef4444;background:color-mix(in srgb,#ef4444,var(--panel) 80%);color:#7f1d1d}
+    .login-panel{width:100%;max-width:420px}
+    .card{
+      background:linear-gradient(200deg,color-mix(in srgb,var(--panel),white 6%),color-mix(in srgb,var(--panel-2),white 12%));
+      border-radius:20px;
+      border:1px solid color-mix(in srgb,var(--border),var(--text) 10%);
+      box-shadow:0 22px 42px rgba(15,23,32,.28);
+      overflow:hidden;
+      color:var(--text);
+    }
+    .card-header{padding:24px 28px;border-bottom:1px solid color-mix(in srgb,var(--border),var(--text) 14%);background:color-mix(in srgb,var(--panel),var(--primary) 7%)}
+    .card-title{margin:0;font-size:21px;font-weight:700}
+    .card-body{padding:28px 30px;display:flex;flex-direction:column;gap:22px}
+    .btn-primary, .btn-outline-primary, .btn-outline-danger{
+      width:100%;
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+      padding:13px 16px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-weight:600;
+      cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+      font-size:15px;
+    }
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 14px 28px rgba(37,99,235,0.25)}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 18px 34px rgba(37,99,235,0.28)}
+    .btn-outline-primary{background:transparent;color:var(--primary);border-color:color-mix(in srgb,var(--primary),white 30%)}
+    .btn-outline-primary:hover{background:color-mix(in srgb,var(--primary),white 86%);box-shadow:0 12px 24px rgba(59,130,246,0.18)}
+    .btn-outline-danger{background:transparent;color:#ef4444;border-color:color-mix(in srgb,#ef4444,white 28%)}
+    .btn-outline-danger:hover{background:color-mix(in srgb,#ef4444,white 88%);box-shadow:0 12px 24px rgba(239,68,68,0.18)}
+    .login-card .login-form{margin:0;display:flex;flex-direction:column;gap:18px}
+    .login-card .form-field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding:13px 16px;
+      border-radius:16px;
+      border:1px solid color-mix(in srgb,var(--border),var(--text) 14%);
+      background:color-mix(in srgb,var(--panel),white 18%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.05),0 12px 28px rgba(15,23,32,0.12);
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .login-card .form-field:focus-within{
+      border-color:color-mix(in srgb,var(--primary),white 34%);
+      background:color-mix(in srgb,var(--panel),white 26%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 16px 32px rgba(37,99,235,0.18);
+    }
+    .login-card .form-field label{font-weight:600;font-size:13px;letter-spacing:0.3px;text-transform:uppercase;color:color-mix(in srgb,var(--text),var(--muted) 35%)}
+    .login-card .form-field input{
+      border:none;
+      background:transparent;
+      padding:0;
+      margin:0;
+      color:var(--text);
+      font-size:15px;
+      line-height:1.4;
+      outline:none;
+    }
+    .login-card .form-field input::placeholder{color:color-mix(in srgb,var(--muted),white 35%)}
+    .login-card .form-links{display:flex;flex-direction:column;gap:12px;text-align:center;margin-top:-6px}
+    .login-card .form-links a{text-decoration:none;color:var(--primary);font-weight:600;font-size:14px}
+    .login-card .form-links a:hover{text-decoration:underline}
+    @media(max-width:540px){body{padding:24px 16px} .card-body{padding:26px 24px}}
+  </style>
+  <title>{{ super() }} | {{ login_title or 'Victoria Powder Coating Ltd' }} – Sign In</title>
+<script>
+    (function(){
+      try {
+        var match=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var saved=(match?decodeURIComponent(match[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.style.backgroundColor = saved==='dark' ? '#0e141b' : '#f7f9fc';
+      } catch (err) {
+        console.warn('Theme load failed', err);
+      }
+    })();
+  </script>
+<script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+<script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="login-bg"></div>
+  <div class="login-wrap">
+    <h1 class="login-title">{{ login_title or 'Victoria Powder Coating Ltd' }}</h1>
+    <p class="subtitle">Sign in to manage production, inventory, and customer updates.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="login-panel">
+      {% block login_content %}{% endblock %}
+    </div>
+  </div>
+{% endblock %}

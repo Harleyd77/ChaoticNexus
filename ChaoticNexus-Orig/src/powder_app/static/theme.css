@@ -1,0 +1,1049 @@
+/* Theme variables and common styles */
+
+/* Light (default) */
+:root,
+[data-theme="light"] {
+  --bg: #f7f9fc;
+  --panel: #ffffff;
+  --panel-2: #f0f4fa; /* subtle contrast for cards */
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #4b5563;
+  --primary: #2563eb;
+  --border: #e5e7eb;
+  --hover: #eef3fb;
+  --error: #dc3545;
+  /* Global font stack */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Error Toast */
+.error-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--error);
+  color: white;
+  padding: 1rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1000;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.flash-messages {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.flash-message {
+  background: var(--panel);
+  border: 1px solid var(--primary);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease-in-out;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.flash-message.fade-out {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Auto-dismiss styles for other message types */
+#submitBanner, .ok, .alert-success {
+  transition: all 0.3s ease-in-out;
+}
+
+#submitBanner.fade-out, .ok.fade-out, .alert-success.fade-out {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+.flash-message.success { border-color: #10b981; }
+.flash-message.error { border-color: var(--error); color: var(--error); }
+.flash-message .close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0 4px;
+  margin-left: 8px;
+}
+
+.error-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.error-toast .close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.error-toast .close:hover {
+  opacity: 0.8;
+}
+
+/* Dark */
+[data-theme="dark"] {
+  --bg:#0e141b; --panel:#111923; --panel-2:#0f1720; --card:#151e2a; --text:#e6edf3; --muted:#9fb0c0;
+  --primary:#3b82f6; --border:#1f2a37; --hover:#172235;
+}
+
+/* Aurora theme overrides */
+[data-style="aurora"] {
+  --bg:#070b12;
+  --panel:#0b1420;
+  --panel-2:#0a111a;
+  --card:#101a28;
+  --text:#f2f6ff;
+  --muted:#97a8c1;
+  --primary:#4c6aff;
+  --primary-subtle:rgba(76,106,255,0.18);
+  --border:#18202e;
+  --hover:#152235;
+  --shadow-strong:0 24px 60px rgba(9,14,25,.35);
+  --shadow-card:0 18px 40px rgba(9,14,25,.32);
+  --radius-lg:20px;
+  --radius-md:16px;
+  --radius-sm:12px;
+}
+
+[data-style="aurora"] body {
+  font-family: "Inter", var(--font-sans);
+  font-feature-settings: "ss01" 1, "ss02" 1;
+}
+
+[data-style="aurora"] .wrap {
+  max-width:1080px;
+  margin:0 auto;
+  padding:32px 24px 64px;
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+
+[data-style="aurora"] .card {
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border:1px solid color-mix(in oklab,var(--border),transparent 30%);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-card);
+  padding:26px;
+}
+
+[data-style="aurora"] .edit-card {
+  display:flex;
+  flex-direction:column;
+  gap:32px;
+}
+
+[data-style="aurora"] .top,
+[data-style="aurora"] .page-actions {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+[data-style="aurora"] .page-actions {
+  gap:10px;
+}
+
+[data-style="aurora"] .btn {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  border-radius:999px;
+  border:1px solid color-mix(in oklab,var(--border),var(--text) 18%);
+  background:color-mix(in oklab,var(--panel-2),transparent 12%);
+  color:color-mix(in oklab,var(--muted),white 12%);
+  font-weight:600;
+  font-size:13px;
+  letter-spacing:.02em;
+  text-decoration:none;
+  cursor:pointer;
+  transition:all .18s ease;
+}
+
+[data-style="aurora"] .btn:hover {
+  color:var(--text);
+  transform:translateY(-1px);
+  box-shadow:0 16px 28px rgba(9,14,25,.28);
+}
+
+[data-style="aurora"] .btn.primary {
+  background:linear-gradient(180deg,color-mix(in oklab,var(--primary),white 5%),var(--primary));
+  border-color:color-mix(in oklab,var(--primary),var(--border) 35%);
+  color:#fff;
+  box-shadow:0 16px 32px rgba(76,106,255,.35);
+}
+
+[data-style="aurora"] .btn.primary:hover {
+  box-shadow:0 20px 36px rgba(76,106,255,.42);
+}
+
+[data-style="aurora"] .btn.secondary {
+  background:rgba(15,23,32,.65);
+  border-color:color-mix(in oklab,var(--border),white 8%);
+}
+
+[data-style="aurora"] .btn.secondary:hover {
+  background:rgba(19,29,40,.85);
+}
+
+[data-style="aurora"] .btn.ghost {
+  background:transparent;
+  border-color:transparent;
+  color:var(--muted);
+  box-shadow:none;
+}
+
+[data-style="aurora"] .btn.ghost:hover {
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+}
+
+[data-style="aurora"] .btn.is-disabled {
+  opacity:.35;
+  pointer-events:none;
+  box-shadow:none;
+}
+
+[data-style="aurora"] .muted {
+  color:color-mix(in oklab,var(--muted),white 14%);
+}
+
+[data-style="aurora"] .edit-summary {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:center;
+  gap:24px;
+}
+
+[data-style="aurora"] .edit-summary__info {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-width:460px;
+}
+
+[data-style="aurora"] .eyebrow {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+  color:color-mix(in oklab,var(--muted),white 8%);
+  font-weight:700;
+}
+
+[data-style="aurora"] .edit-summary__info h1 {
+  margin:0;
+  font-size:30px;
+  font-weight:800;
+  letter-spacing:-0.01em;
+  color:var(--text);
+}
+
+[data-style="aurora"] .edit-summary__subtitle {
+  margin:0;
+  font-size:14px;
+  line-height:1.5;
+  color:color-mix(in oklab,var(--muted),white 18%);
+}
+
+[data-style="aurora"] .edit-summary__media {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:14px 16px;
+  border-radius:18px;
+  border:1px solid color-mix(in oklab,var(--border),transparent 30%);
+  background:rgba(11,18,28,.65);
+  box-shadow:0 18px 34px rgba(9,14,25,.3);
+}
+
+[data-style="aurora"] .edit-summary__preview {
+  width:76px;
+  height:76px;
+  border-radius:14px;
+  border:1px solid color-mix(in oklab,var(--border),transparent 40%);
+  background:#101a25;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+
+[data-style="aurora"] .edit-summary__preview img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+[data-style="aurora"] .edit-summary__preview-placeholder {
+  font-size:11px;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+  color:color-mix(in oklab,var(--muted),white 12%);
+}
+
+[data-style="aurora"] .edit-summary__meta {
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+[data-style="aurora"] .edit-summary__name {
+  font-weight:700;
+  font-size:18px;
+  color:var(--text);
+}
+
+[data-style="aurora"] .form-section {
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+[data-style="aurora"] .section-title {
+  margin:0;
+  font-size:12px;
+  letter-spacing:.45px;
+  text-transform:uppercase;
+  font-weight:800;
+  color:color-mix(in oklab,var(--muted),white 10%);
+}
+
+[data-style="aurora"] .section-hint {
+  margin:0;
+  font-size:13px;
+  color:color-mix(in oklab,var(--muted),white 20%);
+}
+
+[data-style="aurora"] .edit-form .grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(260px,1fr));
+  gap:18px;
+  background:rgba(13,20,30,.55);
+  border:1px solid color-mix(in oklab,var(--border),transparent 40%);
+  border-radius:18px;
+  padding:18px;
+}
+
+[data-style="aurora"] .edit-form .grid.pricing-grid {
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+}
+
+[data-style="aurora"] .edit-form .grid.single-column {
+  grid-template-columns:1fr;
+}
+
+[data-style="aurora"] .edit-form .full {
+  grid-column:1 / -1;
+}
+
+[data-style="aurora"] .field-card {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:14px 16px 12px;
+  border-radius:14px;
+  border:1px solid color-mix(in oklab,var(--border),var(--text) 14%);
+  background:rgba(10,16,24,.6);
+  box-shadow:0 14px 28px rgba(9,14,25,.26);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.35px;
+  color:color-mix(in oklab,var(--muted),white 18%);
+  font-weight:700;
+}
+
+[data-style="aurora"] .field-card input,
+[data-style="aurora"] .field-card select,
+[data-style="aurora"] .field-card textarea {
+  width:100%;
+  background:transparent;
+  border:0;
+  border-bottom:1px solid color-mix(in oklab,var(--border),var(--text) 18%);
+  border-radius:0;
+  color:var(--text);
+  font-size:15px;
+  font-weight:500;
+  padding:4px 0 6px;
+  transition:border-color .18s ease, color .18s ease;
+  text-transform:none;
+  letter-spacing:normal;
+}
+
+[data-style="aurora"] .field-card textarea {
+  min-height:120px;
+  resize:vertical;
+  line-height:1.45;
+}
+
+[data-style="aurora"] .field-card select {
+  padding-right:28px;
+}
+
+[data-style="aurora"] .field-card input:focus,
+[data-style="aurora"] .field-card select:focus,
+[data-style="aurora"] .field-card textarea:focus {
+  border-bottom-color:color-mix(in oklab,var(--primary),white 16%);
+  outline:none;
+}
+
+[data-style="aurora"] .checkbox-card {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:14px;
+  border:1px solid color-mix(in oklab,var(--border),var(--text) 18%);
+  background:rgba(10,16,24,.58);
+  box-shadow:0 12px 26px rgba(9,14,25,.22);
+  font-size:14px;
+  font-weight:600;
+  color:var(--text);
+}
+
+[data-style="aurora"] .checkbox-card input[type="checkbox"] {
+  width:18px;
+  height:18px;
+  accent-color:var(--primary);
+}
+
+[data-style="aurora"] .checkbox-card input[type="hidden"] {
+  display:none;
+}
+
+[data-style="aurora"] .metric-card {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  border-radius:16px;
+  padding:16px 18px;
+  background:linear-gradient(180deg,color-mix(in oklab,var(--panel),var(--primary) 22%),color-mix(in oklab,var(--panel-2),var(--primary) 6%));
+  border:1px solid color-mix(in oklab,var(--primary),var(--border) 45%);
+  box-shadow:0 22px 42px rgba(36,64,152,.38);
+}
+
+[data-style="aurora"] .metric-card__label {
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  color:color-mix(in oklab,var(--muted),white 18%);
+}
+
+[data-style="aurora"] .metric-card__value {
+  font-size:24px;
+  font-weight:800;
+  color:var(--text);
+}
+
+[data-style="aurora"] .metric-card__note {
+  font-size:12px;
+  color:color-mix(in oklab,var(--muted),white 20%);
+}
+
+[data-style="aurora"] .form-actions {
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:6px;
+}
+
+[data-style="aurora"] .upload-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1f...
+
+/* General typography and base */
+html, body { height: 100%; }
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Common containers */
+.wrap { color: var(--text); }
+.card, .job-card {
+  background: linear-gradient(180deg, var(--panel), var(--panel-2)) !important;
+  border-color: color-mix(in oklab, var(--border), var(--text) 8%) !important;
+  color: var(--text) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 14px 28px rgba(0,0,0,.12) !important;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+}
+
+/* Slightly different shade when collapsed (not expanded) */
+.card:not([aria-expanded="true"]), .job-card {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--panel), var(--text) 12%),
+    color-mix(in oklab, var(--panel-2), var(--text) 12%)
+  ) !important;
+  /* Subtle inner border for definition */
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--border), var(--text) 18%),
+              0 2px 0 rgba(0,0,0,.05),
+              0 14px 28px rgba(0,0,0,.12) !important;
+}
+
+.card:hover, .job-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 0 rgba(0,0,0,.06), 0 20px 36px rgba(0,0,0,.16) !important;
+  border-color: color-mix(in oklab, var(--primary), var(--border) 55%) !important;
+}
+.card:focus-within, .job-card:focus-within {
+  outline: 2px solid color-mix(in oklab, var(--primary), white 20%);
+  outline-offset: 2px;
+}
+
+/* Buttons - Enhanced Styling System */
+.btn, a.btn, button.btn { 
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  text-decoration: none !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  background: color-mix(in oklab, var(--panel-2), white 75%) !important;
+  color: var(--text) !important;
+  min-height: 40px !important;
+  white-space: nowrap !important;
+  user-select: none !important;
+}
+
+/* Button Sizes */
+.btn.btn-sm, a.btn.btn-sm, button.btn.btn-sm {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  min-height: 32px !important;
+}
+
+.btn.btn-lg, a.btn.btn-lg, button.btn.btn-lg {
+  padding: 14px 24px !important;
+  font-size: 16px !important;
+  min-height: 48px !important;
+}
+
+.btn.btn-xl, a.btn.btn-xl, button.btn.btn-xl {
+  padding: 18px 32px !important;
+  font-size: 18px !important;
+  min-height: 56px !important;
+}
+
+/* Button Variants */
+.btn.primary, a.btn.primary, button.btn.primary {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+}
+
+.btn.secondary, a.btn.secondary, button.btn.secondary {
+  background: color-mix(in oklab, var(--panel-2), black 20%) !important;
+  border-color: color-mix(in oklab, var(--border), var(--text) 30%) !important;
+  color: var(--muted) !important;
+}
+
+.btn.success, a.btn.success, button.btn.success {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+}
+
+.btn.warning, a.btn.warning, button.btn.warning {
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #fff !important;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2) !important;
+}
+
+.btn.danger, a.btn.danger, button.btn.danger {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2) !important;
+}
+
+.btn.outline, a.btn.outline, button.btn.outline {
+  background: transparent !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.btn.ghost, a.btn.ghost, button.btn.ghost {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--muted) !important;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .btn, [data-theme="dark"] a.btn, [data-theme="dark"] button.btn {
+  background: color-mix(in oklab, var(--panel-2), black 30%) !important;
+  color: #e6edf3 !important;
+}
+
+[data-theme="dark"] .btn.secondary, [data-theme="dark"] a.btn.secondary, [data-theme="dark"] button.btn.secondary {
+  background: color-mix(in oklab, var(--panel-2), black 40%) !important;
+  color: #c6d4e2 !important;
+}
+
+/* Hover States */
+.btn:hover, a.btn:hover, button.btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15) !important;
+  border-color: color-mix(in oklab, var(--primary), var(--border) 60%) !important;
+}
+
+.btn.primary:hover, a.btn.primary:hover, button.btn.primary:hover {
+  background: color-mix(in oklab, var(--primary), white 10%) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+.btn.secondary:hover, a.btn.secondary:hover, button.btn.secondary:hover {
+  background: color-mix(in oklab, var(--panel-2), white 10%) !important;
+  color: var(--text) !important;
+}
+
+.btn.success:hover, a.btn.success:hover, button.btn.success:hover {
+  background: color-mix(in oklab, #10b981, white 10%) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.btn.warning:hover, a.btn.warning:hover, button.btn.warning:hover {
+  background: color-mix(in oklab, #f59e0b, white 10%) !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+}
+
+.btn.danger:hover, a.btn.danger:hover, button.btn.danger:hover {
+  background: color-mix(in oklab, #ef4444, white 10%) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+
+.btn.outline:hover, a.btn.outline:hover, button.btn.outline:hover {
+  background: var(--primary) !important;
+  color: #fff !important;
+}
+
+.btn.ghost:hover, a.btn.ghost:hover, button.btn.ghost:hover {
+  background: color-mix(in oklab, var(--panel-2), white 5%) !important;
+  color: var(--text) !important;
+}
+
+/* Active States */
+.btn:active, a.btn:active, button.btn:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1) !important;
+}
+
+/* Focus States */
+.btn:focus-visible, a.btn:focus-visible, button.btn:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--primary), white 30%) !important;
+  outline-offset: 2px !important;
+}
+
+/* Disabled States */
+.btn:disabled, a.btn:disabled, button.btn:disabled,
+.btn.disabled, a.btn.disabled, button.btn.disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Button Groups */
+.btn-group {
+  display: inline-flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+}
+
+.btn-group .btn {
+  margin: 0 !important;
+}
+
+.btn-group .btn:not(:last-child) {
+  margin-right: 0 !important;
+}
+
+/* Responsive Button Adjustments */
+@media (max-width: 768px) {
+  .btn, a.btn, button.btn {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    min-height: 36px !important;
+  }
+  
+  .btn.btn-sm, a.btn.btn-sm, button.btn.btn-sm {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    min-height: 28px !important;
+  }
+  
+  .btn.btn-lg, a.btn.btn-lg, button.btn.btn-lg {
+    padding: 12px 20px !important;
+    font-size: 15px !important;
+    min-height: 44px !important;
+  }
+  
+  .btn-group {
+    gap: 6px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn, a.btn, button.btn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    min-height: 32px !important;
+  }
+  
+  .btn-group {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  .btn-group .btn {
+    width: 100% !important;
+  }
+  
+  /* Mobile-specific button adjustments */
+  .btn-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  
+  .btn-toolbar .btn-group {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  .btn-toolbar .btn-group .btn {
+    width: 100% !important;
+  }
+  
+  .form-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .form-actions .btn {
+    width: 100% !important;
+  }
+  
+  .actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .actions .btn {
+    width: 100% !important;
+  }
+  
+  .card-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .card-actions .btn {
+    width: 100% !important;
+  }
+}
+
+/* Ensure topbar/header buttons are high-contrast like nav */
+header .btn, header a.btn, header button.btn,
+.topbar .btn, .topbar a.btn, .topbar button.btn {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+header .btn:focus-visible, .topbar .btn:focus-visible {
+  outline: 2px solid #ffffff66;
+  outline-offset: 2px;
+}
+
+/* Inputs */
+input, select, textarea {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-color: #cbd5e1 !important;
+}
+[data-theme] .icon:empty { display:none; }
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: #0f1720 !important;
+  color: #e6edf3 !important;
+  border-color: #1f2a37 !important;
+}
+
+/* Tables */
+table { color: var(--text); }
+th, td { border-color: var(--border) !important; }
+
+/* Accents and muted text */
+.muted, .help, .sub, .hint { color: var(--muted) !important; }
+.pill {
+  background: color-mix(in oklab, var(--panel), #0001) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Integrated theme toggle buttons */
+.theme-toggle-btn, .style-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.theme-toggle-btn:hover, .style-toggle-btn:hover {
+  color: var(--text);
+  background: var(--hover);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.theme-toggle-btn svg {
+  flex-shrink: 0;
+}
+
+/* Hide visually hidden elements */
+.vh { 
+  position: absolute; 
+  width: 1px; 
+  height: 1px; 
+  margin: -1px; 
+  padding: 0; 
+  border: 0; 
+  clip: rect(0 0 0 0); 
+  overflow: hidden; 
+}
+
+/* Headers and sticky bars */
+header, .topbar {
+  background: color-mix(in oklab, var(--panel), transparent 10%) !important;
+  border-bottom-color: var(--border) !important;
+  backdrop-filter: blur(6px);
+}
+
+/* Spacing helpers to prevent header overlap and tighten sections */
+.topbar + .wrap,
+.topbar + .container,
+.topbar + .form-container {
+  margin-top: 12px !important;
+}
+.top,
+.toolbar {
+  margin-bottom: 14px !important;
+}
+.wrap > .card,
+.container > .card {
+  margin-bottom: 14px !important;
+}
+
+/* Links inside buttons should inherit */
+a.btn { color: inherit !important; }
+
+/* Common lists and sections */
+.list { gap: 14px; }
+
+/* Button Layout Utilities */
+.btn-toolbar {
+  display: flex !important;
+  gap: 12px !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  margin: 16px 0 !important;
+}
+
+.btn-toolbar .btn-group {
+  margin: 0 !important;
+}
+
+.btn-toolbar .spacer {
+  flex: 1 !important;
+}
+
+.btn-toolbar .btn-group:last-child {
+  margin-left: auto !important;
+}
+
+/* Action Button Groups */
+.actions {
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  margin-top: 12px !important;
+}
+
+.actions .btn {
+  margin: 0 !important;
+}
+
+.actions .btn:not(:last-child) {
+  margin-right: 0 !important;
+}
+
+/* Form Button Groups */
+.form-actions {
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  margin-top: 24px !important;
+  padding-top: 16px !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+.form-actions .btn-group {
+  margin: 0 !important;
+}
+
+/* Card Action Areas */
+.card-actions {
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  margin-top: 12px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid color-mix(in oklab, var(--border), transparent 50%) !important;
+}
+
+.card-actions .btn {
+  margin: 0 !important;
+}
+
+/* Inline Button Groups */
+.inline-actions {
+  display: inline-flex !important;
+  gap: 6px !important;
+  align-items: center !important;
+  vertical-align: middle !important;
+}
+
+.inline-actions .btn {
+  margin: 0 !important;
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  min-height: 28px !important;
+}
+
+/* Button Alignment Utilities */
+.btn-left { justify-content: flex-start !important; }
+.btn-center { justify-content: center !important; }
+.btn-right { justify-content: flex-end !important; }
+.btn-stretch { width: 100% !important; }
+
+/* Button Spacing Utilities */
+.btn-margin-sm { margin: 4px !important; }
+.btn-margin { margin: 8px !important; }
+.btn-margin-lg { margin: 16px !important; }
+
+.btn-margin-top-sm { margin-top: 4px !important; }
+.btn-margin-top { margin-top: 8px !important; }
+.btn-margin-top-lg { margin-top: 16px !important; }
+
+.btn-margin-bottom-sm { margin-bottom: 4px !important; }
+.btn-margin-bottom { margin-bottom: 8px !important; }
+.btn-margin-bottom-lg { margin-bottom: 16px !important; }
+
+/* Form containers (intake/railing) */
+.form-container {
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 14px 28px rgba(0,0,0,.10) !important;
+}
+
+/* Accent cards: button-like emphasis */
+.card-accent, .pow-card {
+  cursor: pointer;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--panel), var(--primary) 14%),
+    color-mix(in oklab, var(--panel-2), var(--primary) 10%)
+  ) !important;
+  border-color: color-mix(in oklab, var(--border), var(--primary) 40%) !important;
+}
+.card-accent:not([aria-expanded="true"]), .pow-card:not([aria-expanded="true"]) {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--panel), var(--primary) 20%),
+    color-mix(in oklab, var(--panel-2), var(--primary) 16%)
+  ) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--border), var(--primary) 35%),
+              0 2px 0 rgba(0,0,0,.06),
+              0 16px 30px rgba(0,0,0,.16) !important;
+}
+.card-accent:hover, .pow-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--primary), white 24%) !important;
+  box-shadow: 0 3px 0 rgba(0,0,0,.08), 0 18px 32px rgba(0,0,0,.18) !important;
+}
+.card-accent:active, .pow-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 10px 18px rgba(0,0,0,.12) !important;
+}

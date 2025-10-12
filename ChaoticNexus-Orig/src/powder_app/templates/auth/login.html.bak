@@ -1,0 +1,57 @@
+{% extends "auth/login_base.html" %}
+
+{% block login_content %}
+  <div class="card login-card">
+    <div class="card-header">
+      <h4 class="card-title mb-0">Sign In</h4>
+    </div>
+    <div class="card-body">
+      {% if first_run %}
+        <div class="alert alert-info" role="alert">
+          <strong>Welcome!</strong> Create the first administrator account to get started.
+        </div>
+        <form method="post" class="login-form">
+          <input type="hidden" name="setup_admin" value="1">
+          <div class="form-field">
+            <label for="username">Admin Username</label>
+            <input type="text" id="username" name="username"
+                   value="{{ request.form.username or '' }}" placeholder="Choose admin username" autofocus required>
+          </div>
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Create a secure password" required>
+          </div>
+          <button type="submit" class="btn-primary">Create Admin Account</button>
+        </form>
+      {% else %}
+        {% if customer_logged_in and customer %}
+          <div class="alert alert-success" role="alert">
+            Signed in as {{ customer.first_name }} {{ customer.last_name }}.
+            <a href="{{ url_for('customer_portal.dashboard') }}" class="alert-link">Open portal</a>
+            or <a href="{{ url_for('intake.intake_form') }}" class="alert-link">submit a job</a>.
+          </div>
+          <form method="post" action="{{ url_for('auth.logout_customer') }}" class="login-form">
+            <button type="submit" class="btn-outline-danger">Log out of customer portal</button>
+          </form>
+        {% endif %}
+        <form method="post" class="login-form">
+          <div class="form-field">
+            <label for="identifier">Email or Username</label>
+            <input type="text" id="identifier" name="identifier"
+                   value="{{ request.form.identifier or request.form.username or request.form.email or '' }}"
+                   placeholder="Enter your email or username" autofocus required>
+          </div>
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+          </div>
+          <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+        <div class="form-links">
+          <a href="{{ url_for('customer_portal.forgot_password') }}">Forgot your password?</a>
+          <a href="{{ url_for('customer_portal.register') }}" class="btn-outline-primary">Create Customer Account</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,523 @@
+﻿<!doctype html>
+<html lang="en" data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="{{ branding_favicon or url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var saved=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.style.backgroundColor = saved==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+  <title>Powder Inventory</title>  <style>    :root{--bg:#0e141b;--panel:#111923;--panel-2:#0f1720;--text:#e6edf3;--muted:#9fb0c0;--primary:#3b82f6;--border:#1f2a37;--input:#0c1218;--radius:12px}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;padding:20px}
+    .wrap{max-width:1200px;margin:0 auto}
+    h1{margin:0 0 12px}
+    .count-pill{display:inline-flex;align-items:center;gap:6px;margin-left:12px;padding:2px 10px;border-radius:999px;border:1px solid var(--border);background:#1b2433;color:#d9e7ff;font-size:12px;font-weight:600}
+    /* Enhanced Button Styling */
+    a.btn, button.btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 10px 16px !important;
+      border: 1px solid var(--border) !important;
+      background: var(--panel-2) !important;
+      color: var(--muted) !important;
+      border-radius: 10px !important;
+      cursor: pointer !important;
+      text-decoration: none !important;
+      font-weight: 600 !important;
+      min-height: 40px !important;
+      transition: all 0.2s ease !important;
+    }
+    
+    a.btn:hover, button.btn:hover {
+      color: #fff !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15) !important;
+    }
+    
+    a.btn.primary, button.btn.primary {
+      background: var(--primary) !important;
+      border-color: var(--primary) !important;
+      color: #fff !important;
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+    }
+    
+    a.btn.secondary, button.btn.secondary {
+      background: #1b2430 !important;
+      color: #c6d4e2 !important;
+      border-color: color-mix(in oklab, var(--border), var(--text) 30%) !important;
+    }
+    
+    a.btn.danger, button.btn.danger {
+      background: #ef4444 !important;
+      border-color: #ef4444 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2) !important;
+    }
+    .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+    /* Cards */    .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+    /* Form */    .input-wrap{position:relative}
+    .input-wrap .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--primary)}
+    .with-icon{padding-left:40px}
+    input[type="text"],input[type="number"],input[type="date"],textarea{width:100%;padding:10px 12px;background:var(--input);border:1px solid var(--border);border-radius:10px;color:var(--text)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    @media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:600px){.grid{grid-template-columns:1fr}}
+    /* Edit-form look to match Edit Powder */
+    .edit-form .section-title{ margin:12px 0 6px; font-weight:800; font-size:13px; letter-spacing:.4px; text-transform:uppercase; color:var(--muted); border-bottom:1px solid color-mix(in oklab, var(--border), var(--text) 14%); padding-bottom:6px }
+    .edit-form .grid{ display:grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); gap:12px }
+    @media (max-width: 780px){ .edit-form .grid{ grid-template-columns: 1fr } }
+    .edit-form .full{ grid-column:1 / -1 }
+    .edit-form label{ display:block; font-weight:600; font-size:13px; color:var(--text) }
+    .edit-form input, .edit-form select, .edit-form textarea{ width:100%; background: transparent; border:0; border-bottom:1px solid color-mix(in oklab, var(--border), var(--text) 18%); border-radius:0; color:var(--text); padding:8px 2px }
+    .edit-form input:focus, .edit-form select:focus, .edit-form textarea:focus{ border-bottom-color: color-mix(in oklab,var(--primary),white 12%); outline:none; box-shadow:none }
+    .edit-form .with-icon{ padding-left: 2px }
+    .edit-form .input-wrap .icon{ display: none }
+    .edit-form .input-wrap{ display: contents; padding: 0 }
+    /* Table (styled like customers) */    table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    thead th{color:var(--muted);font-weight:700;text-align:left;padding:8px 10px}
+    tbody tr{background:#0b1118;border:1px solid var(--border)}
+    tbody tr td{padding:10px}
+    tbody tr td:first-child{border-top-left-radius:10px;border-bottom-left-radius:10px}
+    tbody tr td:last-child{border-top-right-radius:10px;border-bottom-right-radius:10px}
+    .muted{color:var(--muted)}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#1b2430;color:#c6d4e2;font-size:12px}
+    .ok{background:#0b3a2a;color:#cff7e1;border:1px solid #135a3f}
+    /* Cards layout similar to Jobs/Customers */    .list{display:grid;gap:12px}
+    .card-header{display:grid;grid-template-columns:1fr auto;align-items:start;gap:8px}
+    .title{font-weight:700;font-size:17px;line-height:1.3;color:var(--text)}
+    .summary{display:flex;gap:10px;flex-wrap:wrap;color:var(--text);font-size:14px;line-height:1.35}
+    .summary .tag{      border:1px solid color-mix(in oklab, var(--border), var(--text) 15%);      padding:4px 10px;border-radius:999px;      background: color-mix(in oklab, var(--panel), var(--text) 8%);      color: var(--text)    }
+    .details{display:none;margin-top:10px;font-size:14px;line-height:1.4;background:#10192a;border:1px solid #20304a;border-radius:10px;padding:12px}
+    .card[aria-expanded="true"] .details{display:block}
+    .toolbar {
+      display: flex !important;
+      gap: 8px !important;
+      margin-top: 12px !important;
+      flex-wrap: wrap !important;
+      align-items: center !important;
+    }
+    
+    /* Enhanced toolbar styling */
+    .toolbar .btn-group {
+      display: flex !important;
+      gap: 6px !important;
+      align-items: center !important;
+    }
+    
+    .toolbar .btn {
+      font-size: 12px !important;
+      padding: 6px 10px !important;
+      min-height: 32px !important;
+    }
+    .val{color:var(--text)}
+    /* Button-like powder cards */    .pow-card{cursor:pointer;      background: linear-gradient(180deg,        color-mix(in oklab, var(--panel), var(--primary) 8%),        color-mix(in oklab, var(--panel-2), var(--primary) 4%)      ) !important;      border-color: color-mix(in oklab, var(--border), var(--primary) 30%) !important;      box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 12px 22px rgba(0,0,0,.14) !important;    }
+    .pow-card:hover{      transform: translateY(-1px);      border-color: color-mix(in oklab, var(--primary), white 24%) !important;      box-shadow: 0 3px 0 rgba(0,0,0,.06), 0 18px 32px rgba(0,0,0,.18) !important;    }
+    .pow-card:active{      transform: translateY(0);      box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 10px 18px rgba(0,0,0,.12) !important;    }
+    .mfr-logo{width:140px;height:40px;object-fit:contain;opacity:.95;filter:drop-shadow(0 0 0 rgba(0,0,0,0.2))}
+    /* Brand-specific tweaks to equalize visual size */    .swatch{width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid var(--border)}
+    /* Horizontal info blocks for notes/info */
+    .hblocks{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .hblock{flex:1 1 280px;background:#10192a;border:1px solid #20304a;border-radius:10px;padding:10px}
+    .hblock .label{font-weight:800;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+    .hblock .text{white-space:pre-wrap;color:var(--text)}
+  .btn.danger{background:var(--error) !important;border-color:transparent !important;color:#fff !important}
+/* Edit form readability improvements */.card form[data-edit]{display:none !important}
+.edit-form { margin-top:8px; }
+.edit-form .section-title{ margin:10px 0 6px; font-weight:800; font-size:13px; letter-spacing:.4px; text-transform:uppercase; color:var(--muted) }
+.edit-form .grid{ display:grid; grid-template-columns: repeat(2, minmax(240px, 1fr)) !important; gap:12px !important }
+@media (max-width: 780px){ .edit-form .grid{ grid-template-columns: 1fr !important }}
+.edit-form label{ display:block; font-weight:600; font-size:13px; color:var(--text); margin:0 0 4px }
+.edit-form .input-wrap input, .edit-form .input-wrap textarea, .edit-form input[type="number"], .edit-form input[type="date"], .edit-form select{ font-size:14px; min-height:38px; }
+.edit-form .full{ grid-column:1 / -1 !important }
+.edit-form form.upload-inline{ display:flex; gap:8px; align-items:center; margin-top:4px }
+/* Softer, less boxy form controls for Powders */.edit-form .input-wrap input,.edit-form .input-wrap textarea,.edit-form select,#powderForm .input-wrap input,#powderForm .input-wrap textarea,#powderForm select {  background: transparent !important;  border: 0 !important;  border-bottom: 1px solid color-mix(in oklab, var(--border), var(--text) 18%) !important;  border-radius: 0 !important;  padding-top: 6px; padding-bottom: 6px;}
+.edit-form .input-wrap input:focus,.edit-form .input-wrap textarea:focus,.edit-form select:focus,#powderForm .input-wrap input:focus,#powderForm .input-wrap textarea:focus,#powderForm select:focus {  border-bottom-color: color-mix(in oklab, var(--primary), white 12%) !important;  box-shadow: none !important;  outline: none !important;}
+/* Lighten add card container */#addPowderCard {  background: color-mix(in oklab, var(--panel), transparent 86%) !important;  border-color: color-mix(in oklab, var(--border), transparent 80%) !important;}
+.edit-form .input-wrap .icon { opacity: .75; }
+</style>
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+</head>
+<body>
+  <div class="wrap" data-style-container>
+    <div class="top topbar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <a class="btn" href="/nav">Back to Nav</a>
+        <a class="btn" href="/intake_form">Intake Form</a>
+        {% if session.get('is_admin') %}
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+          <a class="btn secondary" href="/powders.csv">Download CSV</a>
+          <form method="post" action="/powders/import" enctype="multipart/form-data" class="inline-actions" style="margin:0">
+            <label class="btn" style="margin:0">
+              Import CSV
+              <input type="file" name="file" accept=".csv" required style="display:none" onchange="this.form.requestSubmit()">
+            </label>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      {% set powder_word = 'powder' if total_powders == 1 else 'powders' %}
+      <h1>Powder Inventory <span class="count-pill" id="powderCount">{{ total_powders }} {{ powder_word }}</span></h1>
+      <p class="muted" style="margin:6px 0 10px">Browse and manage powder colors and data.</p>
+      <div class="toolbar" style="margin-top:0; padding:0">
+        <div class="input-wrap" style="flex:1 1 260px; max-width:420px">
+          <span class="icon"></span>
+          <input class="with-icon" id="powderSearch" type="text" placeholder="Filter by family, color, mfr, code" autocomplete="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <button class="btn" type="button" id="powderClear">Clear</button>
+      </div>
+    </div>
+  {% if not is_admin %}
+    <div class="card">
+<p class="muted" style="margin:0">Viewing only. <a href="/login">Admin login</a> required to add/delete.</p>
+</div>  {% endif %}
+  {% if is_admin %}
+  <div class="card" id="addPowderCard" style="display:none">  <!-- Flash messages -->  <div class="flash-messages">    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}
+" role="alert">            {{ message }}
+            <button type="button" class="close" onclick="this.parentElement.remove()" aria-label="Close">x</button>          </div>        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>  <h1 style="margin:0 0 8px">Add Powder</h1>  <form id="powderForm" class="edit-form" method="post" action="/powders/save">
+    <div class="section-title">Basics</div>    <div class="grid">      <label>Color<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="powder_color" placeholder="e.g., RAL 9005 Matte Black" required>
+</div>
+      </label>      <label>Color Family<div class="input-wrap">
+<span class="icon"></span>
+<select class="with-icon" name="color_family">
+  <option value="">Select...</option>
+  {% for fam in (opt_families or []) %}
+  <option value="{{ fam }}">{{ fam }}</option>
+  {% endfor %}
+</select>
+</div>
+      </label>      <label>Manufacturer<div class="input-wrap">
+<span class="icon"></span>
+<select class="with-icon" name="manufacturer">
+  <option value="">Select...</option>
+  {% for m in (opt_manufacturers or []) %}
+  <option value="{{ m }}">{{ m }}</option>
+  {% endfor %}
+</select>
+</div>
+</label>      <label>Product Code<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="product_code" placeholder="e.g., 49/90038">
+</div>
+</label>    </div>    <div class="section-title">Attributes</div>    <div class="grid">      <label>Gloss<div class="input-wrap">
+<span class="icon"></span>
+<select class="with-icon" name="gloss_level">
+  <option value="">Select...</option>
+  {% for g in (opt_gloss or []) %}
+  <option value="{{ g }}">{{ g }}</option>
+  {% endfor %}
+</select>
+</div>
+      </label>      <label>Finish<div class="input-wrap">
+<span class="icon"></span>
+<select class="with-icon" name="finish">
+  <option value="">Select...</option>
+  {% for f in (opt_finishes or []) %}
+  <option value="{{ f }}">{{ f }}</option>
+  {% endfor %}
+</select>
+</div>
+      </label>      <label>Int / Ext<div class="input-wrap">
+<span class="icon"></span>
+<select class="with-icon" name="int_ext">
+  <option value="">Select...</option>
+  {% for ie in (opt_int_ext or []) %}
+  <option value="{{ ie }}">{{ ie }}</option>
+  {% endfor %}
+</select>
+</div>
+</label>      <div class="input-wrap" style="padding-left:0">        <label style="display:flex;align-items:center;gap:8px;margin:0">
+<input type="checkbox" name="metallic"> Metallic<input type="hidden" name="metallic" value="off">
+</label>      </div>      <div class="input-wrap" style="padding-left:0">        <label style="display:flex;align-items:center;gap:8px;margin:0">
+<input type="checkbox" name="needs_clear"> Needs Clear?<input type="hidden" name="needs_clear" value="off">
+</label>      </div>      <label>In Stock (kg)<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="number" step="0.01" name="in_stock" placeholder="e.g., 12.50">
+</div>
+</label>    </div>    <div class="section-title">Docs & Links</div>    <div class="grid">      <label>Additional Code<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="additional_code" placeholder="Alt code or alias">
+</div>
+</label>      <label>MSDS URL<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="msds_url" placeholder="https://...">
+</div>
+</label>      <label>SDS URL<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="sds_url" placeholder="https://...">
+</div>
+</label>      <label>Web Link<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="web_link" placeholder="https://...">
+</div>
+</label>      <label>Picture URL<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="picture_url" placeholder="https://...">
+</div>
+</label>    </div>    <div class="section-title">Notes</div>    <div class="grid">      <label class="full">Notes<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="notes" placeholder="Internal notes">
+</div>
+</label>      <label class="full">Cure Schedule<div class="input-wrap">
+<span class="icon"></span>
+<textarea class="with-icon" name="cure_schedule" rows="3" placeholder="Time / temp details"></textarea>
+</div>
+</label>      <label class="full">Additional Info<div class="input-wrap">
+<span class="icon"></span>
+<textarea class="with-icon" name="additional_info" rows="3" placeholder="Extra details"></textarea>
+</div>
+</label>      <label class="full">Aliases (comma separated)<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="text" name="aliases" placeholder="e.g., flat black, satin black">
+</div>
+</label>    </div>    <div class="section-title">Pricing</div>    <div class="grid">      <label>Price per KG<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="number" step="0.01" name="price_per_kg" placeholder="e.g., 12.00">
+</div>
+</label>      <label>Charge/LB<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="number" step="0.01" name="charge_per_lb" placeholder="e.g., 3.00">
+</div>
+</label>      <label>Weight Box KG<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="number" step="0.01" name="weight_box_kg" placeholder="e.g., 20">
+</div>
+</label>      <label>Last Price Check<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="date" name="last_price_check">
+</div>
+</label>      <label>Shipping Cost<div class="input-wrap">
+<span class="icon"></span>
+<input class="with-icon" type="number" step="0.01" name="shipping_cost" placeholder="e.g., 15.00">
+</div>
+</label>    </div>    <div style="margin-top:10px;display:flex;justify-content:flex-end;gap:8px">      <button class="btn" type="button" onclick="(function(){const c=document.getElementById('addPowderCard'); if(c){ c.style.display='none'; }
+ const f=document.getElementById('powderForm'); if(f&&f.reset) f.reset(); }
+)()">Cancel</button>      <button class="btn primary" type="submit">Save</button>    </div>  </form>
+</div>  {% endif %}
+  <div class="card">
+    <div class="top" style="margin:0 0 8px; padding:0; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap">
+      <h2 style="margin:0">Inventory</h2>
+      {% if is_admin %}
+      <a class="btn primary" href="/powders/new">+ New Powder</a>
+      {% endif %}
+    </div>
+    <div id="powderList" class="list" role="list">      {% for r in rows %}
+      <article class="card pow-card" role="listitem" tabindex="0" aria-expanded="false"        data-color="{{ (r['powder_color'] or '')|lower }}
+"        data-family="{{ (r['color_family'] or '')|lower }}
+"        data-mfr="{{ (r['manufacturer'] or '')|lower }}
+"        data-code="{{ (r['product_code'] or '')|lower }}
+"        data-aliases="{{ (r['aliases'] or '')|lower }}
+">        <div class="card-header">          <div>            <div class="title">{{ r['powder_color'] or '' }}
+</div>            <div class="summary">              {% if r['manufacturer'] %}
+<span class="tag">Mfr: {{ r['manufacturer'] }}
+</span>{% endif %}
+              {% if r['product_code'] %}
+<span class="tag">Code: {{ r['product_code'] }}
+</span>{% endif %}
+              {% if r['color_family'] %}
+<span class="tag">Family: {{ r['color_family'] }}
+</span>{% endif %}
+              {% if r['finish'] %}
+<span class="tag">Finish: {{ r['finish'] }}
+</span>{% endif %}
+              {% if r['in_stock'] is not none %}
+<span class="tag">Stock: {{ r['in_stock'] }}
+</span>{% endif %}
+              {% if r['aliases'] %}
+<span class="tag">Aliases: {{ r['aliases'] }}
+</span>{% endif %}
+              {% if r['cure_schedule'] %}
+<span class="tag">Cure: {{ r['cure_schedule']|truncate(48, True, '...') }}
+</span>{% endif %}
+            </div>          </div>          <div style="display:flex;gap:8px;align-items:center"> <div style="display:flex;gap:8px;align-items:center">            {% if r['manufacturer'] %}
+              {% set lp = logo_path(r['manufacturer']) %}
+              {% if lp %}
+                <img class="mfr-logo mfr-{{ (r['manufacturer'] or '')|slug }}
+" src="{{ url_for('static', filename=lp) }}
+" alt="{{ r['manufacturer'] }}
+ logo" />              {% endif %}
+            {% endif %}
+            {% if r['picture_url'] %}
+              <img class="swatch" src="{{ ('/uploads/' ~ r['picture_url']) if r['picture_url'] and not '://' in r['picture_url'] else r['picture_url'] }}
+" alt="Color sample" onerror="this.style.display='none'"/>            {% endif %}
+          </div>        </div>        <div class="details">          <div class="grid" style="grid-template-columns:repeat(3,minmax(200px,1fr));gap:10px">            <div>
+<label>Gloss</label>
+<div class="val">{{ r['gloss_level'] or '' }}
+</div>
+</div>            <div>
+<label>Metallic</label>
+<div class="val">{% if r['metallic'] %}
+Yes{% else %}
+No{% endif %}
+</div>
+</div>            <div>
+<label>Needs Clear</label>
+<div class="val">{% if r['needs_clear'] %}
+Yes{% else %}
+No{% endif %}
+</div>
+</div>          </div>
+          <div class="hblocks">
+            {% set _notes = (r['notes'] or '').strip() %}
+            {% set _cure = (r['cure_schedule'] or '').strip() %}
+            {% set _ainfo = (r['additional_info'] or '').strip() %}
+            {% if _notes %}
+              <div class="hblock">
+                <div class="label">Notes</div>
+                <div class="text">{{ _notes }}</div>
+              </div>
+            {% endif %}
+            {% if _cure %}
+              <div class="hblock">
+                <div class="label">Cure Schedule</div>
+                <div class="text">{{ _cure }}</div>
+              </div>
+            {% endif %}
+            {% if _ainfo %}
+              <div class="hblock">
+                <div class="label">Additional Info</div>
+                <div class="text">{{ _ainfo }}</div>
+              </div>
+            {% endif %}
+          </div>
+          <div class="summary">            {% if r['web_link'] %}
+<a class="tag" href="{{ r['web_link'] }}
+" target="_blank" rel="noopener">Website</a>{% endif %}
+            {% if r['msds_url'] %}
+{% set _ms = r['msds_url'] %}
+{% if '://' not in _ms %}
+{% set _ms = '/uploads/' ~ _ms %}
+{% endif %}
+<a class="tag" href="{{ _ms }}
+" target="_blank" rel="noopener">MSDS</a>{% endif %}
+            {% if r['sds_url'] %}
+{% set _s = r['sds_url'] %}
+{% if '://' not in _s %}
+{% set _s = '/uploads/' ~ _s %}
+{% endif %}
+<a class="tag" href="{{ _s }}
+" target="_blank" rel="noopener">SDS / TDS</a>{% endif %}
+          </div>          <div class="toolbar" style="margin-top:8px">            {% if is_admin %}
+              <a class="btn secondary" href="/powders/{{ r['id'] }}
+/edit">Edit</a>              <form method="post" action="/powders/{{ r['id'] }}
+/delete" onsubmit="return confirm('Delete this powder?')" style="display:inline">                <button class="btn danger" type="submit">Delete</button>              </form>            {% endif %}
+          </div>        </div>      </article>      {% endfor %}
+      {% if not rows %}
+<div class="muted">No powders found.</div>{% endif %}
+    </div>  </div>
+<script>  // Card expand/collapse (robust delegation)
+  (function(){
+    const list = document.getElementById('powderList');
+    if (!list) return;
+    function toggle(card){
+      const open = card.getAttribute('aria-expanded') === 'true';
+      card.setAttribute('aria-expanded', open ? 'false' : 'true');
+    }
+    list.addEventListener('click', (e) => {
+      let t = e.target;
+      if (t && t.nodeType !== 1) t = t.parentElement; // normalize Text -> Element
+      if (!t) return;
+      const card = t.closest && t.closest('.card');
+      if (!card || !list.contains(card)) return;
+      // Ignore clicks on interactive controls inside the card
+      if (t.closest && t.closest('a,button,form,input,select,textarea,[role="button"]')) return;
+      toggle(card);
+    });
+    list.addEventListener('keydown', (e) => {
+      const card = e.target.closest('.card');
+      if (!card || !list.contains(card)) return;
+      const t = e.target;
+      const tag = (t.tagName || '').toUpperCase();
+      if (t.isContentEditable || ['INPUT','TEXTAREA','SELECT','BUTTON'].includes(tag)) return;
+      if (t.closest && t.closest('a,button,form,input,select,textarea,[role="button"]')) return;
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(card); }
+    });
+  })();
+</script>  <script>    // Live prefix filter for Powder cards (color, family, manufacturer, code, aliases)
+    (function(){
+      const input = document.getElementById('powderSearch');
+      const clearBtn = document.getElementById('powderClear');
+      const list = document.getElementById('powderList');
+      if(!input || !list) return;
+      const cards = Array.from(list.querySelectorAll('.card[role="listitem"]'));
+      const countBadge = document.getElementById('powderCount');
+      function applyFilter(){
+        const q = (input.value || '').trim().toLowerCase();
+        let visible = 0;
+        cards.forEach(c=>{
+          const color = c.getAttribute('data-color')||'';
+          const fam = c.getAttribute('data-family')||'';
+          const mfr = c.getAttribute('data-mfr')||'';
+          const code = c.getAttribute('data-code')||'';
+          const aliases = c.getAttribute('data-aliases')||'';
+          const aliasList = aliases ? aliases.split(',').map(x=>x.trim()) : [];
+          const aliasMatch = aliasList.some(a=> a.includes(q));
+          const summary = c.querySelector('.summary');
+          const sumText = (summary ? summary.textContent : '').toLowerCase();
+          const match = !q || fam.includes(q) || color.includes(q) || mfr.includes(q) || code.includes(q) || aliasMatch || sumText.includes(q);
+          c.style.display = match ? '' : 'none';
+          if (match) visible += 1;
+        });
+        if (countBadge) {
+          const label = visible === 1 ? 'powder' : 'powders';
+          countBadge.textContent = visible + ' ' + label;
+        }
+      }
+      input.addEventListener('input', applyFilter);
+      if (clearBtn) clearBtn.addEventListener('click', ()=>{ input.value=''; applyFilter(); input.focus(); });
+      applyFilter();
+    })();  </script>
+<script>
+// Remember Add Powder panel state
+(function(){
+  const card = document.getElementById('addPowderCard');
+  if(!card) return;
+  try{
+    const open = localStorage.getItem('pow_add_open') === '1';
+    if(open){
+      card.style.display = 'block';
+      const btn = Array.from(document.querySelectorAll('a.btn')).find(a=>/New Powder/i.test(a.textContent));
+      if(btn) btn.textContent = 'Hide New Powder';
+    }
+  } catch(e){}
+
+  document.addEventListener('click', (e)=>{
+    const a = e.target.closest('a.btn');
+    if(!a) return;
+    if(/New Powder/i.test(a.textContent)){
+      setTimeout(()=>{
+        try{
+          localStorage.setItem('pow_add_open', card.style.display==='block' ? '1':'0');
+        } catch(e){}
+      }, 0);
+    }
+  });
+})();
+</script>
+</body>
+</html>

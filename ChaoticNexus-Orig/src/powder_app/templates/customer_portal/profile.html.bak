@@ -1,0 +1,104 @@
+{% extends "customer_portal/base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card bg-secondary">
+      <div class="card-header">
+        <h4 class="card-title mb-0">My Profile</h4>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="first_name" class="form-label">First Name *</label>
+              <input type="text" class="form-control" id="first_name" name="first_name"
+                     value="{{ customer.first_name or '' }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="last_name" class="form-label">Last Name *</label>
+              <input type="text" class="form-control" id="last_name" name="last_name"
+                     value="{{ customer.last_name or '' }}" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="company_name" class="form-label">Company Name</label>
+            <input type="text" class="form-control" id="company_name" name="company_name"
+                   value="{{ customer.company_name or '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="phone" name="phone"
+                   value="{{ customer.phone or '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" id="address" name="address"
+                      rows="3">{{ customer.address or '' }}</textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-8 mb-3">
+              <label for="email" class="form-label">Email Address</label>
+              <input type="email" class="form-control" id="email" name="email"
+                     value="{{ customer.email }}" disabled>
+              <div class="form-text">Email cannot be changed. Contact support if you need to update it.</div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Account Status</label>
+              <div class="mt-2">
+                <span class="badge {{ 'bg-success' if customer.email_verified else 'bg-warning' }}">
+                  {{ 'Verified' if customer.email_verified else 'Pending Verification' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Member Since</label>
+              <p class="form-control-plaintext">{{ customer.created_at.strftime('%Y-%m-%d') if customer.created_at else 'N/A' }}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Last Login</label>
+              <p class="form-control-plaintext">{{ customer.last_login.strftime('%Y-%m-%d') if customer.last_login else 'Never' }}</p>
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Account Statistics -->
+    <div class="card bg-secondary mt-4">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Account Statistics</h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-md-4">
+            <h3 class="text-primary">{{ customer.job_count or 0 }}</h3>
+            <p class="text-muted mb-0">Total Jobs</p>
+          </div>
+          <div class="col-md-4">
+            <h3 class="text-success">{{ customer.completed_jobs or 0 }}</h3>
+            <p class="text-muted mb-0">Completed</p>
+          </div>
+          <div class="col-md-4">
+            <h3 class="text-warning">{{ customer.pending_jobs or 0 }}</h3>
+            <p class="text-muted mb-0">In Progress</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

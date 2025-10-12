@@ -1,0 +1,356 @@
+<!doctype html>
+<html data-theme="{{ request.cookies.get('vpc_theme', 'light') }}">
+<head>
+  <meta charset="utf-8" />
+  <title>Print Templates · Victoria Powder Coating</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="{{ url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+  <style>
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+    }
+    .header h1 {
+      margin: 0;
+      color: var(--ink);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--paper);
+      color: var(--ink);
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn:hover {
+      opacity: 0.9;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .template-section {
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+    .template-section h2 {
+      margin: 0 0 16px 0;
+      color: var(--ink);
+      font-size: 18px;
+    }
+    .template-subsection {
+      margin-bottom: 20px;
+    }
+    .template-subsection:last-child {
+      margin-bottom: 0;
+    }
+    .template-subsection h3 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .template-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .template-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: var(--bg);
+    }
+    .template-item.default {
+      border-color: var(--accent);
+      background: rgba(15, 111, 228, 0.05);
+    }
+    .template-info {
+      flex: 1;
+    }
+    .template-name {
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .template-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .template-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: white;
+      margin-left: 8px;
+    }
+    .info-box {
+      background: rgba(15, 111, 228, 0.1);
+      border-left: 3px solid var(--accent);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+    }
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .empty-help {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Print Templates</h1>
+      <div>
+        <a href="{{ url_for('admin.admin_panel') }}" class="btn">← Back to Admin</a>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>How Print Templates Work:</strong><br>
+      Print templates save custom layouts for different form types. When you customize a layout and click "Save Layout", 
+      it will be stored here and automatically applied every time you open that form type. You can have multiple templates 
+      per form type, but only one can be set as the default. Job worksheets now have separate templates for production intake
+      jobs and railing intake jobs so each workflow can keep its own layout.
+    </div>
+
+    <div class="template-section">
+      <h2>📄 Job Worksheets</h2>
+      <div class="template-subsection">
+        <h3>Production Intake Jobs</h3>
+        <div id="job-worksheet-production-templates" class="loading">Loading templates...</div>
+      </div>
+      <div class="template-subsection">
+        <h3>Railing Intake Jobs</h3>
+        <div id="job-worksheet-railing-templates" class="loading">Loading templates...</div>
+      </div>
+    </div>
+
+    <div class="template-section">
+      <h2>📝 Intake Forms</h2>
+      <div id="intake-form-templates" class="loading">Loading templates...</div>
+    </div>
+
+    <div class="template-section">
+      <h2>🛠️ Railing Intake Forms</h2>
+      <div id="railing-intake-templates" class="loading">Loading templates...</div>
+    </div>
+  </div>
+
+  <script>
+    const TEMPLATE_TYPES = [
+      {
+        id: 'job_worksheet_production',
+        name: 'Production Worksheet',
+        container: 'job-worksheet-production-templates',
+        url: {{ url_for('jobs.jobs_board') | tojson }},
+        linkLabel: 'Open Jobs Board',
+        helper: 'Open any production intake job worksheet, adjust the layout, then click “Save Layout”.'
+      },
+      {
+        id: 'job_worksheet_railing',
+        name: 'Railing Worksheet',
+        container: 'job-worksheet-railing-templates',
+        url: {{ url_for('jobs.jobs_board') | tojson }},
+        linkLabel: 'Open Jobs Board',
+        helper: 'Open a job that originated from the railing intake, then customize and save the worksheet layout.'
+      },
+      {
+        id: 'intake_form',
+        name: 'Intake Form',
+        container: 'intake-form-templates',
+        url: '/intake_form',
+        linkLabel: 'Go to Intake Form',
+        helper: 'Open the production intake form, switch to layout mode, and save your layout to create a template.'
+      },
+      {
+        id: 'railing_intake',
+        name: 'Railing Intake Form',
+        container: 'railing-intake-templates',
+        url: '/railing_intake',
+        linkLabel: 'Go to Railing Intake',
+        helper: 'Open the railing intake form, customize the layout, then save it as a template.'
+      }
+    ];
+
+    async function loadTemplates(templateType, containerId) {
+      const container = document.getElementById(containerId);
+      
+      try {
+        const response = await fetch(`/api/print-templates/${templateType}/all`);
+        const data = await response.json();
+        
+        if (!data.success) {
+          container.innerHTML = '<div class="empty-state">Error loading templates</div>';
+          return;
+        }
+        
+        if (data.templates.length === 0) {
+          const typeInfo = TEMPLATE_TYPES.find(t => t.id === templateType);
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <p>No templates saved yet.</p>
+              ${typeInfo.helper ? `<p class="empty-help">${typeInfo.helper}</p>` : ''}
+              ${typeInfo.url ? `<p style="font-size: 13px; margin-top: 8px;"><a href="${typeInfo.url}" class="btn btn-primary">${typeInfo.linkLabel || 'Open form'}</a></p>` : ''}
+            </div>
+          `;
+          return;
+        }
+        
+        let html = '<ul class="template-list">';
+        for (const template of data.templates) {
+          const createdDate = new Date(template.created_at).toLocaleString();
+          const updatedDate = new Date(template.updated_at).toLocaleString();
+          const isDefault = template.is_default;
+          
+          html += `
+            <li class="template-item ${isDefault ? 'default' : ''}">
+              <div class="template-info">
+                <div class="template-name">
+                  ${template.template_name}
+                  ${isDefault ? '<span class="badge">Default</span>' : ''}
+                </div>
+                <div class="template-meta">
+                  Created: ${createdDate} · Updated: ${updatedDate}
+                  ${template.created_by ? ' · By: ' + template.created_by : ''}
+                </div>
+              </div>
+              <div class="template-actions">
+                ${!isDefault ? `<button class="btn btn-primary" onclick="setDefault(${template.id}, '${templateType}')">Set as Default</button>` : ''}
+                <button class="btn" onclick="deleteTemplate(${template.id}, '${templateType}')">Delete</button>
+              </div>
+            </li>
+          `;
+        }
+        html += '</ul>';
+        
+        container.innerHTML = html;
+      } catch (e) {
+        console.error('Error loading templates:', e);
+        container.innerHTML = '<div class="empty-state">Error loading templates</div>';
+      }
+    }
+
+    async function setDefault(templateId, templateType) {
+      if (!confirm('Set this template as the default? It will be used for all future prints of this type.')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/print-templates/${templateId}/set-default`, {
+          method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Template set as default successfully!');
+          location.reload();
+        } else {
+          alert('Failed to set default: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        console.error('Error setting default:', e);
+        alert('Failed to set default. Please try again.');
+      }
+    }
+
+    async function deleteTemplate(templateId, templateType) {
+      if (!confirm('Are you sure you want to delete this template? This cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/print-templates/${templateId}`, {
+          method: 'DELETE'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Template deleted successfully!');
+          location.reload();
+        } else {
+          alert('Failed to delete: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        console.error('Error deleting template:', e);
+        alert('Failed to delete. Please try again.');
+      }
+    }
+
+    // Load all templates on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      for (const type of TEMPLATE_TYPES) {
+        loadTemplates(type.id, type.container);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PowderApp - React Frontend</title>
+  <link rel="icon" href="{{ url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <meta name="color-scheme" content="dark light">
+  
+  <!-- Theme detection script -->
+  <script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var saved=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.documentElement.style.backgroundColor = saved==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+  
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+  
+  <!-- Load React app assets -->
+  <script type="module" src="{{ url_for('static', filename='dist/assets/index.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dist/assets/index.css') }}">
+</head>
+<body>
+  <div id="root"></div>
+  
+  <!-- Fallback for when React fails to load -->
+  <noscript>
+    <div style="text-align: center; padding: 2rem; font-family: system-ui, sans-serif;">
+      <h1>JavaScript Required</h1>
+      <p>This React application requires JavaScript to run. Please enable JavaScript in your browser.</p>
+      <a href="/nav" style="color: #3b82f6; text-decoration: none;">← Back to Original App</a>
+    </div>
+  </noscript>
+</body>
+</html>

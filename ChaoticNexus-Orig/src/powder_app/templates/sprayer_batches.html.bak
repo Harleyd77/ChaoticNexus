@@ -1,0 +1,127 @@
+<!doctype html>
+<html data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="utf-8"/>
+  <title>Sprayer Batches</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="icon" href="{{ branding_favicon or url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var s=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', s);
+        document.documentElement.style.backgroundColor = s==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+  <style>
+    :root{ --bg:#0b0f14; --panel:#121826; --card:#1a2333; --text:#e6eef7; --muted:#9fb3c8; --accent:#4cc9f0; --border:#20304a; --r:14px; }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#0f1623,#0b0f14); color:var(--text) }
+    header{ position:sticky; top:0; background:#0f1623cc; backdrop-filter:blur(6px); border-bottom:1px solid #1f2a3b; padding:10px 14px; display:flex; gap:10px; align-items:center }
+    .btn{ border:1px solid var(--border); background:#0f1726; color:#d9e7ff; border-radius:999px; padding:6px 10px; font-size:13px; cursor:pointer; text-decoration:none }
+    .btn:hover{ border-color:var(--accent) }
+    .wrap{ max-width:1100px; margin:0 auto; padding:14px }
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
+    .card{ background:var(--panel); border:1px solid var(--border); border-radius:var(--r); padding:12px }
+    .h{ font-weight:700; margin:0 0 6px 0 }
+    .mini{ color:var(--muted); font-size:12px }
+    form .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:8px }
+    input, select{ background:#0b121e; color:#e6eef7; border:1px solid var(--border); border-radius:8px; padding:8px }
+    table{ width:100%; border-collapse:collapse; font-size:14px }
+    th,td{ border-bottom:1px solid #1f2a3b; padding:8px; text-align:left }
+  </style>
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+</head>
+<body>
+  <header>
+    <a class="btn" href="/nav">Back</a>
+    <a class="btn" href="/sprayer/hitlist">Hit List</a>
+    <div style="font-weight:700">Sprayer Batches</div>
+    <div class="mini" style="margin-left:auto">Start from Hit List or create manual batch. Track time per job and weight per batch.</div>
+  </header>
+
+  <div class="wrap">
+    {% if is_admin %}
+    <div class="card">
+      <div class="h">Start new batch</div>
+      <div class="mini" style="margin-bottom:8px">💡 <strong>New workflow:</strong> Use the <a href="/sprayer/hitlist" style="color:var(--accent)">Hit List</a> to select jobs first, or create a manual batch below.</div>
+      <form method="post" action="/sprayer/batches/start">
+        <div class="row">
+          <label>Powder
+            <select name="powder_id" required>
+              <option value="">Select…</option>
+              {% for p in powders %}
+                <option value="{{ p.id }}">{{ p.powder_color }}{% if p.manufacturer %} &middot; {{ p.manufacturer }}{% endif %}{% if p.on_hand_kg is not none %} ({{ '%.2f'|format(p.on_hand_kg) }} kg){% endif %}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Role
+            <select name="role"><option>primary</option><option>primer</option><option>clear</option><option>accent</option></select>
+          </label>
+          <label>Start weight (kg)
+            <input type="number" step="0.01" min="0.01" name="start_weight_kg" required placeholder="e.g., 18.60">
+          </label>
+          <label>Operator <input type="text" name="operator" placeholder="Initials"></label>
+          <label>Note <input type="text" name="note" placeholder="Optional"></label>
+          <button class="btn" type="submit">Start</button>
+        </div>
+      </form>
+    </div>
+    {% endif %}
+
+    <div class="grid">
+      <div class="card">
+        <div class="h">Open batches</div>
+        {% if not open_batches %}
+          <div class="mini">None</div>
+        {% else %}
+          <table>
+            <thead><tr><th>ID</th><th>Powder</th><th>Started</th><th>Start kg</th><th></th></tr></thead>
+            <tbody>
+            {% for b in open_batches %}
+              <tr>
+                <td>#{{ b.id }}</td>
+                <td>{{ b.powder_color }}{% if b.manufacturer %} &middot; {{ b.manufacturer }}{% endif %}</td>
+                <td>{{ b.started_at }}</td>
+                <td>{{ '%.2f'|format(b.start_weight_kg) }}</td>
+                <td><a class="btn" href="/sprayer/batches/{{ b.id }}">Open</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <div class="h">Recent batches</div>
+        {% if not recent %}
+          <div class="mini">None</div>
+        {% else %}
+          <table>
+            <thead><tr><th>ID</th><th>Powder</th><th>Used kg</th><th>Duration</th><th>Ended</th></tr></thead>
+            <tbody>
+            {% for b in recent %}
+              <tr>
+                <td>#{{ b.id }}</td>
+                <td>{{ b.powder_color }}{% if b.manufacturer %} &middot; {{ b.manufacturer }}{% endif %}</td>
+                <td>{{ '%.2f'|format(b.used_kg or 0) }}</td>
+                <td>{{ '%.0f'|format(b.duration_min or 0) }} min</td>
+                <td>{{ b.ended_at }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

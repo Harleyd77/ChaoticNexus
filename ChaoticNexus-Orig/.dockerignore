@@ -1,0 +1,23 @@
+# Keep build context lean and avoid bundling secrets/data into the image
+.git
+.gitignore
+.vscode
+.idea
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+
+.env
+storage/data/
+storage/data/**
+storage/pgdata/
+storage/pgdata/**
+storage/backups/
+storage/backups/**
+
+# OS junk
+.DS_Store
+Thumbs.db

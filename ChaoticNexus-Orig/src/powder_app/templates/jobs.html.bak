@@ -1,0 +1,1601 @@
+﻿<!doctype html>
+<html lang="en" data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="{{ branding_favicon or url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              bg: '#0e141b',
+              panel: '#111923',
+              card: '#151e2a',
+              border: '#1f2a37',
+              text: '#e6edf3',
+              muted: '#9fb0c0',
+              hover: '#172235',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var s=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', s);
+        document.documentElement.style.backgroundColor = s==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+  <style>
+    mark {
+      background-color: #ffd700;
+      color: black;
+      padding: 0 2px;
+      border-radius: 2px;
+      display: inline-block;
+      line-height: 1.2;
+      margin: -1px 1px;
+    }
+    /* Improve mark visibility in dark theme */
+    [data-theme="dark"] mark {
+      background-color: #ffd700;
+      color: black;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+  </style>
+  <title>{{ page_title or 'Jobs Board' }}</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121826;
+      --panel-2: #0f1623;
+      --card: #1a2333;
+      --accent: #4cc9f0;
+      --muted: #9fb3c8;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --radius: 16px;
+      /* Defaults used by virtual scrolling JS; keep numeric tokens for easy parse */
+      --card-height: 120px;
+      --buffer-size: 10;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--panel-2), var(--bg)); color: #e6eef7;
+    }
+    header {
+      position: sticky; top: 0; z-index: 10; backdrop-filter: blur(6px);
+      background: color-mix(in oklab, var(--panel), transparent 40%);
+      border-bottom: 1px solid #1f2a3b; padding: 10px 14px; display: flex; align-items: center; gap: 12px;
+    }
+    .topbar { flex-direction: column; align-items: stretch; gap: 8px; }
+    .hrow { display:flex; align-items:center; gap:12px }
+    .actions { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap }
+    .filters { display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+    .filters .select { padding:8px 10px; border-radius:10px }
+    .filters .text { padding:8px 10px; border-radius:10px; min-width:220px }
+    header h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: .3px; }
+    .hint { color: var(--muted); font-size: 13px; }
+
+    .board { display: grid; gap: 16px; padding: 20px 14px 14px; grid-template-columns: 1fr; }
+
+    .column { background: color-mix(in oklab, var(--panel), transparent 10%); border: 1px solid #1f2a3b; border-radius: var(--radius);
+      padding: 10px; display: flex; flex-direction: column; min-height: 40vh; }
+    .col-head { display: flex; align-items: center; gap: 8px; padding: 8px 6px 6px; }
+    .col-title { font-size: 14px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: #cfe3ff; }
+    .col-count { margin-left: auto; color: var(--muted); font-size: 12px; }
+
+    .dropzone { 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 8px; /* add small space between cards */
+      padding: 8px; 
+      border-radius: 12px;
+      height: calc(100vh - 180px);
+      overflow-y: auto;
+      position: relative;
+      scroll-behavior: smooth;
+      /* Enable subtle 3D transforms for child cards */
+      perspective: 900px;
+    }
+    .dropzone.dragover { 
+      outline: 2px dashed var(--accent); 
+      outline-offset: 4px; 
+      background: #0c1220; 
+    }
+    .virtual-container {
+      position: relative;
+      min-height: 100%;
+    }
+    .virtual-item {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: var(--card-height);
+      padding: 7px;
+      transition: transform 0.2s;
+    }
+    
+    /* Error styling */
+    .error-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--panel);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .error-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .error-toast .close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px;
+    }
+    .error-toast .close:hover {
+      color: var(--text);
+    }
+    .flash-messages {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .flash-message {
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      pointer-events: auto;
+    }
+    .flash-message.error {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; cursor: grab; user-select: none;\n+      box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 14px 28px rgba(0,0,0,.12); position: relative; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;\n+      transform-style: preserve-3d; /* prepare for subtle 3D */\n+    }
+    /* Subtle bevel and underside shadow for a lightweight 3D look */
+    .board .card::before{
+      content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06), /* top highlight */
+        inset 0 -1px 0 rgba(0,0,0,.18);     /* bottom shade */
+    }
+    .board .card::after{
+      content:""; position:absolute; left:10px; right:10px; bottom:-6px; height:12px; pointer-events:none; border-radius:20px/10px;
+      background: radial-gradient(50% 100% at 50% 0%, rgba(0,0,0,.28), rgba(0,0,0,0));
+      filter: blur(2px); opacity:.55; transition: transform .12s ease, opacity .12s ease;
+    }
+    /* Slight hover lift/tilt; keep very subtle to avoid motion issues */
+    .board .card:hover{ transform: translateY(-2px) rotateX(.4deg); z-index: 2; }
+    .board .card:hover::after{ opacity:.75; transform: translateY(-2px); }
+    /* Pressed state (e.g., on click/drag start) */
+    .board .card:active{ transform: translateY(0) scale(.998); }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 3px 0 rgba(0,0,0,.06), 0 20px 36px rgba(0,0,0,.16); border-color: color-mix(in oklab, var(--primary), var(--border) 55%); }
+    .card:active { cursor: grabbing; }
+    .card[aria-expanded="true"] { outline: 2px solid color-mix(in oklab, var(--accent), white 10%); }
+    .card-header { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 8px; }
+    .job-title { font-weight: 600; font-size: 15px; }
+    .job-title .sub { color: var(--muted); font-weight: 500; font-size: 13px; margin-left: 8px; }
+    .badge{display:inline-block;margin-left:8px;padding:2px 6px;border-radius:999px;font-size:11px;font-weight:700;vertical-align:middle}
+    .badge-screen{background:#4cc9f0;color:#0b0f14;border:1px solid #2a3b58}
+    .badge-complete{background:#10b981;color:#0b0f14;border:1px solid #1a3d2f}
+    .meta-right{ display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap }
+    .id-pill{ display:inline-block; padding:2px 8px; border-radius:999px; background:#1b2430; color:#cfe3ff; border:1px solid #2a3b58; font-size:12px; font-weight:700 }
+    .job-meta { color: var(--muted); font-size: 12px; }
+    .desc {
+      margin-top: 6px; font-size: 14px; line-height: 1.3; color: #e9f1fb;
+      display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+      /* Standard property for wider compatibility */
+      line-clamp: 2;
+    }
+    .card[aria-expanded="true"] .desc { display: block; -webkit-line-clamp: initial; line-clamp: initial; overflow: visible; }
+    .quick-facts{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 6px;}
+
+    .fact{flex:0 1 160px;padding:8px 10px;border-radius:10px;border:1px solid rgba(79,123,255,0.18);background:rgba(17,30,52,0.72);box-shadow:0 6px 14px rgba(10,20,40,0.28);}
+
+    .fact-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);margin-bottom:2px;font-weight:600;}
+
+    .fact-value{font-size:15px;font-weight:700;color:#fff;white-space:nowrap;}
+
+    .fact--prep{border-color:rgba(34,197,94,0.25);background:rgba(20,66,48,0.7);}
+
+    .fact--color{border-color:rgba(245,158,11,0.25);background:rgba(63,48,9,0.7);}
+
+    .fact--po{border-color:rgba(59,130,246,0.3);background:rgba(17,40,76,0.7);}
+
+    [data-theme='light'] .fact{background:rgba(233,238,250,0.9);color:#1c2432;border-color:rgba(79,123,255,0.28);}
+
+    [data-theme='light'] .fact-value{color:#132035;}
+
+    [data-theme='light'] .fact--prep{background:rgba(214,246,227,0.95);border-color:rgba(34,197,94,0.35);}
+
+    [data-theme='light'] .fact--color{background:rgba(255,236,200,0.95);border-color:rgba(245,158,11,0.35);}
+
+    [data-theme='light'] .fact--po{background:rgba(222,233,255,0.95);border-color:rgba(59,130,246,0.35);}
+
+    .fact--blank .fact-value{color:var(--muted);font-weight:600;}
+
+    [data-theme='light'] .fact--blank .fact-value{color:#5b667a;}
+
+    .photo-pill{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:4px 10px;border-radius:999px;background:rgba(59,130,246,0.18);color:#b7cbff;font-size:12px;font-weight:600;}
+    [data-theme='light'] .photo-pill{background:rgba(59,130,246,0.15);color:#1f3f7a;}
+    .color-link{color:inherit;font-weight:700;cursor:pointer;border:0;background:none;padding:0;text-decoration:none;}
+    .color-link:hover{color:var(--accent);text-decoration:underline;}
+    .powder-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(9,14,24,0.68);z-index:1400;padding:24px;}
+    .powder-overlay.is-open{display:flex;}
+    .powder-modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:360px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.45);color:#e8f1ff;}
+    [data-theme='light'] .powder-modal{background:#fff;color:#152032;}
+    .powder-modal header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+    .powder-modal h3{margin:0;font-size:18px;}
+    .powder-modal .modal-controls{display:flex;justify-content:flex-end;margin-bottom:6px;}
+    .powder-modal .field-toggle{border:1px solid var(--border);background:color-mix(in oklab,var(--panel),white 15%);color:var(--ink);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer;}
+    .powder-modal .field-toggle[aria-expanded='true']{background:color-mix(in oklab,var(--accent),white 20%);color:#fff;border-color:color-mix(in oklab,var(--accent),var(--border) 40%);}
+    .powder-modal .field-options{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;background:color-mix(in oklab,var(--panel-2),white 10%);padding:8px;border-radius:10px;}
+    .powder-modal .field-options[hidden]{display:none;}
+    .powder-modal .field-option{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+    .powder-modal .modal-body{max-height:55vh;overflow:auto;}
+    .powder-modal .modal-message{font-size:13px;margin-bottom:10px;color:var(--muted);}
+    .powder-modal .modal-details{margin:0;padding:0;display:grid;gap:10px;}
+    .powder-modal .detail-row{display:flex;flex-direction:column;gap:2px;padding:6px 8px;border:1px solid color-mix(in oklab,var(--border),white 20%);border-radius:10px;background:color-mix(in oklab,var(--panel),white 10%);}
+    .powder-modal dt{font-size:11px;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);margin:0;}
+    .powder-modal dd{margin:0;font-size:14px;font-weight:600;color:#f5f7ff;}
+    [data-theme='light'] .powder-modal dd{color:#152032;}
+    .powder-modal .close{border:0;background:none;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;}
+    .powder-modal .aliases{font-size:12px;color:var(--muted);}
+    .powder-modal .detail-row[hidden]{display:none;}
+    @media (max-width: 480px){ .powder-modal{max-width:95vw;padding:14px;} }
+
+
+
+    .photo-pill{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:4px 10px;border-radius:999px;background:rgba(59,130,246,0.18);color:#b7cbff;font-size:12px;font-weight:600;}
+    [data-theme='light'] .photo-pill{background:rgba(59,130,246,0.15);color:#1f3f7a;}
+    .color-link{color:inherit;font-weight:700;cursor:pointer;border:0;background:none;padding:0;text-decoration:none;}
+    .color-link:hover{color:var(--accent);text-decoration:underline;}
+    .powder-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(9,14,24,0.68);z-index:1400;padding:24px;}
+    .powder-overlay.is-open{display:flex;}
+    .powder-modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.45);color:#e8f1ff;}
+    [data-theme='light'] .powder-modal{background:#fff;color:#152032;}
+    .powder-modal header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+    .powder-modal h3{margin:0;font-size:18px;}
+    .powder-modal dl{display:grid;grid-template-columns:1fr;gap:10px;margin:0;padding:0;}
+    .powder-modal dt{font-size:11px;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);}
+    .powder-modal dd{margin:0;font-size:14px;font-weight:600;color:#f5f7ff;}
+    [data-theme='light'] .powder-modal dd{color:#152032;}
+    .powder-modal .close{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;}
+    .powder-modal .aliases{font-size:12px;color:var(--muted);}
+
+    .details ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px;}
+
+    .details li{flex:0 1 170px;background:rgba(24,36,53,0.65);border:1px solid rgba(47,66,92,0.9);border-radius:8px;padding:8px;}
+
+    .details li strong{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.45px;color:var(--muted);margin-bottom:2px;}
+
+    .details li span{font-size:13px;font-weight:600;color:#f5f7ff;}
+
+
+
+    .details { display: none; margin-top: 8px; font-size: 13px; background: #10192a; border: 1px solid #20304a; border-radius: 10px; padding: 8px; }
+    .card[aria-expanded="true"] .details { display: block; }
+
+    .ghost { opacity: .45; }
+    .placeholder { height: 56px; border: 2px dashed #2b3b56; border-radius: 12px; }
+
+    .toolbar { 
+      display: flex !important; 
+      gap: 8px !important; 
+      margin-top: 12px !important;
+      flex-wrap: wrap !important;
+      align-items: center !important;
+    }
+    
+
+    /* Scrollbar polish */
+    * { scrollbar-width: thin; scrollbar-color: #2a3b58 transparent; }
+    *::-webkit-scrollbar { height: 10px; width: 10px; }
+    *::-webkit-scrollbar-thumb { background: #2a3b58; border-radius: 10px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+
+    /* Photos gallery (smaller thumbs) */
+    .photos-gallery { margin-top: 8px; }
+    .photos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px; }
+    .photos-grid .thumb { width: 100%; height: 80px; object-fit: cover; display: block; border: 1px solid #20304a; border-radius: 6px; background: #0b1118; }
+
+    /* Lightbox viewer */
+    .lightbox { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.7); z-index: 1000; }
+    .lightbox.open { display: flex; }
+    .lightbox-content { position: relative; max-width: 92vw; max-height: 92vh; display:flex; align-items:center; justify-content:center; }
+    .lightbox-content img { max-width: 92vw; max-height: 88vh; border: 1px solid #20304a; border-radius: 10px; background: #0b1118; display: block; object-fit: contain; }
+    .lightbox-content iframe { width: 92vw; height: 88vh; border: 1px solid #20304a; border-radius: 10px; background: #0b1118; }
+    .lightbox-close { position: absolute; top: -10px; right: -10px; border: 1px solid #2a3b58; background: #0f1726; color: #d9e7ff; border-radius: 999px; width: 28px; height: 28px; cursor: pointer; }
+    .lightbox-nav { position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; pointer-events:none; }
+    .lightbox-btn { pointer-events:auto; background:rgba(0,0,0,.35); color:#fff; border:1px solid #2a3b58; width:40px; height:60px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:20px; }
+
+    /* Slot numbering on Job Screen: separate rail, fixed in gutter */
+    .screen-mode .dropzone{ position: relative }
+    .screen-mode .dropzone .slot-rail{ position:absolute; left:0; top:0; width:96px; pointer-events:none }
+    .screen-mode .dropzone .card{ margin-left: 96px }
+    .slot-chip{
+      position:absolute; left:10px; height:38px; width:76px; text-align:center;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
+      border-radius:999px; background: linear-gradient(180deg, color-mix(in oklab, var(--panel), var(--primary) 18%), color-mix(in oklab, var(--panel-2), var(--primary) 10%));
+      border: 1px solid color-mix(in oklab, var(--border), var(--primary) 40%);
+      color:#9fd6ff; font-weight:800; box-shadow: 0 2px 6px rgba(0,0,0,.18)
+    }
+    .slot-chip .slot-label{ font-size:10px; letter-spacing:.8px; text-transform:uppercase; opacity:.95; line-height:1 }
+    .slot-chip .slot-num{ font-size:18px; font-weight:900; line-height:1 }
+    {% if screen_mode %}
+    /* Hit List emphasis for Company + Prep/Color (inline) */
+    .job-title .company{ font-size:20px; color:#eaf2ff; font-weight:900; letter-spacing:.2px; vertical-align:middle }
+    .job-title .sub{ display:inline; margin-left:10px; font-size:18px; color:#eaf2ff; font-weight:800; letter-spacing:.2px; vertical-align:middle }
+    .job-title .sub .meta-pill{ display:inline-block; padding:4px 10px; border-radius:12px; background:#0f2336; border:1px solid #29435f; margin-right:10px }
+    .job-title .sub .meta-label{ opacity:.85; font-weight:700; margin-right:6px }
+    {% endif %}
+  </style>
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+</head>
+<body class="{% if screen_mode %}screen-mode{% endif %}">
+  <!-- Flash messages -->
+  <div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}" role="alert">
+            {{ message }}
+            <button type="button" class="close" onclick="this.parentElement.remove()" aria-label="Close">×</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Theme menu will be injected by global-theme-menu.js -->
+  <header class="topbar">
+    <div class="hrow">
+      <h1>{{ page_title or 'Jobs' }}</h1>
+      <div class="actions">
+        <a class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors" href="/nav" title="Back to Navigation">Back to Nav</a>
+        <a class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors" href="/jobs/kanban" title="View Kanban Board">Kanban Board</a>
+        {% if is_admin %}
+          {% if screen_mode %}
+            <a class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors" href="/jobs" title="Go to Job Database">Job Database</a>
+          {% else %}
+            <a class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors" href="/jobs/screen" title="Go to Daily Hit List">Daily Hit List</a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    {% if not screen_mode %}
+    <form method="get" action="/jobs" class="filters">
+      {% if company %}<input type="hidden" name="company" value="{{ company }}"/>{% endif %}
+      {% if show_archived %}<input type="hidden" name="archived" value="1"/>{% endif %}
+      {% if active_department %}<input type="hidden" name="department" value="{{ active_department }}"/>{% endif %}
+      <label for="sort" class="hint">Sort</label>
+      <select id="sort" name="sort" onchange="this.form.submit()" class="select">
+        <option value="default" {% if sort=='default' %}selected{% endif %}>Smart (priority, due, manual)</option>
+        <option value="created_desc" {% if sort=='created_desc' %}selected{% endif %}>Newest first</option>
+        <option value="created_asc" {% if sort=='created_asc' %}selected{% endif %}>Oldest first</option>
+        <option value="due_asc" {% if sort=='due_asc' %}selected{% endif %}>Due soonest</option>
+        <option value="due_desc" {% if sort=='due_desc' %}selected{% endif %}>Due latest</option>
+        <option value="company_az" {% if sort=='company_az' %}selected{% endif %}>Company A&ndash;Z</option>
+        <option value="company_za" {% if sort=='company_za' %}selected{% endif %}>Company Z&ndash;A</option>
+        <option value="priority_high" {% if sort=='priority_high' %}selected{% endif %}>Priority (Emergency first)</option>
+        
+        <option value="on_screen_first" {% if sort=='on_screen_first' %}selected{% endif %}>On Hit List first</option>
+      </select>
+      <div style="position:relative;display:inline-block">
+        <input id="jobSearch" name="search" type="text" placeholder="Search jobs (company, contact, color, description)" value="{{ request.args.get('search', '') }}" autocomplete="off" autocapitalize="off" spellcheck="false" class="text" style="padding-right:30px" />
+        {% if request.args.get('search') %}
+        <button type="button" id="clearSearch" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;color:#666;cursor:pointer;padding:5px">×</button>
+        <div style="margin-left:10px;display:inline-block;color:#666">
+          {{ rows|length }} result{% if rows|length != 1 %}s{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </form>
+    {% endif %}
+    <div class="hint">Tip: drag cards to reorder. Click a card to expand.</div>
+  </header>
+
+  <main class="board" id="board" aria-live="polite">
+    <!-- Example static columns. Replace the DEMO BLOCK with your Jinja loop over departments + jobs. -->
+
+    <!-- DEMO BLOCK (remove in real app) -->
+    <!--
+    <section class="column" data-dept="unloading">
+      <div class="col-head">
+        <div class="col-title">Unloading</div>
+        <div class="col-count" data-count>0</div>
+      </div>
+      <div class="dropzone" role="list">\n        {% if screen_mode %}<div class="slot-rail" aria-hidden="true"></div>{% endif %}
+        <article class="card" role="listitem" tabindex="0" draggable="true" data-id="101" aria-expanded="false">
+          <div class="card-header">
+            <div class="job-title">#101 &middot; Acme Railings</div>
+            <div class="job-meta">Due: Today</div>
+          </div>
+          <div class="desc">Prep 12 balcony pickets and 3 posts. Sandblast light rust, prime TGIC, topcoat RAL 9005 matte.</div>
+          <div class="details">
+            <ul>
+              <li>PO: ACR-5542</li>
+              <li>Color: RAL 9005 Matte</li>
+              <li>Notes: watch weld spatter on post caps</li>
+            </ul>
+            <div class="toolbar">
+              <button class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors" data-action="advance">Send to Sandblaster →</button>
+            </div>
+          </div>
+        </article>
+        <article class="card" role="listitem" tabindex="0" draggable="true" data-id="102" aria-expanded="false">
+          <div class="card-header">
+            <div class="job-title">#102 &middot; Island Fabricators</div>
+            <div class="job-meta">Due: Aug 30</div>
+          </div>
+          <div class="desc">Gate frame 4x8 ft, heavy mill scale. Twoâ€‘coat with zinc prime + RAL 7016.</div>
+          <div class="details"><em>No extra notes.</em></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="column" data-dept="sandblaster">
+      <div class="col-head">
+        <div class="col-title">Sandblaster</div>
+      <div class="col-count" data-count>0</div>
+      </div>
+      <div class="dropzone" role="list">
+        {% if screen_mode %}<div class="slot-rail" aria-hidden="true"></div>{% endif %}
+        <article class="card" role="listitem" tabindex="0" draggable="true" data-id="103" aria-expanded="false">
+          <div class="card-header">
+            <div class="job-title">#103 &middot; Westbay Marine</div>
+            <div class="job-meta">Due: Aug 31</div>
+          </div>
+          <div class="desc">Boat rail sections, 316 stainless scuff & clear. Mask mounting faces.</div>
+          <div class="details"><em>Customer waiting area pickup.</em></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="column" data-dept="prep">
+      <div class="col-head">
+        <div class="col-title">Prep</div>
+        <div class="col-count" data-count>0</div>
+      </div>
+      <div class="dropzone" role="list"></div>
+    </section>
+
+    <section class="column" data-dept="sprayers">
+      <div class="col-head">
+        <div class="col-title">Sprayers</div>
+        <div class="col-count" data-count>0</div>
+      </div>
+      <div class="dropzone" role="list"></div>
+    </section>
+
+    <section class="column" data-dept="finished">
+      <div class="col-head">
+        <div class="col-title">Finished</div>
+        <div class="col-count" data-count>0</div>
+      </div>
+      <div class="dropzone" role="list"></div>
+    </section>
+    -->
+    <!-- END DEMO BLOCK -->
+
+    <!-- Example Jinja structure you can use instead of the demo above:
+    {% set DEPARTMENTS = ["unloading","sandblaster","prep","sprayers","finished"] %}
+    {% for dept in DEPARTMENTS %}
+      <section class="column" data-dept="{{ dept }}">
+        <div class="col-head">
+          <div class="col-title">{{ dept|capitalize }}</div>
+          <div class="col-count" data-count>0</div>
+        </div>
+        <div class="dropzone" role="list">
+          {% for job in jobs if job.department == dept %}
+            <article class="card" role="listitem" tabindex="0" draggable="true" data-id="{{ job.id }}" aria-expanded="false">
+              <div class="card-header">
+                <div class="job-title">#{{ job.id }} &middot; {{ job.customer }}</div>
+                <div class="job-meta">Due: {{ job.due_date or '&mdash;' }}</div>
+              </div>
+              <div class="desc">{{ job.description }}</div>
+              <div class="details">
+                <ul>
+                  <li>PO: {{ job.po or '&mdash;' }}</li>
+                  <li>Color: {{ job.color or '&mdash;' }}</li>
+                  <li>Notes: {{ job.notes or '&mdash;' }}</li>
+                </ul>
+                <div class="toolbar">
+                  <button class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors" data-action="advance">Advance →</button>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+    -->
+
+    <!-- Live board rendered from server data (single column: All Jobs) -->
+    <section class="column" data-dept="all">
+      <div class="col-head">
+        <div class="col-title">All Jobs</div>
+        <div class="col-count" data-count>0</div>
+      </div>
+      <div class="dropzone" role="list" {% if enable_virtual_scroll %}data-virtual-scroll="true"{% endif %}>
+        {% for r in rows %}
+          {% set _photos = (r.photos_count or 0) %}
+          <article class="card" role="listitem" tabindex="0" {% if is_admin %}draggable="true"{% endif %} 
+            data-id="{{ r.id }}" 
+            aria-expanded="false" 
+            data-company="{{ (r.company or '')|escape }}"
+            data-contact="{{ (r.contact_name or '')|escape }}"
+            data-color="{{ (r.color or '')|escape }}"
+            data-description="{{ (r.description or '')|escape }}"
+            {% if _photos %}data-has-photos="1"{% endif %}>
+      <div class="card-header">
+        <div class="job-title"><span class="company" data-company>{{ r.company or '' }}</span>
+                {% set _blast = (r.blast or '').strip() %}
+                {% set _prep = (r.prep or '').strip() %}
+                {% set _color = (r.color or '').strip() %}
+                {% if _blast or _prep or _color %}
+                  <span class="sub">
+                    {% if _blast %}<span class="meta-pill"><span class="meta-label">Surface Prep:</span> {{ _blast }}</span>{% endif %}
+                    {% if _prep %}<span class="meta-pill"><span class="meta-label">Prep:</span> {{ _prep }}</span>{% endif %}
+                    {% if _color %}<span class="meta-pill"><span class="meta-label">Color:</span> <button type="button" class="color-link" data-color="{{ _color }}">{{ _color }}</button></span>{% endif %}
+                  </span>
+                {% endif %}
+                {% if not screen_mode and r.on_screen and not show_archived %}
+                  <span class="badge badge-screen" title="Shown on Daily Hit List">On Hit List</span>
+                {% endif %}
+              </div>
+              <div class="meta-right">
+                <div class="job-meta">
+                  {% if r.date_in %}Date In: {{ r.date_in }}{% endif %}
+                  {% if r.due_by %}{% if r.date_in %}&nbsp;&bull;&nbsp;{% endif %}Due: {{ r.due_by }}{% else %}{% if not r.date_in %}No due date{% endif %}{% endif %}
+                </div>
+                 {% if r.completed_at %}<span class="badge badge-complete" title="Completed">Completed</span>{% endif %}
+                <span class="id-pill" title="Job ID">ID {{ r.id }}</span>
+                {% if _photos %}<span class="photo-pill" title="Photos uploaded">Photos {{ _photos }}</span>{% endif %}
+              </div>
+            </div>
+            <div class="desc" data-description>{{ r.description or '' }}</div>
+
+            {% set _po = (r.po or '').strip() %}
+
+            {% set _prep_inline = (r.prep or '').strip() %}
+
+            {% set _color_inline = (r.color or '').strip() %}
+
+            <div class="quick-facts">
+
+              {% if _prep_inline %}
+
+              <div class="fact fact--prep"><span class="fact-label">Prep</span><span class="fact-value">{{ _prep_inline }}</span></div>
+
+              {% endif %}
+
+              {% if _color_inline %}
+
+              <div class="fact fact--color"><span class="fact-label">Color</span><span class="fact-value"><button type="button" class="color-link" data-color="{{ _color_inline }}">{{ _color_inline }}</button></span></div>
+
+              {% endif %}
+
+              {% if _po %}
+
+              <div class="fact fact--po"><span class="fact-label">PO#</span><span class="fact-value">{{ _po }}</span></div>
+
+              {% endif %}
+
+              {% if not (_prep_inline or _color_inline or _po) %}
+
+              <div class="fact fact--blank"><span class="fact-label">Details</span><span class="fact-value">No prep / color / PO</span></div>
+
+              {% endif %}
+
+            </div>
+            
+              <div class="details">
+                <ul>
+                  <li><strong>PO#</strong><span>{{ r.po or '—' }}</span></li>
+                  <li><strong>Surface Prep</strong><span>{{ r.blast or '—' }}</span></li>
+                  <li><strong>Color</strong><span>{% if r.color %}<button type="button" class="color-link" data-color="{{ r.color }}">{{ r.color }}</button>{% else %}—{% endif %}</span></li>
+                  <li><strong>Priority</strong><span>{{ r.priority or 'Standard' }}</span></li>
+                  
+                </ul>
+                <div style="margin-top:8px">
+                  <div><strong>Description:</strong></div>
+                  <div style="color:#e6eef7">{{ r.description or '' }}</div>
+                </div>
+                {% if r.notes %}
+                <div style="margin-top:8px">
+                  <div><strong>Notes:</strong></div>
+                  <div style="color:#cfe3ff">{{ r.notes|clean_notes }}</div>
+                </div>
+                {% endif %}
+              <div class="toolbar">
+                <a class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors" href="/jobs/{{ r.id }}/worksheet">Work Order</a>
+                {% if is_admin %}
+                  <a class="px-3 py-1.5 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-xs font-medium transition-colors" href="/jobs/{{ r.id }}/edit">Edit</a>
+                  {% if not r.completed_at %}
+                  <form method="post" action="/jobs/{{ r.id }}/complete" style="display:inline" 
+                        onsubmit="return handleFormSubmit(event, 'Mark this job as completed?')">
+                    <button class="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition-colors" type="submit">Mark Completed</button>
+                  </form>
+                  {% else %}
+                  <form method="post" action="/jobs/{{ r.id }}/reopen" style="display:inline" 
+                        onsubmit="return handleFormSubmit(event, 'Reopen this job?')">
+                    <button class="px-3 py-1.5 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-medium transition-colors" type="submit">Reopen</button>
+                  </form>
+                  {% endif %}
+                  {% if completed_view %}
+                    <form method="post" action="/jobs/{{ r.id }}/archive" style="display:inline" 
+                          onsubmit="return handleFormSubmit(event, 'Archive this completed job?')">
+                      <button class="px-3 py-1.5 rounded-lg bg-gray-600 hover:bg-gray-700 text-white text-xs font-medium transition-colors" type="submit">Archive</button>
+                    </form>
+                  {% endif %}
+                  {% if show_archived %}
+                    <form method="post" action="/jobs/{{ r.id }}/unarchive" style="display:inline" 
+                          onsubmit="return handleFormSubmit(event, 'Unarchive this job?')">
+                      <button class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors" type="submit">Unarchive</button>
+                    </form>
+                  {% else %}
+                    {% if screen_mode %}
+                      <form method="post" action="/jobs/{{ r.id }}/screen/remove" style="display:inline"
+                            onsubmit="return handleFormSubmit(event, 'Remove job from screen?')">
+                        <button class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors" type="submit">Remove from Screen</button>
+                      </form>
+                    {% else %}
+                      {% if not r.on_screen %}
+                        <form method="post" action="/jobs/{{ r.id }}/screen/add" style="display:inline"
+                              onsubmit="return handleFormSubmit(event, 'Add job to screen?')">
+                          <button class="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition-colors" type="submit">Send to Screen</button>
+                        </form>
+                      {% else %}
+                        <form method="post" action="/jobs/{{ r.id }}/screen/remove" style="display:inline">
+                          <button class="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition-colors" type="submit">On Screen ✓</button>
+                        </form>
+                      {% endif %}
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              </div>
+              <div class="photos-gallery" data-gallery="{{ r.id }}" style="display:none">
+                <div class="photos-grid"></div>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% if not rows %}
+      {% if screen_mode %}
+        <div style="grid-column:1/-1;color:#9fb3c8;padding:12px;background:#0f1726;border:1px solid #1f2a3b;border-radius:12px">
+          No jobs on the Daily Hit List yet.
+          <a href="/jobs" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors" style="margin-left:8px">Go to Job Database</a>
+          <span class="hint" style="margin-left:6px">Open a job and click “Send to Screen”.</span>
+        </div>
+      {% else %}
+        <div style="grid-column:1/-1;color:#9fb3c8;padding:10px">No jobs to show.</div>
+      {% endif %}
+    {% endif %}
+
+    {% if total_pages is defined and total_pages > 1 %}
+    <div style="grid-column:1/-1;display:flex;justify-content:center;align-items:center;gap:12px;padding:20px;color:#9fb3c8">
+      {% if page > 1 %}
+        <a href="{{ request.path }}?{{ request.args|update_qs(page=page-1) }}" class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">&larr; Previous</a>
+      {% endif %}
+      
+      <div style="display:flex;gap:8px;align-items:center">
+        <span>Page {{ page }} of {{ total_pages }}</span>
+        <span>({{ total_count }} total)</span>
+        <select id="perPage" class="select" style="margin-left:12px" onchange="window.location.href=this.value">
+          {% for n in [25, 50, 75, 100] %}
+            <option value="{{ request.path }}?{{ request.args|update_qs(per_page=n, page=1) }}"
+                    {% if per_page == n %}selected{% endif %}>
+              {{ n }} per page
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {% if page < total_pages %}
+        <a href="{{ request.path }}?{{ request.args|update_qs(page=page+1) }}" class="px-4 py-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-sm font-medium transition-colors">Next &rarr;</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </main>
+
+  <!-- Lightbox viewer (placed before script so elements exist when JS runs) -->
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <div class="lightbox-content">
+      <img id="lightboxImg" alt="preview" />
+      <iframe id="lightboxFrame" title="document preview" style="display:none"></iframe>
+      <button class="lightbox-close" aria-label="Close">Close</button>
+      <div class="lightbox-nav">
+        <button class="lightbox-btn" id="lbPrev" aria-label="Previous">&#8249;</button>
+        <button class="lightbox-btn" id="lbNext" aria-label="Next">&#8250;</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="powderOverlay" class="powder-overlay" aria-hidden="true">
+    <div class="powder-modal" role="dialog" aria-modal="true" aria-labelledby="powderModalTitle">
+      <header>
+        <h3 id="powderModalTitle">Powder Details</h3>
+        <button type="button" class="close" aria-label="Close">&times;</button>
+      </header>
+      <div class="modal-controls">
+        <button type="button" class="field-toggle" aria-expanded="false">Fields</button>
+      </div>
+      <div class="field-options" hidden></div>
+      <div class="modal-body">
+        <div class="modal-message">Select a color to load details.</div>
+        <dl class="modal-details"></dl>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const IS_ADMIN = {{ is_admin | tojson }};
+    const SCREEN_MODE = {{ screen_mode | tojson }};
+    const board = document.getElementById('board');
+    const getDropzones = () => Array.from(board.querySelectorAll('.dropzone'));
+    const POWDER_FIELD_DEFS = [
+      { key: 'manufacturer', label: 'Manufacturer' },
+      { key: 'product_code', label: 'Product Code' },
+      { key: 'family', label: 'Family' },
+      { key: 'finish', label: 'Finish' },
+      { key: 'gloss_level', label: 'Gloss Level' },
+      { key: 'int_ext', label: 'Interior/Exterior' },
+      { key: 'flags', label: 'Metallic / Clear' },
+      { key: 'in_stock', label: 'In Stock' },
+      { key: 'aliases', label: 'Aliases' },
+      { key: 'notes', label: 'Notes' },
+      { key: 'cure_schedule', label: 'Cure Schedule' },
+      { key: 'additional_info', label: 'Additional Info' },
+    ];
+    const POWDER_FIELD_STORAGE = 'jobs_powder_field_visibility';
+    const powderOverlay = document.getElementById('powderOverlay');
+    const powderModal = powderOverlay ? powderOverlay.querySelector('.powder-modal') : null;
+    const powderClose = powderOverlay ? powderOverlay.querySelector('.powder-modal .close') : null;
+    const powderMessage = powderOverlay ? powderOverlay.querySelector('.modal-message') : null;
+    const powderOptionsHost = powderOverlay ? powderOverlay.querySelector('.field-options') : null;
+    const powderToggleBtn = powderOverlay ? powderOverlay.querySelector('.field-toggle') : null;
+    const powderDetailsHost = powderOverlay ? powderOverlay.querySelector('.modal-details') : null;
+    let powderFieldMap = {};
+    let powderVisibility = {};
+    const powderCache = new Map();
+
+    function loadPowderVisibility(){
+      try {
+        const raw = localStorage.getItem(POWDER_FIELD_STORAGE);
+        if (raw){
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object'){
+            return parsed;
+          }
+        }
+      } catch (err) {}
+      const defaults = {};
+      POWDER_FIELD_DEFS.forEach(field => defaults[field.key] = true);
+      return defaults;
+    }
+
+    function savePowderVisibility(){
+      try {
+        localStorage.setItem(POWDER_FIELD_STORAGE, JSON.stringify(powderVisibility));
+      } catch (err) {}
+    }
+
+    function applyPowderVisibility(){
+      Object.entries(powderFieldMap).forEach(([key, entry]) => {
+        if (!entry || !entry.row) return;
+        const show = powderVisibility[key] !== false;
+        entry.row.style.display = show ? '' : 'none';
+        if (entry.checkbox) entry.checkbox.checked = show;
+      });
+    }
+
+    function buildPowderModal(){
+      if (!powderOverlay || !powderDetailsHost || !powderOptionsHost) return;
+      powderDetailsHost.innerHTML = '';
+      powderOptionsHost.innerHTML = '';
+      powderFieldMap = {};
+      powderVisibility = loadPowderVisibility();
+
+      POWDER_FIELD_DEFS.forEach(field => {
+        const row = document.createElement('div');
+        row.className = 'detail-row';
+        row.dataset.field = field.key;
+        const dt = document.createElement('dt');
+        dt.textContent = field.label;
+        const dd = document.createElement('dd');
+        dd.setAttribute('data-field', field.key);
+        dd.textContent = '-';
+        row.appendChild(dt);
+        row.appendChild(dd);
+        powderDetailsHost.appendChild(row);
+
+        const option = document.createElement('label');
+        option.className = 'field-option';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = powderVisibility[field.key] !== false;
+        cb.addEventListener('change', () => {
+          powderVisibility[field.key] = cb.checked;
+          savePowderVisibility();
+          applyPowderVisibility();
+        });
+        option.appendChild(cb);
+        const span = document.createElement('span');
+        span.textContent = field.label;
+        option.appendChild(span);
+        powderOptionsHost.appendChild(option);
+
+        powderFieldMap[field.key] = { row, valueEl: dd, checkbox: cb };
+      });
+      applyPowderVisibility();
+      if (powderToggleBtn){
+        powderToggleBtn.setAttribute('aria-expanded', 'false');
+        powderOptionsHost.hidden = true;
+      }
+    }
+
+    function closePowderOverlay(){
+      if (!powderOverlay) return;
+      powderOverlay.classList.remove('is-open');
+      powderOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    function renderPowderInfo(color, data){
+      if (!powderOverlay) return;
+      Object.values(powderFieldMap).forEach(entry => { if (entry && entry.valueEl) entry.valueEl.textContent = '-'; });
+      if (!data || Object.keys(data).length === 0){
+        if (powderMessage) powderMessage.textContent = `No matching powder found for "${color}".`;
+        return;
+      }
+      if (powderMessage) powderMessage.textContent = data.color || color;
+      const map = {
+        manufacturer: data.manufacturer || '-',
+        product_code: data.product_code || '-',
+        family: data.family || '-',
+        finish: data.finish || '-',
+        gloss_level: data.gloss_level || '-',
+        int_ext: data.int_ext || '-',
+        in_stock: (data.in_stock !== null && data.in_stock !== undefined && data.in_stock !== '') ? data.in_stock : '-',
+        aliases: data.aliases || '-',
+        notes: data.notes || data.additional_info || '-',
+        cure_schedule: data.cure_schedule || '-',
+        additional_info: data.additional_info || '-'
+      };
+      const flags = [];
+      if (data.metallic) flags.push('Metallic');
+      if (data.needs_clear) flags.push('Needs Clear');
+      map.flags = flags.length ? flags.join(', ') : '-';
+      Object.entries(map).forEach(([key, value]) => {
+        const entry = powderFieldMap[key];
+        if (entry && entry.valueEl) entry.valueEl.textContent = value;
+      });
+    }
+
+    async function openPowderOverlay(color){
+      if (!powderOverlay) return;
+      if (!Object.keys(powderFieldMap).length){
+        buildPowderModal();
+      }
+      powderOverlay.classList.add('is-open');
+      powderOverlay.setAttribute('aria-hidden', 'false');
+      if (powderMessage) powderMessage.textContent = 'Loading…';
+      Object.values(powderFieldMap).forEach(entry => { if (entry && entry.valueEl) entry.valueEl.textContent = '-'; });
+      const key = (color || '').toLowerCase();
+      if (key && powderCache.has(key)){
+        renderPowderInfo(color, powderCache.get(key));
+        return;
+      }
+      try {
+        const res = await fetch(`/powders/by_color.json?name=${encodeURIComponent(color)}`);
+        if (!res.ok){
+          if (res.status === 404){
+            powderCache.set(key, {});
+            renderPowderInfo(color, {});
+            return;
+          }
+          throw new Error(`Request failed (${res.status})`);
+        }
+        const data = await res.json();
+        powderCache.set(key, data);
+        renderPowderInfo(color, data);
+      } catch (err){
+        if (powderMessage) powderMessage.textContent = err && err.message ? err.message : 'Unable to fetch powder info.';
+      }
+    }
+
+    if (powderOverlay){
+      buildPowderModal();
+      powderOverlay.addEventListener('click', (event) => {
+        if (event.target === powderOverlay){
+          closePowderOverlay();
+        }
+      });
+      powderClose?.addEventListener('click', () => closePowderOverlay());
+      powderToggleBtn?.addEventListener('click', () => {
+        if (!powderOptionsHost) return;
+        const expanded = powderToggleBtn.getAttribute('aria-expanded') === 'true';
+        powderToggleBtn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        powderOptionsHost.hidden = expanded;
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && powderOverlay.classList.contains('is-open')){
+          closePowderOverlay();
+        }
+      });
+      document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('.color-link');
+        if (!trigger) return;
+        const color = trigger.getAttribute('data-color');
+        if (!color) return;
+        event.preventDefault();
+        openPowderOverlay(color);
+      });
+    }
+
+    function initVirtualScroll() {
+      dropzone = board.querySelector('.dropzone');
+      if (!dropzone) return;
+
+      // Create virtual container
+      virtualContainer = document.createElement('div');
+      virtualContainer.className = 'virtual-container';
+      
+      // Move all cards to our item array
+      allItems = Array.from(dropzone.querySelectorAll('.card')).map((el, index) => ({
+        el,
+        index,
+        height: CARD_HEIGHT
+      }));
+      
+      // Clear and setup dropzone
+      dropzone.innerHTML = '';
+      dropzone.appendChild(virtualContainer);
+      updateVirtualContainerHeight();
+      
+      // Initial render
+      renderVisibleItems();
+      
+      // Bind scroll handler with throttle
+      let ticking = false;
+      dropzone.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            renderVisibleItems();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+    }
+
+    function updateVirtualContainerHeight() {
+      virtualContainer.style.height = `${allItems.length * CARD_HEIGHT}px`;
+    }
+
+    function renderVisibleItems() {
+      const scrollTop = dropzone.scrollTop;
+      const viewportHeight = dropzone.clientHeight;
+      
+      // Calculate visible range with buffer
+      const startIndex = Math.max(0, Math.floor(scrollTop / CARD_HEIGHT) - BUFFER_SIZE);
+      const endIndex = Math.min(
+        allItems.length,
+        Math.ceil((scrollTop + viewportHeight) / CARD_HEIGHT) + BUFFER_SIZE
+      );
+      
+      // Track new visible set
+      const newVisible = new Set();
+      
+      // Position visible items
+      for (let i = startIndex; i < endIndex; i++) {
+        const item = allItems[i];
+        if (!item) continue;
+        
+        newVisible.add(i);
+        if (!visibleItems.has(i)) {
+          // Item is newly visible
+          item.el.style.transform = `translateY(${i * CARD_HEIGHT}px)`;
+          item.el.classList.add('virtual-item');
+          virtualContainer.appendChild(item.el);
+        }
+      }
+      
+      // Remove no-longer-visible items
+      for (const i of visibleItems) {
+        if (!newVisible.has(i)) {
+          const item = allItems[i];
+          if (item?.el.parentNode === virtualContainer) {
+            virtualContainer.removeChild(item.el);
+          }
+        }
+      }
+      
+      visibleItems = newVisible;
+    }
+
+    // Click-to-toggle details (ignore interactions with controls/toolbars/photos)
+    board.addEventListener('click', (e) => {
+      // Ignore clicks on interactive controls and toolbars to avoid accidental collapse
+      if (e.target.closest('a,button,form,input,select,textarea,label,[role="button"],.toolbar') || e.target.closest('.photos-gallery')) return;
+      const card = e.target.closest('.card');
+      if (!card) return;
+      const willOpen = card.getAttribute('aria-expanded') !== 'true';
+      card.setAttribute('aria-expanded', willOpen);
+      if (willOpen) { try { ensurePhotos(card); } catch(e){} }
+      updateCounts();
+    });
+
+    // Keyboard: [ to move up, ] to move down (admin only)
+    board.addEventListener('keydown', (e) => {
+      if (!IS_ADMIN) return;
+      const card = e.target.closest('.card');
+      if (!card) return;
+      if (e.key === '[') {
+        e.preventDefault();
+        const prev = card.previousElementSibling; if (prev) prev.before(card);
+        persistOrder();
+      } else if (e.key === ']') {
+        e.preventDefault();
+        const next = card.nextElementSibling; if (next) next.after(card);
+        persistOrder();
+      }
+    });
+
+    // Drag & Drop (vanilla HTML5) -----------------------------------------
+    let dragEl = null;
+    let placeholder = document.createElement('div');
+    placeholder.className = 'placeholder';
+
+    board.addEventListener('dragstart', (e) => {
+      if (!IS_ADMIN) return;
+      const card = e.target.closest('.card');
+      if (!card) return;
+      dragEl = card;
+      card.classList.add('ghost');
+      e.dataTransfer.effectAllowed = 'move';
+      // Required for Firefox
+      e.dataTransfer.setData('text/plain', card.dataset.id || '');
+    });
+
+    board.addEventListener('dragend', () => {
+      if (!IS_ADMIN) return;
+      if (dragEl) dragEl.classList.remove('ghost');
+      dragEl = null;
+      removePlaceholders();
+      clearDragover();
+      persistOrder();
+    });
+
+    function removePlaceholders(){
+      document.querySelectorAll('.placeholder').forEach(p => p.remove());
+    }
+    function clearDragover(){
+      getDropzones().forEach(z => z.classList.remove('dragover'));
+    }
+
+    board.addEventListener('dragover', (e) => {
+      if (!IS_ADMIN) return;
+      if (!dragEl) return;
+      const dropzone = e.target.closest('.dropzone');
+      if (!dropzone) return;
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+
+      // Decide insertion point relative to the hovered element
+      const afterElement = getDragAfterElement(dropzone, e.clientY);
+      if (!placeholder.isConnected) dropzone.appendChild(placeholder);
+      if (afterElement == null) {
+        dropzone.appendChild(placeholder);
+      } else {
+        dropzone.insertBefore(placeholder, afterElement);
+      }
+    });
+
+    board.addEventListener('drop', (e) => {
+      if (!IS_ADMIN) return;
+      const dropzone = e.target.closest('.dropzone');
+      if (!dropzone || !dragEl) return;
+      e.preventDefault();
+      const afterElement = getDragAfterElement(dropzone, e.clientY);
+      if (afterElement == null) {
+        dropzone.appendChild(dragEl);
+      } else {
+        dropzone.insertBefore(dragEl, afterElement);
+      }
+      removePlaceholders();
+      clearDragover();
+      persistOrder();
+    });
+
+    function getDragAfterElement(container, y){
+      const elements = [...container.querySelectorAll('.card:not(.ghost)')];
+      return elements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // Count badges per column
+    function updateCounts(){
+      board.querySelectorAll('.column').forEach(col => {
+        const count = col.querySelectorAll('.card').length;
+        const badge = col.querySelector('[data-count]');
+        if (badge) badge.textContent = count;
+      });
+      if (SCREEN_MODE) updateSlotNumbers();
+    }
+
+    function updateSlotNumbers(){
+      const dz = board.querySelector('.dropzone');
+      if (!dz) return;
+      let rail = dz.querySelector('.slot-rail');
+      if (!rail) {
+        rail = document.createElement('div');
+        rail.className = 'slot-rail';
+        dz.prepend(rail);
+      }
+      rail.innerHTML = '';
+      const cards = Array.from(dz.querySelectorAll('.card'));
+      cards.forEach((card, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'slot-chip';
+        chip.innerHTML = '<div class="slot-label">Slot</div><div class="slot-num">'+ (idx+1) +'</div>';
+        chip.style.top = (card.offsetTop + 14) + 'px';
+        chip.setAttribute('aria-label', 'Slot ' + (idx+1));
+        rail.appendChild(chip);
+      });
+    }
+
+    // Error handling utilities
+    function showError(message, duration = 5000) {
+      const toast = document.createElement('div');
+      toast.className = 'error-toast';
+      toast.innerHTML = `
+        <span>${message}</span>
+        <button class="close" onclick="this.parentElement.remove()">×</button>
+      `;
+      document.body.appendChild(toast);
+      // Trigger reflow for animation
+      toast.offsetHeight;
+      toast.classList.add('show');
+      
+      if (duration > 0) {
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, duration);
+      }
+      return toast;
+    }
+
+    async function handleApiError(error, context = '') {
+      console.error(`API Error${context ? ` (${context})` : ''}: `, error);
+      let message = 'An unexpected error occurred. Please try again.';
+      
+      if (error.response) {
+        try {
+          const data = await error.response.json();
+          message = data.error || message;
+        } catch (e) {
+          message = error.response.statusText || message;
+        }
+      }
+      
+      showError(message);
+    }
+
+    // Serialize and persist order
+    function serializeBoard(){
+      // Single list order: return array of IDs
+      return Array.from(board.querySelectorAll('.dropzone .card')).map(el => Number(el.dataset.id));
+    }
+
+    async function persistOrder(){
+      if (!IS_ADMIN) return;
+      const order = serializeBoard();
+      // Save to localStorage immediately for resilience
+      try { localStorage.setItem('{{ storage_key or "vpc_job_order" }}', JSON.stringify(order)); } catch {}
+
+      // Try to POST to backend (if available)
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 3500);
+        // Backend expects an ID list under /jobs/reorder
+        const res = await fetch('{{ reorder_endpoint or "/jobs/reorder" }}', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order }), signal: ctrl.signal
+        });
+        clearTimeout(t);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+      } catch (err) {
+        // Silent fail is okay; order is still in localStorage
+        console.debug('Persist skipped:', err?.message || err);
+      }
+      updateCounts();
+    }
+
+    // Restore any saved order (if the same job IDs are present)
+    function restoreOrder(){
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem('{{ storage_key or "vpc_job_order" }}') || 'null'); } catch {}
+      if (!Array.isArray(saved) || !saved.length) { updateCounts(); return; }
+      const dropzone = board.querySelector('.dropzone');
+      if (!dropzone) { updateCounts(); return; }
+      const present = new Map(Array.from(dropzone.querySelectorAll('.card')).map(el => [Number(el.dataset.id), el]));
+      saved.forEach(id => {
+        const el = present.get(id);
+        if (el) dropzone.appendChild(el);
+      });
+      updateCounts();
+    }
+
+    // Ensure photos are loaded and visible for a given card
+    async function ensurePhotos(card){
+      const gallery = card.querySelector('.photos-gallery');
+      const grid = gallery?.querySelector('.photos-grid');
+      if (!gallery || !grid) return;
+      if (grid.hasChildNodes()) { gallery.style.display = 'block'; return; }
+      const jobId = Number(card.dataset.id);
+      try {
+        const res = await fetch(`/jobs/${jobId}/photos.json`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length) {
+          grid.innerHTML = '<div style="color:#9fb3c8">No photos yet.</div>';
+        } else {
+          grid.innerHTML = '';
+          items.forEach(p => {
+            const wrap = document.createElement('div');
+            wrap.setAttribute('data-photo-url', p.url);
+            wrap.setAttribute('data-photo-kind', p.kind || 'image');
+            wrap.style.cursor = 'zoom-in';
+            if ((p.kind || 'image') === 'pdf') {
+              const tile = document.createElement('div');
+              tile.style = 'display:flex;align-items:center;justify-content:center;width:100%;height:80px;border:1px solid #20304a;border-radius:6px;background:#0b1118;color:#e6eef7;font-size:20px;';
+              tile.textContent = 'PDF';
+              wrap.appendChild(tile);
+            } else {
+              const img = document.createElement('img');
+              img.className = 'thumb';
+              img.loading = 'lazy';
+              img.src = p.url;
+              img.alt = p.original_name || 'photo';
+              wrap.appendChild(img);
+            }
+            grid.appendChild(wrap);
+          });
+        }
+      } catch (err) {
+        grid.innerHTML = '<div style="color:#ffd2d2">Failed to load photos.</div>';
+      }
+      gallery.style.display = 'block';
+    }
+
+    restoreOrder();
+    updateCounts();
+    
+    // Initialize virtual scrolling if enabled
+    const virtualScrollContainer = document.querySelector('[data-virtual-scroll]');
+    if (virtualScrollContainer) {
+      initVirtualScroll();
+      
+      // Reinitialize virtual scroll after order changes
+      const originalPersistOrder = persistOrder;
+      persistOrder = async function() {
+        await originalPersistOrder();
+        initVirtualScroll();
+      };
+    }
+
+    // Photos button: fetch and toggle gallery
+    board.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.btn[data-action="photos"]');
+      if (!btn) return;
+      e.stopPropagation();
+      const card = btn.closest('.card');
+      if (!card) return;
+      const jobId = Number(btn.getAttribute('data-job-id'));
+      const gallery = card.querySelector('.photos-gallery');
+      const grid = gallery?.querySelector('.photos-grid');
+      if (!gallery || !grid) return;
+      if (gallery.style.display === 'block') {
+        gallery.style.display = 'none';
+        return;
+      }
+      if (!grid.hasChildNodes()) {
+        try {
+          const res = await fetch(`/jobs/${jobId}/photos.json`, { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const items = await res.json();
+          if (!Array.isArray(items) || !items.length) {
+            grid.innerHTML = '<div style="color:#9fb3c8">No photos yet.</div>';
+          } else {
+            grid.innerHTML = '';
+            items.forEach(p => {
+              const wrap = document.createElement('div');
+              wrap.setAttribute('data-photo-url', p.url);
+              wrap.style.cursor = 'zoom-in';
+              const img = document.createElement('img');
+              img.className = 'thumb';
+              img.loading = 'lazy';
+              img.src = p.url;
+              img.alt = p.original_name || 'photo';
+              wrap.appendChild(img);
+              grid.appendChild(wrap);
+            });
+          }
+        } catch(err) {
+          grid.innerHTML = '<div style="color:#ffd2d2">Failed to load photos.</div>';
+        }
+      }
+      gallery.style.display = 'block';
+    });
+
+    // Lightbox open/close
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightboxImg');
+    const lbFrame = document.getElementById('lightboxFrame');
+    const lbPrev = document.getElementById('lbPrev');
+    const lbNext = document.getElementById('lbNext');
+    let lbItems = [];
+    let lbIndex = 0;
+    function renderLightboxItem(item){
+      if (item.kind === 'pdf') {
+        lbImg.style.display = 'none';
+        lbFrame.style.display = 'block';
+        lbFrame.src = item.url;
+      } else {
+        lbFrame.style.display = 'none';
+        lbImg.style.display = 'block';
+        lbImg.src = item.url;
+      }
+    }
+    function showLightbox(idx){
+      if (!lbItems.length) return;
+      lbIndex = (idx + lbItems.length) % lbItems.length;
+      renderLightboxItem(lbItems[lbIndex]);
+      lb.classList.add('open');
+    }
+    function openLightbox(items, startIdx){ lbItems = items.slice(); showLightbox(startIdx); }
+    function closeLightbox(){ lb.classList.remove('open'); lbImg.src=''; lbFrame.src=''; lbItems=[]; lbIndex=0; }
+
+    // Handle form submissions with confirmation and error handling
+    async function handleFormSubmit(event, confirmMessage) {
+      event.preventDefault();
+      if (!confirm(confirmMessage)) return false;
+      
+      const form = event.target;
+      const button = form.querySelector('button[type="submit"]');
+      if (button) button.disabled = true;
+
+      try {
+        const response = await fetch(form.action, {
+          method: form.method,
+          body: new FormData(form)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to submit form');
+        }
+
+        // Optionally reload page if needed
+        window.location.reload();
+        return false;
+      } catch (error) {
+        await handleApiError(error, 'Form submission');
+        if (button) button.disabled = false;
+        return false;
+      }
+    }
+
+    board.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-photo-url]');
+      if (!el) return;
+      e.preventDefault(); e.stopPropagation();
+      const gallery = el.closest('.photos-gallery');
+      const nodes = Array.from(gallery.querySelectorAll('[data-photo-url]'));
+      const items = nodes.map(n => ({ url: n.getAttribute('data-photo-url'), kind: n.getAttribute('data-photo-kind') || 'image' }));
+      const start = nodes.indexOf(el);
+      openLightbox(items, Math.max(0, start));
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'ArrowRight') showLightbox(lbIndex + 1);
+      if (e.key === 'ArrowLeft') showLightbox(lbIndex - 1);
+    });
+    lb.addEventListener('click', (e) => { if (e.target === lb || e.target.closest('.lightbox-close')) closeLightbox(); });
+    lbNext.addEventListener('click', (e) => { e.stopPropagation(); showLightbox(lbIndex + 1); });
+    lbPrev.addEventListener('click', (e) => { e.stopPropagation(); showLightbox(lbIndex - 1); });
+    // Basic swipe
+    let touchX = null;
+    lb.addEventListener('touchstart', (e) => { if (e.touches[0]) touchX = e.touches[0].clientX; }, {passive:true});
+    lb.addEventListener('touchend', (e) => {
+      if (touchX == null) return;
+      const dx = (e.changedTouches[0]?.clientX || 0) - touchX;
+      if (Math.abs(dx) > 40) { showLightbox(lbIndex + (dx < 0 ? 1 : -1)); }
+      touchX = null;
+    });
+
+    // No cross-column moves; single list only
+  })();
+  </script>
+  <script>
+    // Submit form on search input change after delay
+    (function(){
+      const input = document.getElementById('jobSearch');
+      const form = input?.form;
+      if(!input || !form) return;
+      
+      const clearBtn = document.getElementById('clearSearch');
+      let timeout;
+      const MIN_AUTOSEARCH = 3; // avoid auto-submitting too early
+
+      // Highlight matching text in a string
+      function highlightText(text, search) {
+        if (!search) return text;
+        const words = search.toLowerCase().split(/\s+/);
+        let result = text;
+        words.forEach(word => {
+          if (!word) return;
+          const re = new RegExp(`(${word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+          result = result.replace(re, '<mark>$1</mark>');
+        });
+        return result;
+      }
+
+      // Optimized highlighting with batch processing
+      function applyHighlighting() {
+        const search = input?.value?.trim();
+        if (!search) return;
+        
+        // Prepare highlight patterns once
+        const words = search.toLowerCase().split(/\s+/).filter(Boolean);
+        const patterns = words.map(word => 
+          new RegExp(`(${word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi')
+        );
+        
+        // Use a document fragment for batch updates
+        const fragment = document.createDocumentFragment();
+        const pendingUpdates = [];
+        
+        // Process visible cards; fallback to all cards if virtual scroll disabled
+        let cards = document.querySelectorAll('.card.virtual-item');
+        if (!cards.length) { cards = document.querySelectorAll('.dropzone .card'); }
+        cards.forEach(card => {
+          ['data-company', 'data-contact', 'data-color', 'data-description'].forEach(attr => {
+            const elem = card.querySelector(`[${attr}]`);
+            if (elem) {
+              const text = elem.getAttribute(attr);
+              if (text) {
+                let result = text;
+                patterns.forEach(pattern => {
+                  result = result.replace(pattern, '<mark>$1</mark>');
+                });
+                pendingUpdates.push(() => elem.innerHTML = result);
+              }
+            }
+          });
+        });
+        
+        // Batch DOM updates in a single frame
+        requestAnimationFrame(() => {
+          pendingUpdates.forEach(update => update());
+        });
+      }
+
+      // Handle search input (debounced, only when >= MIN_AUTOSEARCH or cleared)
+      input?.addEventListener('input', () => {
+        clearTimeout(timeout);
+        const q = (input.value || '').trim();
+        if (q.length > 0 && q.length < MIN_AUTOSEARCH) {
+          // Do not auto-submit yet; let the user keep typing
+          input.style.opacity = '1';
+          return;
+        }
+        input.style.opacity = '0.6';
+        timeout = setTimeout(async () => {
+          try {
+            form.submit();
+          } catch (error) {
+            await handleApiError(error, 'Searching jobs');
+          } finally {
+            input.style.opacity = '1';
+          }
+        }, q.length === 0 ? 200 : 400);
+      });
+
+      // Submit immediately on Enter
+      input?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          form.submit();
+        }
+      });
+      
+      // Clear search handler
+      function clearSearch() {
+        input.value = '';
+        input.style.opacity = '1';
+        form.submit();
+      }
+
+      // Clear button click
+      clearBtn?.addEventListener('click', clearSearch);
+      
+      // ESC key handler
+      input?.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          clearSearch();
+        }
+      });
+
+      // Apply highlighting on page load
+      applyHighlighting();
+    })();
+  </script>
+  <!-- Lightbox viewer -->
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <div class="lightbox-content">
+      <img id="lightboxImg" alt="photo preview" />
+      <button class="lightbox-close" aria-label="Close">x</button>
+      <div class="lightbox-nav">
+        <button class="lightbox-btn" id="lbPrev" aria-label="Previous">â€¹</button>
+        <button class="lightbox-btn" id="lbNext" aria-label="Next">â€º</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

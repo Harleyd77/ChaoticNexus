@@ -1,0 +1,932 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="{{ request.cookies.get('vpc_theme', 'dark') }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Railing Intake Form</title>
+  <link rel="icon" href="{{ branding_favicon or url_for('static', filename='logos/favicon-1.png.PNG') }}">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    // ---------- Customer Auto-Population ----------
+    {% if customer_info %}
+    (function() {
+      // Auto-populate form fields with customer information
+      const customerData = {{ customer_info | tojson }};
+
+      if (customerData.first_name && document.getElementById('first_name')) {
+        document.getElementById('first_name').value = customerData.first_name;
+      }
+      if (customerData.last_name && document.getElementById('last_name')) {
+        document.getElementById('last_name').value = customerData.last_name;
+      }
+      if (customerData.company_name && document.getElementById('company')) {
+        document.getElementById('company').value = customerData.company_name;
+      }
+      if (customerData.phone && document.getElementById('phone')) {
+        document.getElementById('phone').value = customerData.phone;
+      }
+      if (customerData.email && document.getElementById('email')) {
+        document.getElementById('email').value = customerData.email;
+      }
+
+      // Show a notice that fields were auto-populated
+      const notice = document.createElement('div');
+      notice.className = 'alert alert-info mt-3';
+      notice.innerHTML = '<strong>Info:</strong> Some fields have been auto-populated with your account information. You can edit them as needed.';
+      const formBody = document.querySelector('.form-body');
+      if (formBody) {
+        formBody.insertBefore(notice, formBody.firstChild);
+      }
+    })();
+    {% endif %}
+
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var s=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', s);
+        document.documentElement.style.backgroundColor = s==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+  <!-- build-id: railing-intake-2025-09-06T15:20Z -->
+  <style>
+    :root{
+      --bg:#0e141b; --panel:#111923; --panel-2:#0f1720; --text:#e6edf3; --muted:#9fb0c0;
+      --primary:#3b82f6; --success:#10b981; --error:#ef4444; --border:#1f2a37; --input:#0c1218;
+      --radius:12px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;background:
+        radial-gradient(1200px 600px at 80% -10%, #1e293b22, transparent 60%),
+        radial-gradient(800px 400px at -10% 30%, #1e293b22, transparent 60%),
+        var(--bg);
+      color:var(--text);font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans";
+      padding:20px;
+    }
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1000px;margin:0 auto;position:relative}
+    .topbar{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border);cursor:pointer;font-weight:600;background:var(--panel-2);color:var(--muted)}
+    .btn:hover{color:var(--text)}
+    .btn.primary{background:var(--primary);border-color:transparent;color:white}
+    .form-container{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .header{padding:20px;border-bottom:1px solid var(--border);position:relative}
+    .header h1{margin:0 0 6px;font-size:26px}
+    .header p{margin:2px 0;color:var(--muted)}
+    .header:after{content:"";position:absolute;inset-inline:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--success))}
+    .form-body{padding:24px}
+    .form-row{display:flex;flex-wrap:wrap;margin:0 -10px 14px}
+    .form-group{flex:1 0 calc(50% - 20px);min-width:260px;margin:0 10px 14px}
+    .form-group.full{flex-basis:calc(100% - 20px)}
+    label{display:block;margin:0 0 8px;color:var(--muted);font-weight:600}
+    .required::after{content:" *";color:var(--error)}
+    .input-wrap{position:relative}
+    input,select,textarea{
+      width:100%;padding:12px 14px;background:var(--input);border:1px solid var(--border);
+      border-radius:10px;color:var(--text);font-size:16px;outline:none;transition:border-color .2s, box-shadow .2s;
+    }
+    input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px #3b82f633}
+    textarea{min-height:120px;resize:vertical}
+    .help{color:var(--muted);font-size:13px;margin-top:6px}
+    .error{text-align:center;color:#ffd2d2;background:#4b1f1f;border:1px solid #7a2b2b;padding:8px;border-radius:10px;margin:8px 0}
+    .ok{text-align:center;color:#cff7e1;background:#0b3a2a;border:1px solid #135a3f;padding:8px;border-radius:10px;margin:8px 0}
+    .notice{background:#101A28;border:1px solid #23324a;color:#cfe3ff;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px}
+    .ack{display:flex;gap:12px;align-items:center;background:#0f1726;border:1px solid #23324a;border-radius:10px;padding:12px 14px;margin:8px 0}
+    .ack input{width:22px;height:22px;transform:none;accent-color:var(--primary);}
+    .ack label{line-height:1.25}
+    .counts{display:grid;grid-template-columns:repeat(3,minmax(120px,1fr));gap:10px}
+    .type-cols{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:10px;margin-top:8px}
+    .type-col{background:var(--input);border:1px solid var(--border);border-radius:10px;padding:10px}
+    .type-col .col-title{font-weight:600;color:var(--muted);font-size:13px;margin:0 0 6px}
+    .type-col ul{margin:0;padding-left:18px;max-height:160px;overflow:auto}
+    .type-col .empty{color:var(--muted);font-size:12px}
+    .btns{display:flex;gap:12px;justify-content:flex-end;margin-top:10px}
+    @media (max-width:780px){.form-group{flex-basis:calc(100% - 20px)} .counts{grid-template-columns:1fr 1fr}}
+
+    /* Editor (slide-out) */
+    .overlay{position:fixed;inset:0;background:#0007;opacity:0;visibility:hidden;transition:.28s;z-index:900;pointer-events:none}
+    .overlay.open{opacity:1;visibility:visible;pointer-events:auto}
+    .admin{position:fixed;top:0;right:-460px;width:460px;max-width:100%;height:100%;background:var(--panel);border-left:1px solid var(--border);box-shadow:var(--shadow);transition:right .28s;z-index:1000;overflow:auto}
+    .admin.open{right:0}
+    .section{padding:18px;border-bottom:1px solid var(--border)}
+    .section h3{margin:0 0 12px;display:flex;justify-content:space-between;align-items:center}
+    .row{display:flex;gap:10px;margin:6px 0;align-items:center}
+      .input-wrap .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--primary)}
+    .with-icon{padding-left:40px}
+    .pill{background:#1b2430;color:#c6d4e2;padding:4px 8px;border-radius:999px;font-size:12px}
+
+    /* Basic styles inside admin panel for clarity */
+    .admin input[type="text"], .admin input[type="number"]{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--input);color:var(--text)}
+    .admin button{padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:#18222e;color:#c6d4e2;cursor:pointer}
+    .admin button.primary{background:var(--primary);border-color:transparent;color:white}
+
+    /* In-stock styling */
+    .help #stockAmt.stock-ok{ color: var(--success); }
+    .help #stockAmt.stock-low{ color: #ffd27d; }
+    .help #stockAmt.stock-none{ color: #ff9a9a; }
+
+    /* List styles */
+    .list {
+      margin-top: 18px;
+      background: #0f1720;
+      padding: 10px;
+      border-radius: 10px;
+      max-height: 240px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+    .empty {
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: center;
+      padding: 10px 0;
+    }
+    .type-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .type-col {
+      background: var(--input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .col-title {
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0 0 6px;
+    }
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      padding: 6px 0;
+      font-size: 0.95rem;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .item-text { flex: 1 1 auto; }
+    .remove-btn {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+  </style>
+  <!-- Unified theme system -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui-core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}"></script>
+</head>
+<body>
+  <!-- Theme button automatically injected by global-theme-menu.js -->
+  <!-- Flash messages -->
+  <div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}" role="alert">
+            {{ message }}
+            <button type="button" class="close" onclick="this.parentElement.remove()" aria-label="Close">x</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+  <header class="topbar">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <h1 style="margin:0;font-size:18px">Railing Intake</h1>
+      <div style="display:flex;gap:8px;align-items:center">
+        {% if is_customer_logged_in %}
+        <a class="btn" href="{{ url_for('customer_portal.dashboard') }}">Back to Portal</a>
+        {% else %}
+        <a class="btn" href="/nav">Back to Nav</a>
+        {% endif %}
+        
+        {% if is_admin %}
+          <button class="btn" id="openEditorBtn" type="button">Edit Form</button>
+        {% elif not is_customer_logged_in %}
+          <a class="btn" href="/login">Admin Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+  <div class="container">
+    <div id="submitBanner" style="display:none;background:#0b3a2a;border:1px solid #135a3f;color:#cff7e1;padding:8px 12px;border-radius:10px;margin:8px 0">Form submitted!</div>
+
+    <div class="form-container">
+      <div class="header">
+        <h1>Railing Intake Form</h1>
+        <p>Fill out required fields. This posts into your normal Jobs table.</p>
+      </div>
+
+      <div class="form-body">
+        <form id="railForm" action="/submit" method="post" autocomplete="off" enctype="multipart/form-data">
+          <!-- Dummy fields to placate browser autofill heuristics -->
+          <input type="text" name="_fake_user" autocomplete="username" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0" />
+          <input type="password" name="_fake_pass" autocomplete="new-password" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0" />
+          <input type="hidden" name="category" value="Railing"/>
+          <input type="hidden" name="intake_source" value="railing"/>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="required" for="dateIn">Date In</label>
+              <div class="input-wrap"><span class="icon"></span><input class="with-icon" type="date" id="dateIn" name="dateIn" required/></div>
+            </div>
+            <div class="form-group">
+              <label for="dueBy">Date Needed</label>
+              <div class="input-wrap"><span class="icon"></span><input class="with-icon" type="date" id="dueBy" name="dueBy"/></div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="required" for="first_name">First Name</label>
+              <div class="input-wrap"><span class="icon"></span><input class="with-icon" type="text" id="first_name" name="_first_name" data-name="first_name" placeholder="First Name" required autocomplete="off" autocapitalize="off" spellcheck="false" readonly/></div>
+            </div>
+            <div class="form-group">
+              <label class="required" for="last_name">Last Name</label>
+              <div class="input-wrap"><span class="icon"></span><input class="with-icon" type="text" id="last_name" name="_last_name" data-name="last_name" placeholder="Last Name" required autocomplete="off" autocapitalize="off" spellcheck="false" readonly/></div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group suggest">
+              <label class="required" for="company">Customer</label>
+              <div class="input-wrap"><span class="icon"></span><input class="with-icon" type="text" id="company" name="_company" data-name="company" placeholder="Company Name" required autocomplete="off" autocapitalize="off" spellcheck="false" readonly/></div>
+              <div id="companyList" class="suggest-list" style="display:none;position:absolute;z-index:50;top:100%;left:0;right:0;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;margin-top:6px;max-height:210px;overflow:auto"></div>
+              <div class="help">Start typing to search saved customers.</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="required" for="phone">Phone</label>
+              <div class="input-wrap"><span class="icon"></span><input class="with-icon" type="tel" id="phone" name="_phone" data-name="phone" placeholder="(123) 456-7890" required autocomplete="off" autocapitalize="off" spellcheck="false" readonly/></div>
+            </div>
+            <div class="form-group">
+              <label class="required" for="email">Email</label>
+              <div class="input-wrap"><span class="icon"></span><input class="with-icon" type="email" id="email" name="_email" data-name="email" placeholder="name@example.com" required autocomplete="off" autocapitalize="off" spellcheck="false" readonly/></div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prep">Prep</label>
+              <div class="input-wrap"><span class="icon"></span><select id="prep" class="with-icon" name="prep">
+                  <option value="">None Required</option>
+                  <option>Base /</option>
+                  <option>Full Prep</option>
+                  <option>Touch Up</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="blast">Surface Prep</label>
+              <div class="input-wrap"><span class="icon"></span>
+                <select id="blast" class="with-icon" name="blast"></select>
+              </div>
+              <div class="help">Sandblasting/etch options for this job.</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="colorFamily">Color Family</label>
+              <div class="input-wrap"><span class="icon"></span>
+                <select id="colorFamily" class="with-icon">
+                  <option value="">All families</option>
+                </select>
+              </div>
+              <div class="help">Pick a family to narrow the color list.</div>
+            </div>
+            <div class="form-group">
+              <label class="required" for="color">Color</label>
+              <div class="input-wrap" style="display:flex; align-items:center; gap:8px"><span class="icon"></span>
+                <input class="with-icon" list="powderColors" id="color" name="color" placeholder="Start typing color..." required autocomplete="off" autocapitalize="off" spellcheck="false"/>
+                <button type="button" class="btn mini" id="clearColorBtn" title="Clear color">Clear</button>
+                <datalist id="powderColors"></datalist>
+              </div>
+              <div class="help">Colors come from your Powder Inventory.</div>
+              <div class="help">In stock: <strong id="stockAmt">-</strong></div>
+              <div class="help" id="aliasHint" style="display:none"></div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label>PO / Priority</label>
+              <div class="counts">
+                <div class="input-wrap"><span class="icon"></span><input class="with-icon" type="text" id="po" name="po" placeholder="PO (e.g., ACR-5542)"/></div>
+                <div class="input-wrap"><span class="icon"></span><select id="priority" class="with-icon" name="priority"><option value="">Standard</option><option value="Rush">Rush</option><option value="Hot">Hot</option></select></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="notice">Please mark how many railings you are dropping off and enter lengths below.</div>
+
+          
+
+          
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label>Sections (Length + Type)</label>
+              <div class="counts">
+                <div class="input-wrap"><input type="text" id="sectionLength" placeholder="Length (e.g., 6 ft, 72 in)"/></div>
+                <div class="input-wrap">
+                  <select id="sectionType">
+                    <option value="Picket">Picket</option>
+                    <option value="Glass">Glass</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="input-wrap"><button type="button" class="btn primary" id="addSection" onclick="if(window.addRailSection){ addRailSection(); }">Add Section</button></div>
+              </div>
+              <div id="sectionsList" class="list">
+                <div class="empty" id="emptyText">No sections added yet.</div>
+              </div>
+              <input type="hidden" id="sectionsHidden" name="sections_text"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label>Hardware</label>
+              <div class="counts">
+                <div>
+                  <label for="bracketsCount">Brackets</label>
+                  <div class="input-wrap">
+                    <input type="number" id="bracketsCount" inputmode="numeric" min="0" step="1" value="0" placeholder="0"/>
+                  </div>
+                </div>
+                <div>
+                  <label for="screwsCount">Screws</label>
+                  <div class="input-wrap">
+                    <input type="number" id="screwsCount" inputmode="numeric" min="0" step="1" value="0" placeholder="0"/>
+                  </div>
+                </div>
+                <div>
+                  <label for="postsCount">Posts</label>
+                  <div class="input-wrap">
+                    <input type="number" id="postsCount" inputmode="numeric" min="0" step="1" value="0" placeholder="0"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ack">
+            <input type="checkbox" id="ackUnmarked" required/>
+            <label for="ackUnmarked"><strong>Any items NOT marked with a color will NOT be painted.</strong></label>
+          </div>
+          <div class="ack">
+            <input type="checkbox" id="ackEngraving" required/>
+            <label for="ackEngraving"><strong>All items are engraved with company name &amp; color.</strong></label>
+          </div>
+          <div class="ack">
+            <input type="checkbox" id="ackStorage"/>
+            <label for="ackStorage">I acknowledge the storage policy: <em>$25/day after 48 hours from completion.</em></label>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label class="required" for="description">Job Description</label>
+              <div class="input-wrap" style="padding-left:0">
+                <textarea id="description" name="description" placeholder="Describe the work (e.g., blast, prime, topcoat, masking)..." required></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label for="notes">Notes / Instructions</label>
+              <div class="input-wrap" style="padding-left:0">
+                <textarea id="notes" name="notes" placeholder="Any extra instructions..."></textarea>
+              </div>
+              <div class="help">Railing details will be appended below automatically on submit.</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label for="photos">Photos / PDFs</label>
+              <div class="input-wrap" style="padding-left:0">
+                <input type="file" id="photos" name="photos" accept="image/*,application/pdf" multiple />
+              </div>
+              <div class="help">Optional: attach photos or PDFs from your device.</div>
+            </div>
+          </div>
+
+          <div class="btns">
+            <button type="reset" class="btn">Reset</button>
+            <button type="submit" class="btn primary">Submit</button>
+          </div>
+
+          
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Utilities
+    const $ = (id) => document.getElementById(id);
+    const toISODateInput = (d) => new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    let railItems = [];
+    // Ensure hardware fields start at 0 and date defaults to today
+    ['bracketsCount','screwsCount','postsCount'].forEach(id=>{ const el=$(id); if(el && (!el.value || el.value==='')) el.value='0'; });
+    (function(){
+      const d=$('dateIn');
+      if(d && !d.value){ try{ d.value = toISODateInput(new Date()); }catch{} }
+      const due=$('dueBy');
+      if(due && !due.value){ try{ const nd=new Date(); nd.setDate(nd.getDate()+7); due.value = toISODateInput(nd); }catch{} }
+    })();
+    function recalcCounts(){
+      const p = railItems.filter(it=> (it.type||'').toLowerCase()==='picket').length;
+      const g = railItems.filter(it=> (it.type||'').toLowerCase()==='glass').length;
+      const pEl = $('picketCount'); const gEl = $('glassCount');
+      if (pEl) try{ pEl.value = String(p); }catch{}
+      if (gEl) try{ gEl.value = String(g); }catch{}
+    }
+    function renderSections(){
+      const host = document.getElementById('sectionsList');
+      if(!host) return;
+      
+      if(!railItems.length){ 
+        host.innerHTML = '<div class="empty">No sections added yet.</div>';
+        recalcCounts();
+        return;
+      }
+
+      // Group items by type
+      const groups = { Picket: [], Glass: [], Other: [] };
+      railItems.forEach((it, idx) => {
+        const t = (it.type||'').toLowerCase();
+        if (t === 'picket') groups.Picket.push({...it, idx});
+        else if (t === 'glass') groups.Glass.push({...it, idx});
+        else groups.Other.push({...it, idx});
+      });
+
+      const renderCol = (name) => {
+        const items = groups[name];
+        const itemsList = items.map(it => `
+          <div class="list-item">
+            <div class="item-text">${it.length}</div>
+            <button class="remove-btn" onclick="removeSection(${it.idx})">Remove</button>
+          </div>
+        `).join('');
+        
+        return `
+          <div class="type-col">
+            <div class="col-title">${name} (${items.length})</div>
+            ${items.length ? itemsList : '<div class="empty">None</div>'}
+          </div>
+        `;
+      };
+
+      host.innerHTML = `<div class="type-cols">${['Picket','Glass','Other'].map(renderCol).join('')}</div>`;
+      recalcCounts();
+    }
+
+    function removeSection(idx) {
+      railItems.splice(idx, 1);
+      renderSections();
+    }
+
+    function appendRailDetailsIntoNotes(){
+      const picketEl = $('picketCount');
+      const glassEl = $('glassCount');
+      const brEl = $('bracketsCount');
+      const scEl = $('screwsCount');
+      const poEl = $('postsCount');
+      const jobNameEl = $('jobName');
+      const picket = Number(((picketEl && picketEl.value) || 0));
+      const glass = Number(((glassEl && glassEl.value) || 0));
+      const br = Number(((brEl && brEl.value) || 0));
+      const sc = Number(((scEl && scEl.value) || 0));
+      const po = Number(((poEl && poEl.value) || 0));
+      const jobName = ((jobNameEl && jobNameEl.value) || '').trim();
+
+      // No longer appending acknowledgements to description
+      const calcP = railItems.filter(it=> (it.type||'').toLowerCase()==='picket').length;
+      const calcG = railItems.filter(it=> (it.type||'').toLowerCase()==='glass').length;
+      const piecesLine = [
+        'Picket: ' + (calcP || (isNaN(picket)?0:picket)),
+        'Glass: ' + (calcG || (isNaN(glass)?0:glass))
+      ].join(' | ');
+
+      const hardware = [
+        'Brackets: ' + (isNaN(br)?'0':br),
+        'Screws: ' + (isNaN(sc)?'0':sc),
+        'Posts: ' + (isNaN(po)?'0':po)
+      ].join(' | ');
+
+      let summary = '\n--- Railing Details ---\n';
+      if (jobName) summary += 'Job: ' + jobName + '\n';
+      summary += piecesLine + '\nHardware: ' + hardware;
+      if (Array.isArray(railItems) && railItems.length){
+        const sec = railItems.map((it,i)=> (i+1) + ') ' + (it.type||'Other') + ': ' + it.length).join('\n');
+        summary += '\nSections:\n' + sec;
+      }
+      // No longer adding acknowledgements to summary
+
+      const notes = $('notes');
+      if (notes) notes.value = (notes.value || '') + summary;
+      var hid = document.getElementById('sectionsHidden');
+      if (hid){ try{ hid.value = summary; }catch(_){} }
+    }
+
+    // Powder colors + families
+    var POWDER_FAMILIES = [];
+    var POWDER_COLORS = []; // {color, family, aliases?}
+    function setStockStatus(text, cls){
+      var el = document.getElementById('stockAmt'); if(!el) return;
+      el.textContent = text;
+      el.classList.remove('stock-ok','stock-low','stock-none');
+      if (cls) el.classList.add(cls);
+    }
+    async function loadPowderData(){
+      // Load families (optional)
+      try {
+        var r1 = await fetch('/powders/families.json', { cache: 'no-store' });
+        POWDER_FAMILIES = (await r1.json()) || [];
+      } catch(e) { POWDER_FAMILIES = []; }
+      // Load color+family pairs
+      try {
+        var r2 = await fetch('/powders/colors_full.json', { cache: 'no-store' });
+        POWDER_COLORS = (await r2.json()) || [];
+      } catch(e) { POWDER_COLORS = []; }
+
+      var fams = Array.isArray(POWDER_FAMILIES) ? POWDER_FAMILIES.slice() : [];
+      if (!fams.length && Array.isArray(POWDER_COLORS) && POWDER_COLORS.length){
+        try {
+          var uniq = {};
+          for (var i=0;i<POWDER_COLORS.length;i++){
+            var fam = (POWDER_COLORS[i] && POWDER_COLORS[i].family) || '';
+            if (fam) uniq[fam] = 1;
+          }
+          fams = Object.keys(uniq).sort(function(a,b){ return a.localeCompare(b); });
+        } catch(_) { fams = []; }
+      }
+      try { populateFamilies(fams); } catch(e){}
+      try { rebuildColorDatalist(); } catch(e){}
+    }
+    function populateFamilies(list){
+      var sel = document.getElementById('colorFamily'); if(!sel) return;
+      sel.innerHTML = '';
+      var optAll = document.createElement('option'); optAll.value=''; optAll.textContent='All families'; sel.appendChild(optAll);
+      var src = Array.isArray(list) ? list : POWDER_FAMILIES;
+      for (var i=0;i<src.length;i++){ var f = src[i]; var o = document.createElement('option'); o.value=f; o.textContent=f; sel.appendChild(o); }
+    }
+    function rebuildColorDatalist(){
+      var dl = document.getElementById('powderColors'); if(!dl) return;
+      var famSel = document.getElementById('colorFamily'); var fam = famSel ? famSel.value : '';
+      dl.innerHTML = '';
+      var arr = POWDER_COLORS;
+      if (fam){ arr = arr.filter(function(it){ return (it.family||'') === fam; }); }
+      for (var i=0;i<arr.length;i++){
+        var it = arr[i] || {};
+        var o = document.createElement('option');
+        o.value = it.color || '';
+        if (it.aliases){ o.label = (it.color||'') + ' - ' + it.aliases; }
+        dl.appendChild(o);
+      }
+    }
+    async function updateStock(){
+      var name = (document.getElementById('color') && document.getElementById('color').value) || '';
+      name = String(name||'').trim();
+      if (!name){ setStockStatus('-', null); return; }
+      try{
+        var r = await fetch('/powders/by_color.json?name=' + encodeURIComponent(name), {cache:'no-store'});
+        if (!r.ok) { setStockStatus('n/a', 'stock-none'); return; }
+        var info = await r.json();
+        var stock = (info && typeof info.in_stock !== 'undefined') ? Number(info.in_stock||0) : 0;
+        var cls = stock > 20 ? 'stock-ok' : (stock > 0 ? 'stock-low' : 'stock-none');
+        setStockStatus(String(stock), cls);
+      }catch(e){ setStockStatus('n/a', 'stock-none'); }
+    }
+
+    // Expose an explicit click handler so the Add button works even if listeners fail to bind
+    window.addRailSection = function(){
+      try{
+        var lenInput = document.getElementById('sectionLength') || document.querySelector('#sectionLength');
+        var typeSel = document.getElementById('sectionType') || document.querySelector('#sectionType');
+        if (!lenInput) { alert('Length field not found'); return false; }
+        var len = String(lenInput.value || '').trim();
+        var typ = String((typeSel && typeSel.value) || 'Other').trim() || 'Other';
+        if (!len) { alert('Please enter a length'); return false; }
+        // Use the shared railItems array defined above
+        if (typeof railItems === 'undefined' || !Array.isArray(railItems)) { railItems = []; }
+        railItems.push({ type: typ, length: len });
+        lenInput.value = '';
+        if (typeof renderSections === 'function') renderSections();
+        return false;
+      }catch(e){ alert('Add failed: ' + (e && e.message ? e.message : e)); return false; }
+    };
+      // Defeat aggressive browser autofill:
+      // 1) keep fields readonly until focus; 2) restore canonical name on focus and before submit
+      const protectField = (id)=>{
+        const el = $(id); if(!el) return;
+        const canonical = el.dataset.name || el.name;
+        if (!el.dataset.name) el.dataset.name = canonical;
+        // ensure a decoy name at load so autofill doesn't match
+        if (!el.name || el.name === canonical) el.name = '_' + canonical;
+        el.addEventListener('focus', ()=>{ try{ el.removeAttribute('readonly'); el.name = el.dataset.name; }catch{} }, {once:true});
+      };
+      ['company','first_name','last_name','phone','email','color'].forEach(protectField);
+
+      document.getElementById('railForm').addEventListener('submit', (e)=>{
+        // restore canonical names in case the user never focused them
+        ['company','name','phone','email','color'].forEach(id=>{ const el=$(id); if(el && el.dataset && el.dataset.name){ el.name = el.dataset.name; } });
+        appendRailDetailsIntoNotes();
+      }, {capture:true});
+      // Powder loaders and filters
+      loadPowderData();
+      var famSel = document.getElementById('colorFamily');
+      if (famSel) famSel.addEventListener('change', function(){
+        var colorEl = document.getElementById('color');
+        if (colorEl) colorEl.value = '';
+        setStockStatus('-', null);
+        rebuildColorDatalist();
+      });
+      var colorEl = document.getElementById('color');
+      function updateAlias(){
+        var input = document.getElementById('color');
+        var hint = document.getElementById('aliasHint');
+        if (!input || !hint) return;
+        var val = String(input.value||'').trim().toLowerCase();
+        if (!val){ hint.style.display='none'; hint.textContent=''; return; }
+        var hit = (POWDER_COLORS||[]).find(function(it){ return String((it&&it.color)||'').trim().toLowerCase() === val; });
+        var aliases = hit && hit.aliases ? String(hit.aliases).trim() : '';
+        if (aliases){ hint.textContent = 'Aliases: ' + aliases; hint.style.display='block'; }
+        else { hint.textContent = ''; hint.style.display='none'; }
+      }
+      if (colorEl){
+        colorEl.addEventListener('change', function(){ updateStock(); updateAlias(); });
+        colorEl.addEventListener('blur', function(){ updateStock(); updateAlias(); });
+        colorEl.addEventListener('input', function(){ updateStock(); updateAlias(); });
+      }
+      var clrBtn = document.getElementById('clearColorBtn');
+      if (clrBtn) clrBtn.addEventListener('click', function(){
+        var colorEl = document.getElementById('color');
+        if (colorEl) colorEl.value = '';
+        setStockStatus('-', null);
+        if (colorEl) try{ colorEl.focus(); }catch(_){}
+      });
+
+      // Admin editor wiring is added after functions are defined (see later script)
+  </script>
+  <script>
+    // Icons for input fields (match Production Intake style)
+    (function(){
+      function setIcon(id, svg){
+        try{
+          var el = document.getElementById(id); if(!el) return;
+          var wrap = el.closest('.input-wrap'); if(!wrap) return;
+          var s = wrap.querySelector('.icon'); if(!s) return;
+          s.innerHTML = svg;
+        }catch(e){}
+      }
+      var ICONS={
+        calendar:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+        user:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+        building:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M9 8h6v13H9z"/><path d="M4 21V10h5"/></svg>',
+        phone:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92V21a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2 4.18 2 2 0 0 1 4 2h4.09a2 2 0 0 1 2 1.72l.57 3.26a2 2 0 0 1-.52 1.7L9 10a16 16 0 0 0 5 5l1.32-1.14a2 2 0 0 1 1.7-.52l3.26.57A2 2 0 0 1 22 16.92z"/></svg>',
+        mail:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>',
+        tag:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41L11 3H4v7l9.59 9.59a2 2 0 0 0 2.82 0l4.18-4.18a2 2 0 0 0 0-2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+        flag:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22V4h11l-1 3 3 1-1 3 3 1v7z"/></svg>',
+        wrench:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 1 0-5.66 5.66L3 18l3 3 6.04-6.04a4 4 0 0 0 2.66-8.66z"/></svg>',
+        droplet:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0L12 2.69z"/></svg>',
+        tools:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3zM9 3v18M3 9h18M3 15h18M15 3v18"/></svg>'
+      };
+      window.addEventListener('DOMContentLoaded', function(){
+        setIcon('dateIn', ICONS.calendar);
+        setIcon('dueBy', ICONS.calendar);
+        setIcon('company', ICONS.building);
+        setIcon('first_name', ICONS.user);
+        setIcon('last_name', ICONS.user);
+        setIcon('phone', ICONS.phone);
+        setIcon('email', ICONS.mail);
+        setIcon('po', ICONS.tag);
+        setIcon('priority', ICONS.flag);
+        setIcon('prep', ICONS.wrench);
+        setIcon('blast', ICONS.wrench);
+        setIcon('colorFamily', ICONS.tag);
+        setIcon('color', ICONS.droplet);
+
+        // Add icons for section inputs
+        setIcon('sectionLength', ICONS.tag);
+        setIcon('sectionType', ICONS.tag);
+        
+        // Add icons for hardware counts
+        setIcon('bracketsCount', ICONS.tools);
+        setIcon('screwsCount', ICONS.tools);
+        setIcon('postsCount', ICONS.tools);
+      });
+    })();
+  </script>
+
+  <!-- Admin slide-over (restored) -->
+  <div class="admin" id="adminPanel" aria-hidden="true" style="display:none"></div>
+  <div class="overlay" id="overlay" aria-hidden="true" style="display:none"></div>
+
+  <script>
+    // Minimal wiring to open/close the slide-over; content is rendered by renderEditor if present
+    (function(){
+      var btn = document.getElementById('openEditorBtn');
+      var panel = document.getElementById('adminPanel');
+      var ov = document.getElementById('overlay');
+      function open(){ if(panel&&ov){ panel.style.display='block'; ov.style.display='block'; panel.classList.add('open'); ov.classList.add('open'); if(typeof renderEditor==='function') try{ renderEditor(); }catch(_){} } }
+      function close(){ if(panel&&ov){ panel.classList.remove('open'); ov.classList.remove('open'); setTimeout(function(){ try{ panel.style.display='none'; ov.style.display='none'; }catch(_){} }, 200); } }
+      if(btn) btn.addEventListener('click', open);
+      if(ov) ov.addEventListener('click', close);
+      // Expose for any other buttons
+      window.openEditor = open; window.closeEditor = close;
+    })();
+  </script>
+
+  <script>
+  // Railing-specific intake config editor (separate from production)
+  (function(){
+    // Provide a safe $ fallback
+    var $ = (typeof window !== 'undefined' && window.$) ? window.$ : function(id){ return document.getElementById(id); };
+    var CONFIG = { options:{}, required:{} };
+
+    async function fetchConfig(){
+      try{
+        const r = await fetch('/config/railing.json', {cache:'no-store'});
+        if(!r.ok) throw new Error('Load failed');
+        CONFIG = await r.json();
+      }catch(e){ CONFIG = { options:{}, required:{} }; }
+      CONFIG.options = CONFIG.options || {}; CONFIG.required = CONFIG.required || {};
+      ['category','blast','priority','prep','section_type'].forEach(function(k){ if (!CONFIG.options[k]) CONFIG.options[k] = []; });
+    }
+
+    // ---------- Utilities ----------
+    function showErr(msg){ const e=document.getElementById('saveErr'); if(e){ e.textContent=msg; e.style.display='block'; } const ok=document.getElementById('saveOk'); if(ok) ok.style.display='none'; }
+    function showOk(msg){ const e=document.getElementById('saveOk'); if(e){ e.textContent=msg; e.style.display='block'; } const err=document.getElementById('saveErr'); if(err) err.style.display='none'; }
+
+    async function postConfig(){
+      const r = await fetch('/config/railing', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(CONFIG) });
+      if(!r.ok){ if(r.status===403) throw new Error('Admin login required'); throw new Error('Save failed'); }
+    }
+
+    function populateSelect(id, arr, addPlaceholder){
+      const sel = $(id); if(!sel) return;
+      sel.innerHTML = '';
+      if(addPlaceholder){ const o=document.createElement('option'); o.value=''; o.textContent='Select ' + id; sel.appendChild(o); }
+      (arr||[]).forEach(function(v){ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+    }
+
+    function applyRequired(){
+      const map = CONFIG.required || {};
+      const idMap = { dateIn:'dateIn', dueBy:'dueBy', name:'name', company:'company', phone:'phone', email:'email', description:'description', prep:'prep', blast:'blast', priority:'priority', color:'color' };
+      Object.keys(idMap).forEach(function(key){
+        const id = idMap[key];
+        const el = document.getElementById(id);
+        if (!el) return;
+        const req = !!map[key];
+        try { el.required = req; } catch(e){}
+        const lab = document.querySelector('label[for="'+id+'"]');
+        if (lab) lab.classList.toggle('required', req);
+      });
+    }
+
+    function renderEditor(){
+      const host = document.getElementById('adminPanel'); if(!host) return;
+      host.innerHTML = '' +
+        '<div class="section">' +
+          '<h3>Required Fields</h3>' +
+          '<div id="reqWrap"></div>' +
+          '<div id="saveNote" class="help" style="margin-top:6px">Changes are global. You must be logged in as Admin to save.</div>' +
+          '<div id="saveErr" class="error" style="display:none"></div>' +
+          '<div id="saveOk" class="ok" style="display:none"></div>' +
+        '</div>' +
+        '<div class="section">' +
+          '<h3>Prep Options</h3><div id="prepWrap"></div>' +
+          '<div class="row"><input type="text" id="new-prep" placeholder="Add option" style="flex:1"><button class="primary" type="button" id="addPrep">Add</button></div>' +
+        '</div>' +
+        '<div class="section">' +
+          '<h3>Surface Prep Options</h3><div id="blastWrap"></div>' +
+          '<div class="row"><input type="text" id="new-blast" placeholder="Add option" style="flex:1"><button class="primary" type="button" id="addBlast">Add</button></div>' +
+        '</div>' +
+        '<div class="section">' +
+          '<h3>Priority Options</h3><div id="priorityWrap"></div>' +
+          '<div class="row"><input type="text" id="new-priority" placeholder="Add option" style="flex:1"><button class="primary" type="button" id="addPriority">Add</button></div>' +
+        '</div>' +
+        '<div class="section">' +
+          '<h3>Section Types</h3><div id="sectionTypeWrap"></div>' +
+          '<div class="row"><input type="text" id="new-sectionType" placeholder="Add option" style="flex:1"><button class="primary" type="button" id="addSectionType">Add</button></div>' +
+        '</div>' +
+        '<div class="section" style="display:flex;gap:10px;justify-content:flex-end">' +
+          '<button type="button" id="closeEd">Close</button>' +
+          '<button class="btn primary" type="button" id="saveEd">Save (Railing)</button>' +
+          '<a class="btn" href="/login">Admin Login</a>' +
+        '</div>';
+
+      // Required toggles
+      const reqKeys = ['dateIn','dueBy','name','company','phone','email','description','prep','priority','color'];
+      const reqWrap = document.getElementById('reqWrap');
+      reqWrap.innerHTML='';
+      reqKeys.forEach(function(k){
+        if(!(k in CONFIG.required)) CONFIG.required[k] = false;
+        const row=document.createElement('div'); row.className='row'; row.style.justifyContent='space-between'; row.style.alignItems='center';
+        const lab=document.createElement('div'); lab.textContent=k;
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!CONFIG.required[k];
+        cb.addEventListener('change',function(){ CONFIG.required[k]=cb.checked; applyRequired(); });
+        row.appendChild(lab); row.appendChild(cb); reqWrap.appendChild(row);
+      });
+
+      // Editable lists helper
+      function renderList(key, wrapId, selectId, addPlaceholder){
+        const host = document.getElementById(wrapId); if(!host) return;
+        host.innerHTML='';
+        const arr = CONFIG.options[key] || [];
+        arr.forEach(function(opt,idx){
+          const r=document.createElement('div'); r.className='row'; r.style.display='flex'; r.style.gap='8px'; r.style.alignItems='center';
+          const inp=document.createElement('input'); inp.type='text'; inp.value=opt; inp.style.flex='1';
+          inp.addEventListener('change',function(e){ const v=e.target.value.trim(); if(!v){ e.target.value=CONFIG.options[key][idx]; return;} CONFIG.options[key][idx]=v; populateSelect(selectId, CONFIG.options[key], addPlaceholder && !!CONFIG.required[key]); });
+          const del=document.createElement('button'); del.type='button'; del.textContent='Delete'; del.addEventListener('click',function(){ CONFIG.options[key].splice(idx,1); renderEditor(); populateSelect(selectId, CONFIG.options[key], addPlaceholder && !!CONFIG.required[key]); });
+          r.appendChild(inp); r.appendChild(del); host.appendChild(r);
+        });
+      }
+
+      renderList('prep','prepWrap','prep', true);
+      renderList('blast','blastWrap','blast', true);
+      renderList('priority','priorityWrap','priority', true);
+      // section types
+      if(!CONFIG.options.section_type && CONFIG.options.section_types){ CONFIG.options.section_type = CONFIG.options.section_types; }
+      renderList('section_type','sectionTypeWrap','sectionType', false);
+
+      document.getElementById('addPrep').addEventListener('click',function(){
+        const el = document.getElementById('new-prep'); const v = (el.value||'').trim(); if(!v) return;
+        if(!CONFIG.options.prep) CONFIG.options.prep=[]; if(CONFIG.options.prep.includes(v)) return;
+        CONFIG.options.prep.push(v); el.value=''; renderEditor(); populateSelect('prep', CONFIG.options.prep, !!CONFIG.required.prep);
+      });
+      document.getElementById('addBlast').addEventListener('click',function(){
+        const el = document.getElementById('new-blast'); const v = (el.value||'').trim(); if(!v) return;
+        if(!CONFIG.options.blast) CONFIG.options.blast=[]; if(CONFIG.options.blast.includes(v)) return;
+        CONFIG.options.blast.push(v); el.value=''; renderEditor(); populateSelect('blast', CONFIG.options.blast, !!CONFIG.required.blast);
+      });
+      document.getElementById('addPriority').addEventListener('click',function(){
+        const el = document.getElementById('new-priority'); const v = (el.value||'').trim(); if(!v) return;
+        if(!CONFIG.options.priority) CONFIG.options.priority=[]; if(CONFIG.options.priority.includes(v)) return;
+        CONFIG.options.priority.push(v); el.value=''; renderEditor(); populateSelect('priority', CONFIG.options.priority, !!CONFIG.required.priority);
+      });
+      document.getElementById('addSectionType').addEventListener('click',function(){
+        const el = document.getElementById('new-sectionType'); const v = (el.value||'').trim(); if(!v) return;
+        if(!CONFIG.options.section_type) CONFIG.options.section_type=[]; if(CONFIG.options.section_type.includes(v)) return;
+        CONFIG.options.section_type.push(v); el.value=''; renderEditor(); populateSelect('sectionType', CONFIG.options.section_type, false);
+      });
+
+      document.getElementById('closeEd').addEventListener('click', function(){ try{ window.closeEditor && window.closeEditor(); }catch(e){} });
+      document.getElementById('saveEd').addEventListener('click', async function(){ 
+        showErr(''); showOk(''); // Clear previous messages
+        try{ 
+          await postConfig(); 
+          showOk('Saved globally ✓  (refresh other devices to see changes)'); 
+          // Close the editor after successful save
+          setTimeout(() => { try{ window.closeEditor && window.closeEditor(); }catch(e){} }, 1500); 
+        }catch(e){ 
+          showErr(e && e.message ? e.message : 'Save failed'); 
+        } 
+      });
+    }
+
+    // Expose for opener
+    window.renderEditor = renderEditor;
+
+    // Load config and apply to selects/required flags
+    (async function(){
+      try { await fetchConfig(); } catch(e){}
+      try {
+        var prepOpts = (CONFIG.options && CONFIG.options.prep) ? CONFIG.options.prep : [];
+        var prepReq = !!(CONFIG.required && CONFIG.required.prep);
+        if (document.getElementById('prep')) populateSelect('prep', (prepOpts.length?prepOpts:['None Required','Base /','Full Prep','Touch Up']), prepReq);
+        var blastOpts = (CONFIG.options && CONFIG.options.blast) ? CONFIG.options.blast : [];
+        if (document.getElementById('blast')) populateSelect('blast', (blastOpts.length?blastOpts:['Light Etch','Medium Etch','Heavy Etch','None']), !!(CONFIG.required && CONFIG.required.blast));
+        var priOpts = (CONFIG.options && CONFIG.options.priority) ? CONFIG.options.priority : [];
+        if (document.getElementById('priority')) populateSelect('priority', (priOpts.length?priOpts:['Standard','Rush','Hot']), !!(CONFIG.required && CONFIG.required.priority));
+        var secTypeOpts = (CONFIG.options && (CONFIG.options.section_type||CONFIG.options.section_types)) ? (CONFIG.options.section_type||CONFIG.options.section_types) : [];
+        if (document.getElementById('sectionType')) populateSelect('sectionType', (secTypeOpts.length?secTypeOpts:['Picket','Glass','Other']), false);
+        applyRequired();
+      } catch(e){}
+    })();
+  })();
+  </script>
+  </body>
+</html>
+

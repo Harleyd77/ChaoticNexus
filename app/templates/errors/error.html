@@ -1,0 +1,33 @@
+{% extends "_layouts/base.html" %}
+
+{% block title %}
+  {{ error or "Something went wrong" }}
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<section class="flex min-h-[70vh] items-center justify-center">
+  <div
+    class="w-full max-w-md space-y-6 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-8 text-center shadow-xl shadow-slate-950/40 ring-1 ring-white/10"
+  >
+    <div class="space-y-2">
+      <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Chaotic Nexus</p>
+      <h1 class="text-2xl font-semibold text-slate-100">
+        {{ error or "Unexpected Error" }}
+      </h1>
+    </div>
+    <p class="text-sm leading-6 text-slate-400">
+      {{ message or "An unexpected issue occurred. Please try again or return to the main dashboard." }}
+    </p>
+    <div>
+      <a
+        href="{{ url_for('dashboard.index') }}"
+        class="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+      >
+        Return to Dashboard
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

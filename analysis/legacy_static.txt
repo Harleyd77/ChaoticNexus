@@ -1,0 +1,24 @@
+# analysis/legacy_static.txt
+[frontend]
+  - frontend/postcss.config.js
+  - frontend/src/app.tailwind.css
+  - frontend/src/index.css
+  - frontend/src/utils/cn.js
+  - frontend/tailwind.config.js
+  - frontend/vite.config.js
+
+[src/powder_app/static]
+  - src/powder_app/static/css/components.css
+  - src/powder_app/static/css/customers.css
+  - src/powder_app/static/css/theme.css
+  - src/powder_app/static/dist/app.css
+  - src/powder_app/static/dist/assets/index-80844c5a.css
+  - src/powder_app/static/dist/assets/main-4154042a.js
+  - src/powder_app/static/js/customers.js
+  - src/powder_app/static/js/dev-check.js
+  - src/powder_app/static/js/global-theme-menu.js
+  - src/powder_app/static/js/motion.js
+  - src/powder_app/static/js/theme.js
+  - src/powder_app/static/js/ui-core.js
+  - src/powder_app/static/theme.css
+  - src/powder_app/static/theme.js

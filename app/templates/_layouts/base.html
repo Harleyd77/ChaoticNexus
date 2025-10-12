@@ -1,0 +1,55 @@
+{%- set active_theme = request.cookies.get("vpc_theme", "dark") -%}
+<!doctype html>
+<html lang="en" data-theme="{{ active_theme }}" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <link
+      rel="icon"
+      href="{{ branding_favicon or url_for('static', filename='logos/favicon.png') }}"
+    />
+    <script>
+      // Ensure the preferred theme is applied before paint to avoid flicker.
+      (function () {
+        try {
+          var stored =
+            document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/)?.[1] ||
+            window.localStorage.getItem("vpc_theme");
+          var theme = stored ? decodeURIComponent(stored) : "{{ active_theme }}";
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.backgroundColor =
+            theme === "light" ? "#f7f9fc" : "#0e141b";
+        } catch (error) {
+          console.warn("[theme:init]", error);
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+    {% block head_styles %}{% endblock %}
+    <title>{% block title %}Chaotic Nexus{% endblock %}</title>
+    {% block head_scripts %}{% endblock %}
+  </head>
+  <body class="min-h-full bg-slate-950 text-slate-100 antialiased transition-colors">
+    <a
+      class="sr-only focus:not-sr-only focus:absolute focus:left-1/2 focus:-translate-x-1/2 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-slate-900 focus:px-4 focus:py-2"
+      href="#main-content"
+    >
+      Skip to main content
+    </a>
+    <div id="app-shell" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8">
+      {% block header %}
+        {% include "_partials/header.html" %}
+      {% endblock %}
+      <main id="main-content" class="mt-6 flex-1">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/motion.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/ui-core.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}" defer></script>
+    {% block body_scripts %}{% endblock %}
+  </body>
+</html>

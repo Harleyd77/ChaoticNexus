@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    :root{ --bg:#0b0f14; --panel:#121826; --panel-2:#0f1623; --text:#e6eef7; --muted:#9fb3c8; --border:#20304a; --accent:#4cc9f0 }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,var(--panel-2),var(--bg)); color:var(--text) }
+    header{ position:sticky; top:0; background:#0f1623cc; backdrop-filter:blur(6px); border-bottom:1px solid #1f2a3b; padding:10px 14px; display:flex; align-items:center; gap:10px }
+    .wrap{ max-width:1100px; margin:0 auto; padding:14px }
+    .btn{ border:1px solid var(--border); background:#0f1726; color:#d9e7ff; border-radius:999px; padding:6px 10px; font-size:13px; cursor:pointer; text-decoration:none }
+    .btn:hover{ border-color:var(--accent) }
+    .card{ background:#121826; border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:12px }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px }
+    .mini{ color:var(--muted); font-size:12px }
+    dt{ color:#cfe3ff; font-weight:700; margin-top:6px }
+    dd{ margin:0 0 8px 0 }
+    .photos{ display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:10px }
+    .photos img{ width:100%; height:140px; object-fit:cover; border-radius:8px; border:1px solid #1f2a3b }
+  </style>
+  <title>{{ super() }} | Job #{{ job.id }}</title>
+<script>
+    (function(){
+      try{
+        var m=document.cookie.match(/(?:^|; )vpc_theme=([^;]+)/);
+        var s=(m?decodeURIComponent(m[1]):null) || localStorage.getItem('vpc_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', s);
+        document.documentElement.style.backgroundColor = s==='dark' ? '#0e141b' : '#f7f9fc';
+      }catch(e){}
+    })();
+  </script>
+<script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<!-- Theme menu will be injected by global-theme-menu.js -->
+  <header>
+    <a class="btn" href="/sprayer/batches">Back</a>
+    <div style="font-weight:700">Job #{{ job.id }}</div>
+    <div class="mini" style="margin-left:auto">Company: {{ job.company or '—' }}</div>
+    
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+      <div class="card">
+        <div style="font-weight:700; margin-bottom:8px">Overview</div>
+        <dl>
+          <dt>Company</dt><dd>{{ job.company or '—' }}</dd>
+          <dt>Contact</dt><dd>{{ job.contact_name or '—' }} &middot; {{ job.phone or '' }} {{ job.email and ('&middot; ' ~ job.email) or '' }}</dd>
+          <dt>PO</dt><dd>{{ job.po or '—' }}</dd>
+          <dt>Due By</dt><dd>{{ job.due_by or '—' }}</dd>
+          <dt>Color</dt><dd>{{ job.color or '—' }}</dd>
+          
+          <dt>Department</dt><dd>{{ job.department or '—' }}</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <div style="font-weight:700; margin-bottom:8px">Notes</div>
+        <div class="mini">Description</div>
+        <div style="white-space:pre-wrap">{{ job.description or '—' }}</div>
+        <div class="mini" style="margin-top:8px">Internal Notes</div>
+        <div style="white-space:pre-wrap">{{ job.notes or '—' }}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:700; margin-bottom:8px">Photos</div>
+      {% if not photos %}
+        <div class="mini">No photos</div>
+      {% else %}
+        <div class="photos">
+          {% for p in photos %}
+            <a href="/uploads/{{ p.filename }}" target="_blank" title="{{ p.original_name or p.filename }}">
+              <img src="/uploads/{{ p.filename }}" alt="{{ p.original_name or p.filename }}"/>
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <a class="btn" href="/jobs/{{ job.id }}/worksheet">Work Order</a>
+    {% if is_admin %}
+      <a class="btn" href="/jobs/{{ job.id }}/edit">Edit Job</a>
+    {% endif %}
+  </div>
+{% endblock %}
