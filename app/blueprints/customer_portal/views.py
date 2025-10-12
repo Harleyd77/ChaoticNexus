@@ -23,14 +23,17 @@ def dashboard():
         flash("Account not found", "error")
         return redirect(url_for("auth.login"))
 
-    jobs = customer_portal_service.list_jobs_for_account(account.id)
+    recent_jobs = customer_portal_service.list_recent_jobs(account.id, limit=5)
     stats = customer_portal_service.dashboard_stats(account.id)
+    summary = customer_portal_service.customer_summary(account.id)
 
     return render_template(
         "customer_portal/dashboard.html",
+        account=account,
         customer=account.customer if account else None,
-        jobs=jobs,
+        jobs=recent_jobs,
         stats=stats,
+        summary=summary,
     )
 
 
