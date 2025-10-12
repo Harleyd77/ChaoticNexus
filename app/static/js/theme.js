@@ -63,15 +63,18 @@
       html.classList.add(`theme-${theme}`);
     }
     html.dataset.theme = theme;
-    html.style.backgroundColor =
-      {
-        dark: "#0e141b",
-        light: "#f7f9fc",
-        vpc: "#0B1220",
-        "vpc-light": "#F7FAFF",
-        chaos: "#0D0B12",
-        "chaos-light": "#FBFAFF",
-      }[theme] || "#0e141b";
+
+    const tokenMap = {
+      dark: { bg: "#0e141b", text: "#e6edf3" },
+      light: { bg: "#f7f9fc", text: "#0f172a" },
+      vpc: { bg: "#0B1220", text: "#E6EDF7" },
+      "vpc-light": { bg: "#F7FAFF", text: "#0F172A" },
+      chaos: { bg: "#0D0B12", text: "#F1EAFE" },
+      "chaos-light": { bg: "#FBFAFF", text: "#0F172A" },
+    };
+    const tokens = tokenMap[theme] || tokenMap.dark;
+    html.style.setProperty("--color-bg", tokens.bg);
+    html.style.setProperty("--color-text", tokens.text);
 
     try {
       window.localStorage.setItem(STORAGE_KEY, theme);

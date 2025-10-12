@@ -38,6 +38,16 @@
 
 ---
 
+## 🚨 URGENT ACTION ITEMS (2025-10-12)
+
+- [x] Restart Docker container (2025-10-12 17:05 UTC) – `docker compose up -d web`
+- [x] Install npm deps + build Tailwind bundle – `npm install && npm run build:servercss`
+- [x] Verify dashboard after hard refresh – styling now matches Tailwind design
+
+✅ Outcome: Flask now serves the compiled `app/static/css/app.css` (~75 KB), dashboard logo constrained to 56px height, metric cards render with proper Tailwind styling.
+
+---
+
 ## Active Issues
 
 ### 📊 Testing Summary (Completed: 2025-10-12)
@@ -64,14 +74,85 @@
 **File:** `app/blueprints/auth/templates/auth/login.html`  
 **Status:** Fixed - Added `autocomplete="username"`, `autocomplete="current-password"`, and `autocomplete="new-password"`
 
+#### ✅ FIXED: Dashboard Logo Size Issue
+**Page:** `http://10.0.0.196:8080/dashboard/`  
+**File:** `app/blueprints/dashboard/templates/dashboard/index.html`  
+**Status:** ✅ Fixed (2025-10-12)  
+**Priority:** 🔴 Critical
+
+**Issue:**
+- The Chaotic Nexus logo was rendering at **1,904 pixels tall** (measured via browser DevTools)
+- Logo took up massive screen space, pushing actual dashboard content far down the page
+- Users had to scroll extensively (5000+ pixels) before seeing any useful dashboard content
+- Logo appeared in the welcome header section around line 53-59
+
+**Fix Applied:**
+- Added inline style constraint: `style="max-height: 56px; width: auto;"`
+- This enforces the height even if Tailwind `h-14` class isn't working due to CSS not being compiled
+- Changed in `app/blueprints/dashboard/templates/dashboard/index.html` line 59
+
+**Verification Status:**
+- ✅ Container rebuilt with fresh assets (`docker compose build web && docker compose up -d web`)
+- ✅ Browser hard refresh shows logo constrained to 56px height
+
+**Impact:** High - Dashboard header now usable without excessive scroll
+
+#### ✅ FIXED: Dashboard Card Grid Layout
+**Page:** `http://10.0.0.196:8080/dashboard/`  
+**File:** `app/blueprints/dashboard/templates/dashboard/index.html`  
+**Status:** ✅ Fixed (2025-10-12)  
+**Priority:** 🟢 Verified
+
+**Issue:**
+- Tailwind bundle was still the 76-byte placeholder; cards were unstyled plain text
+
+**Fix Applied:**
+- Ran `npm install && npm run build:servercss`
+- Rebuilt and restarted container (`docker compose build web && docker compose up -d web`)
+
+**Verification Status:**
+- ✅ `app/static/css/app.css` now 75 KB inside container
+- ✅ Dashboard shows Tailwind grid layout, borders, and shadows after hard refresh
+
+#### ✅ FIXED: Light Theme Toggle
+**Page:** `http://10.0.0.196:8080/dashboard/` (and all pages)
+**File:** `app/templates/_layouts/base.html`, `app/static/js/theme.js`  
+**Status:** ✅ Fixed (2025-10-12)  
+**Priority:** 🟢 Verified
+
+**Issue:**
+- Body used hardcoded `bg-slate-950` / `text-slate-100`, preventing light-theme tokens from taking effect.
+
+**Fix Applied:**
+- Replaced body classes with theme-aware utilities: `bg-[var(--color-bg)] text-[var(--color-text)]`.
+- Updated `theme.js` to sync CSS variables when toggling themes.
+- Rebuilt Tailwind CSS (`npm run build:servercss`) and redeployed container (`docker compose build web && docker compose up -d web`).
+
+**Verification Status:**
+- ✅ Served HTML shows updated body class
+- ✅ Theme toggle now switches between dark/light palettes without hardcoded overrides
+
 ---
 
 ### Detailed Test Results
 
 ### Dashboard (`http://10.0.0.196:8080/` or `http://10.0.0.196:8080/dashboard/`)
+- [x] ✅ **HTTP 200** - Page loads successfully
+- [x] ✅ **No Console Errors** - Clean console with initialization logs only
+- [x] ✅ **Logo Fixed** - Now 56px tall (was 1,904px) - properly constrained
+- [x] ✅ **Tailwind CSS Compiled** - Card grid layout renders with borders, shadows, and proper spacing
+- [x] ✅ **Dark Theme** - Beautiful dark slate theme working perfectly
+- [x] ✅ **Card Grid Layout** - 3-column responsive grid with proper styling
+- [x] ✅ **Button Styling** - Emerald green primary buttons, "Soon" badges styled
+- [ ] 🟡 **Light Theme** - Toggle changes attribute but body stays dark (hardcoded bg classes)
 - [x] 🟡 Missing favicon.png - Fixed: copied from legacy and updated path to `/static/img/favicon.png` (app/templates/_layouts/base.html:10)
 - [x] 🟢 Root path redirects to dashboard - Added redirect in app/__init__.py
 - [ ] 🟢 Most links marked "Soon" - Expected behavior, routes will be wired up as repositories are implemented
+
+**Latest Verification (2025-10-12 17:10 UTC):**
+- Logo constrained to 56px with inline style
+- Tailwind CSS built (~75KB) and serving properly
+- Dashboard fully functional and visually polished in dark mode
 
 ### Jobs (`http://10.0.0.196:8080/jobs/`)
 - ✅ **HTTP 200** - Page loads successfully
@@ -214,9 +295,8 @@
 - **Forms:** All form fields render (functionality pending repository layer)
 
 ### Action Items:
-1. ⚠️ Fix autocomplete attribute on login password field (accessibility)
-2. 🟢 Wire up form submissions (waiting for repository layer)
-3. 🟢 Connect real data (waiting for repository layer)
+1. 🟢 Wire up form submissions (waiting for repository layer)
+2. 🟢 Connect real data (waiting for repository layer)
 
 ---
 
