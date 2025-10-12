@@ -109,9 +109,27 @@ def edit_job(job_id: int):
         return redirect(url_for("customer_portal.jobs_list"))
 
     if request.method == "POST":
-        # TODO: Save changes via repository
-        flash("Job updated successfully", "success")
-        return redirect(url_for("customer_portal.job_detail", job_id=job_id))
+        form = request.form
+        updated = customer_portal_service.update_customer_job(
+            account.id,
+            job_id,
+            contact_name=form.get("contact_name"),
+            phone=form.get("phone"),
+            email=form.get("email"),
+            po=form.get("po"),
+            type=form.get("type"),
+            priority=form.get("priority"),
+            blast=form.get("blast"),
+            prep=form.get("prep"),
+            color=form.get("color"),
+            description=form.get("description"),
+            notes=form.get("notes"),
+            due_by=form.get("due_by") or None,
+        )
+        if updated:
+            flash("Job updated successfully", "success")
+            return redirect(url_for("customer_portal.job_detail", job_id=job_id))
+        flash("Unable to update job", "error")
 
     return render_template(
         "customer_portal/job_edit.html",
@@ -135,9 +153,29 @@ def submit_job():
     customer = account.customer if account else None
 
     if request.method == "POST":
-        # TODO: Create job via repository
-        flash("Job submitted successfully", "success")
-        return redirect(url_for("customer_portal.dashboard"))
+        form = request.form
+        try:
+            customer_portal_service.create_customer_job(
+                account.id,
+                contact_name=form.get("contact_name", ""),
+                company=form.get("company", ""),
+                phone=form.get("phone"),
+                email=form.get("email"),
+                po=form.get("po"),
+                type=form.get("type"),
+                priority=form.get("priority"),
+                blast=form.get("blast"),
+                prep=form.get("prep"),
+                color=form.get("color"),
+                description=form.get("description", ""),
+                notes=form.get("notes"),
+                due_by=form.get("due_by") or None,
+            )
+        except ValueError as error:
+            flash(str(error), "error")
+        else:
+            flash("Job submitted successfully!", "success")
+            return redirect(url_for("customer_portal.dashboard"))
 
     return render_template(
         "customer_portal/job_submit.html",
@@ -157,16 +195,24 @@ def profile():
         flash("Account not found", "error")
         return redirect(url_for("auth.login"))
 
-    customer = account.customer
-
     if request.method == "POST":
-        # TODO: Update profile via repository
-        flash("Profile updated successfully", "success")
-        return redirect(url_for("customer_portal.profile"))
+        form = request.form
+        updated = customer_portal_service.update_account(
+            account.id,
+            first_name=form.get("first_name", account.first_name),
+            last_name=form.get("last_name", account.last_name),
+            company_name=form.get("company_name"),
+            phone=form.get("phone"),
+            address=form.get("address"),
+        )
+        if updated:
+            flash("Profile updated successfully", "success")
+            return redirect(url_for("customer_portal.profile"))
+        flash("Unable to update profile", "error")
 
     return render_template(
         "customer_portal/profile.html",
-        customer=customer,
+        customer=account.customer,
     )
 
 
