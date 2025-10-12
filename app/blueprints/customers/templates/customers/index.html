@@ -1,0 +1,62 @@
+{% extends "_layouts/base.html" %}
+
+{% block title %}Customers{% endblock %}
+
+{% block content %}
+<section class="space-y-8">
+  <header class="flex flex-col gap-6 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/40 ring-1 ring-white/5">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-100">Customers</h1>
+        <p class="text-sm text-slate-400">
+          Manage customer records and contact information.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        {% if is_admin %}
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400"
+        >
+          + New Customer
+        </button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <input
+        type="text"
+        class="flex min-w-[240px] flex-1 rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
+        placeholder="Search customers..."
+      />
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700"
+      >
+        Clear
+      </button>
+    </div>
+  </header>
+
+  <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+    <strong>Note:</strong> This page is a placeholder. Full customer management functionality pending migration from legacy app.
+  </div>
+
+  {% if customers %}
+    <div class="grid gap-4">
+      {% for customer in customers %}
+        <article class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+          <h3 class="text-lg font-semibold text-slate-100">{{ customer.company }}</h3>
+          <p class="text-sm text-slate-400">{{ customer.contact_name }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-12 text-center text-slate-400">
+      No customers yet. Add your first customer to get started.
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+

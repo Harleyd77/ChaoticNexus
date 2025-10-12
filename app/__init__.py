@@ -45,11 +45,27 @@ def _register_extensions(app: Flask) -> None:
 
 def _register_blueprints(app: Flask) -> None:
     """Register HTTP blueprints."""
+    from .blueprints.admin import bp as admin_bp
+    from .blueprints.auth import bp as auth_bp
+    from .blueprints.customer_portal import bp as customer_portal_bp
+    from .blueprints.customers import bp as customers_bp
     from .blueprints.dashboard import bp as dashboard_bp
+    from .blueprints.intake import bp as intake_bp
+    from .blueprints.inventory import bp as inventory_bp
     from .blueprints.jobs import bp as jobs_bp
+    from .blueprints.powders import bp as powders_bp
+    from .blueprints.sprayer import bp as sprayer_bp
 
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(customer_portal_bp)
+    app.register_blueprint(customers_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(intake_bp)
+    app.register_blueprint(inventory_bp)
     app.register_blueprint(jobs_bp)
+    app.register_blueprint(powders_bp)
+    app.register_blueprint(sprayer_bp)
 
 
 def _register_cli(app: Flask) -> None:
@@ -67,6 +83,12 @@ def _register_cli(app: Flask) -> None:
 
 def _register_routes(app: Flask) -> None:
     """Register lightweight routes that do not warrant blueprints."""
+    from flask import redirect, url_for
+
+    @app.get("/")
+    def index():
+        """Redirect root to dashboard."""
+        return redirect(url_for("dashboard.index"))
 
     @app.get("/healthz")
     def healthz() -> dict[str, Any]:

@@ -1,0 +1,50 @@
+{% extends "_layouts/base.html" %}
+
+{% block title %}Spray Batches{% endblock %}
+
+{% block content %}
+<section class="space-y-8">
+  <header class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/40 ring-1 ring-white/5">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-100">Spray Batches</h1>
+        <p class="text-sm text-slate-400">Track powder usage, batch timing, and job assignments.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          href="{{ url_for('sprayer.hitlist') }}"
+          class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700"
+        >
+          View Hit List
+        </a>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400"
+        >
+          Start New Batch
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+    <strong>Note:</strong> This page is a placeholder. Full spray batch functionality pending migration from legacy app.
+  </div>
+
+  {% if batches %}
+    <div class="grid gap-4">
+      {% for batch in batches %}
+        <article class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+          <h3 class="text-lg font-semibold text-slate-100">Batch #{{ batch.id }}</h3>
+          <p class="text-sm text-slate-400">{{ batch.powder_color }} - {{ batch.operator }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-12 text-center text-slate-400">
+      No active spray batches.
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+

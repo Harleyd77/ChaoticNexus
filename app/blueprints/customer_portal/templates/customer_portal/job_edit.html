@@ -1,0 +1,156 @@
+{% extends "customer_portal/base.html" %}
+
+{% block page_title %}Edit Job #{{ job.id }}{% endblock %}
+
+{% block customer_content %}
+<div class="mb-6">
+  <nav class="flex text-sm text-slate-400 mb-4" aria-label="breadcrumb">
+    <a href="{{ url_for('customer_portal.dashboard') }}" class="hover:text-blue-400 transition-colors">Dashboard</a>
+    <span class="mx-2">/</span>
+    <a href="{{ url_for('customer_portal.jobs_list') }}" class="hover:text-blue-400 transition-colors">My Jobs</a>
+    <span class="mx-2">/</span>
+    <a href="{{ url_for('customer_portal.job_detail', job_id=job.id) }}" class="hover:text-blue-400 transition-colors">Job #{{ job.id }}</a>
+    <span class="mx-2">/</span>
+    <span class="text-slate-100">Edit</span>
+  </nav>
+</div>
+
+<div class="max-w-4xl mx-auto">
+  <div class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-lg">
+    <div class="p-6 border-b border-slate-800">
+      <h4 class="text-xl font-semibold text-slate-100">Edit Job #{{ job.id }}</h4>
+      <p class="text-slate-400 text-sm mt-1">Current Status: <strong>{{ job.status }}</strong></p>
+    </div>
+    <div class="p-6">
+      <form method="POST">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="contact_name" class="block text-sm font-medium text-slate-300 mb-2">Contact Name *</label>
+            <input type="text" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="contact_name" name="contact_name"
+                   value="{{ job.contact_name or '' }}" required>
+          </div>
+          <div>
+            <label for="company" class="block text-sm font-medium text-slate-300 mb-2">Company *</label>
+            <input type="text" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="company" name="company"
+                   value="{{ job.company or '' }}" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="phone" class="block text-sm font-medium text-slate-300 mb-2">Phone Number</label>
+            <input type="tel" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="phone" name="phone"
+                   value="{{ job.phone or '' }}">
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <input type="email" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="email" name="email"
+                   value="{{ job.email or '' }}">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
+            <input type="text" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="po" name="po"
+                   value="{{ job.po or '' }}">
+          </div>
+          <div>
+            <label for="type" class="block text-sm font-medium text-slate-300 mb-2">Job Type *</label>
+            <select class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="type" name="type" required>
+              <option value="">Select job type...</option>
+              <option value="Powder Coating" {{ 'selected' if job.type == 'Powder Coating' else '' }}>Powder Coating</option>
+              <option value="Sandblasting" {{ 'selected' if job.type == 'Sandblasting' else '' }}>Sandblasting</option>
+              <option value="Painting" {{ 'selected' if job.type == 'Painting' else '' }}>Painting</option>
+              <option value="Restoration" {{ 'selected' if job.type == 'Restoration' else '' }}>Restoration</option>
+              <option value="Custom" {{ 'selected' if job.type == 'Custom' else '' }}>Custom Work</option>
+              <option value="Repair" {{ 'selected' if job.type == 'Repair' else '' }}>Repair</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">Priority</label>
+          <select class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="priority" name="priority">
+            <option value="Normal" {{ 'selected' if job.priority == 'Normal' else '' }}>Normal</option>
+            <option value="Rush" {{ 'selected' if job.priority == 'Rush' else '' }}>Rush (+50%)</option>
+            <option value="Emergency" {{ 'selected' if job.priority == 'Emergency' else '' }}>Emergency (+100%)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="blast" class="block text-sm font-medium text-slate-300 mb-2">Blasting Required?</label>
+            <select class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="blast" name="blast">
+              <option value="">Not specified</option>
+              <option value="Light" {{ 'selected' if job.blast == 'Light' else '' }}>Light Blasting</option>
+              <option value="Medium" {{ 'selected' if job.blast == 'Medium' else '' }}>Medium Blasting</option>
+              <option value="Heavy" {{ 'selected' if job.blast == 'Heavy' else '' }}>Heavy Blasting</option>
+              <option value="None" {{ 'selected' if job.blast == 'None' else '' }}>No Blasting</option>
+            </select>
+          </div>
+          <div>
+            <label for="prep" class="block text-sm font-medium text-slate-300 mb-2">Surface Preparation</label>
+            <select class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="prep" name="prep">
+              <option value="">Not specified</option>
+              <option value="Wash" {{ 'selected' if job.prep == 'Wash' else '' }}>Wash Only</option>
+              <option value="Light Sand" {{ 'selected' if job.prep == 'Light Sand' else '' }}>Light Sanding</option>
+              <option value="Heavy Sand" {{ 'selected' if job.prep == 'Heavy Sand' else '' }}>Heavy Sanding</option>
+              <option value="Chemical Strip" {{ 'selected' if job.prep == 'Chemical Strip' else '' }}>Chemical Strip</option>
+              <option value="Media Blast" {{ 'selected' if job.prep == 'Media Blast' else '' }}>Media Blast</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label for="color" class="block text-sm font-medium text-slate-300 mb-2">Color/Finish</label>
+          <input type="text" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="color" name="color"
+                 value="{{ job.color or '' }}"
+                 placeholder="e.g., Gloss Black, RAL 9005, Custom Match">
+        </div>
+
+        <div class="mb-6">
+          <label for="description" class="block text-sm font-medium text-slate-300 mb-2">Job Description *</label>
+          <textarea class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="description" name="description"
+                    rows="4" required>{{ job.description or '' }}</textarea>
+        </div>
+
+        <div class="mb-6">
+          <label for="notes" class="block text-sm font-medium text-slate-300 mb-2">Additional Notes</label>
+          <textarea class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="notes" name="notes"
+                    rows="3">{{ job.notes or '' }}</textarea>
+        </div>
+
+        <div class="mb-6">
+          <label for="due_by" class="block text-sm font-medium text-slate-300 mb-2">Preferred Completion Date</label>
+          <input type="date" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="due_by" name="due_by"
+                 value="{{ job.due_by or '' }}">
+          <p class="mt-1 text-xs text-slate-500">Leave blank if no specific deadline</p>
+        </div>
+
+        <div class="mb-6">
+          <label for="change_reason" class="block text-sm font-medium text-slate-300 mb-2">Reason for Changes</label>
+          <textarea class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="change_reason" name="change_reason"
+                    rows="2" placeholder="Briefly explain what changes you're making and why"></textarea>
+          <p class="mt-1 text-xs text-slate-500">This helps us understand your requirements better</p>
+        </div>
+
+        <div class="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+          <p class="text-yellow-200 text-sm"><strong>Note:</strong> After editing, your job will need to be re-approved by our team if it was previously approved.</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-end gap-3">
+          <a href="{{ url_for('customer_portal.job_detail', job_id=job.id) }}"
+             class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium rounded-lg text-center transition-all duration-200 border border-slate-600">
+            Cancel
+          </a>
+          <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-lg">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

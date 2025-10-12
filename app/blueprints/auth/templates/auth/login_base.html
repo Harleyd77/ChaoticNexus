@@ -1,0 +1,270 @@
+{% extends "_layouts/base.html" %}
+
+{% block head_styles %}
+<style>
+  /* Login page specific styling */
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    position: relative;
+  }
+  
+  .login-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: {% if login_bg_url %}url('{{ login_bg_url }}') center/cover no-repeat fixed{% else %}radial-gradient(1000px 500px at 10% -10%, #18314f, transparent), linear-gradient(180deg, #0e141b, #0b1118){% endif %};
+    filter: {% if login_bg_url %}brightness(0.55){% else %}none{% endif %};
+  }
+  
+  .login-wrap {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  
+  .login-title {
+    text-align: center;
+    margin: 0 0 14px;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.25px;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  }
+  
+  .subtitle {
+    text-align: center;
+    color: rgb(148 163 184 / 0.9);
+    margin-bottom: 24px;
+    font-size: 15px;
+  }
+  
+  .flash-messages {
+    max-width: 420px;
+    margin: 0 auto 18px;
+  }
+  
+  .alert {
+    margin-bottom: 10px;
+    border-radius: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgb(51 65 85 / 0.8);
+    background: rgb(30 41 59 / 0.6);
+    color: rgb(241 245 249);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  }
+  
+  .alert-info {
+    border-color: rgb(59 130 246 / 0.6);
+    background: rgb(29 78 216 / 0.2);
+  }
+  
+  .alert-success {
+    border-color: #10b981;
+    background: rgb(16 185 129 / 0.2);
+    color: #10b981;
+  }
+  
+  .alert-danger {
+    border-color: #ef4444;
+    background: rgb(239 68 68 / 0.2);
+    color: #fca5a5;
+  }
+  
+  .login-panel {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  
+  .card {
+    background: linear-gradient(200deg, rgb(30 41 59 / 0.8), rgb(15 23 42 / 0.9));
+    border-radius: 20px;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    box-shadow: 0 22px 42px rgba(15, 23, 32, 0.28);
+    overflow: hidden;
+    color: rgb(241 245 249);
+  }
+  
+  .card-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid rgb(51 65 85 / 0.7);
+    background: rgb(30 41 59 / 0.6);
+  }
+  
+  .card-title {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+  }
+  
+  .card-body {
+    padding: 28px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  
+  .btn-primary,
+  .btn-outline-primary,
+  .btn-outline-danger {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 13px 16px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    font-size: 15px;
+  }
+  
+  .btn-primary {
+    background: rgb(37 99 235);
+    color: #fff;
+    box-shadow: 0 14px 28px rgba(37, 99, 235, 0.25);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(37, 99, 235, 0.28);
+  }
+  
+  .btn-outline-primary {
+    background: transparent;
+    color: rgb(59 130 246);
+    border-color: rgb(59 130 246 / 0.5);
+  }
+  
+  .btn-outline-primary:hover {
+    background: rgb(59 130 246 / 0.15);
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
+  }
+  
+  .btn-outline-danger {
+    background: transparent;
+    color: #ef4444;
+    border-color: rgb(239 68 68 / 0.5);
+  }
+  
+  .btn-outline-danger:hover {
+    background: rgb(239 68 68 / 0.15);
+    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.18);
+  }
+  
+  .login-card .login-form {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  
+  .login-card .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 13px 16px;
+    border-radius: 16px;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: rgb(30 41 59 / 0.5);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 28px rgba(15, 23, 32, 0.12);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  
+  .login-card .form-field:focus-within {
+    border-color: rgb(59 130 246 / 0.6);
+    background: rgb(30 41 59 / 0.7);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 16px 32px rgba(37, 99, 235, 0.18);
+  }
+  
+  .login-card .form-field label {
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: rgb(203 213 225);
+  }
+  
+  .login-card .form-field input {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    color: rgb(241 245 249);
+    font-size: 15px;
+    line-height: 1.4;
+    outline: none;
+  }
+  
+  .login-card .form-field input::placeholder {
+    color: rgb(148 163 184);
+  }
+  
+  .login-card .form-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    margin-top: -6px;
+  }
+  
+  .login-card .form-links a {
+    text-decoration: none;
+    color: rgb(59 130 246);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .login-card .form-links a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 540px) {
+    body {
+      padding: 24px 16px;
+    }
+    .card-body {
+      padding: 26px 24px;
+    }
+  }
+  
+  /* Override base layout styles for login page */
+  #app-shell {
+    max-width: 100%;
+    padding: 0;
+  }
+</style>
+{% endblock %}
+
+{% block title %}{{ login_title or 'Victoria Powder Coating Ltd' }} – Sign In{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<div class="login-bg"></div>
+<div class="login-wrap">
+  <h1 class="login-title">{{ login_title or 'Victoria Powder Coating Ltd' }}</h1>
+  <p class="subtitle">Sign in to manage production, inventory, and customer updates.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="login-panel">
+    {% block login_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+
