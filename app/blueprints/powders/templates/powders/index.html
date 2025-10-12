@@ -33,19 +33,38 @@
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-3">
+    <form class="flex flex-wrap items-center gap-3" method="get" action="">
       <input
         type="text"
+        name="q"
+        value="{{ filters.query }}"
         class="flex min-w-[260px] flex-1 rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
-        placeholder="Filter by family, color, manufacturer, code..."
+        placeholder="Filter by color, code, family..."
       />
+      <label class="flex flex-col text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+        <span>Manufacturer</span>
+        <select
+          name="manufacturer"
+          class="mt-1 rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
+        >
+          <option value="">All</option>
+          <option value="Tiger Drylac" {% if filters.manufacturer == 'Tiger Drylac' %}selected{% endif %}>Tiger Drylac</option>
+          <option value="Prismatic Powders" {% if filters.manufacturer == 'Prismatic Powders' %}selected{% endif %}>Prismatic Powders</option>
+        </select>
+      </label>
       <button
-        type="button"
+        type="submit"
+        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400"
+      >
+        Apply
+      </button>
+      <a
+        href="{{ url_for('powders.index') }}"
         class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700"
       >
         Clear
-      </button>
-    </div>
+      </a>
+    </form>
   </header>
 
   <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
@@ -56,8 +75,41 @@
     <div class="grid gap-4">
       {% for powder in powders %}
         <article class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
-          <h3 class="text-lg font-semibold text-slate-100">{{ powder.powder_color }}</h3>
-          <p class="text-sm text-slate-400">{{ powder.manufacturer or 'Unknown manufacturer' }}</p>
+          <header class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-100">{{ powder.powder_color }}</h3>
+              <p class="text-sm text-slate-400">
+                {{ powder.manufacturer or 'Unknown manufacturer' }}
+                {% if powder.product_code %}
+                  • Code {{ powder.product_code }}
+                {% endif %}
+              </p>
+            </div>
+            {% if powder.in_stock is not none %}
+              <span class="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-200">
+                {{ '%.1f'|format(powder.in_stock) }} kg on hand
+              </span>
+            {% endif %}
+          </header>
+
+          <dl class="mt-4 grid gap-3 text-xs text-slate-400 md:grid-cols-3">
+            <div>
+              <dt class="uppercase tracking-[0.25em] text-slate-500">Finish</dt>
+              <dd class="mt-1 text-slate-200">{{ powder.finish or '—' }}</dd>
+            </div>
+            <div>
+              <dt class="uppercase tracking-[0.25em] text-slate-500">Gloss Level</dt>
+              <dd class="mt-1 text-slate-200">{{ powder.gloss_level or '—' }}</dd>
+            </div>
+            <div>
+              <dt class="uppercase tracking-[0.25em] text-slate-500">Needs Clear</dt>
+              <dd class="mt-1 text-slate-200">{{ 'Yes' if powder.needs_clear else 'No' }}</dd>
+            </div>
+          </dl>
+
+          {% if powder.notes %}
+            <p class="mt-4 text-sm text-slate-300">{{ powder.notes }}</p>
+          {% endif %}
         </article>
       {% endfor %}
     </div>

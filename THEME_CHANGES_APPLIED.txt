@@ -1,0 +1,66 @@
+THEME CHANGES VERIFICATION
+==========================
+Timestamp: 2025-10-12 18:50 UTC (Updated 19:05 UTC)
+Applied by: DevTools Window (Cursor Instance 2)
+
+FILES MODIFIED:
+===============
+
+1. app/src/app.tailwind.css
+   - Added 4 new themes: forge, ocean, sunset, forest
+   - Lines 192-298: Theme CSS variables
+   - Lines 446-500: Theme-specific component styles
+   - VERIFICATION: Run `grep "theme-forge" app/src/app.tailwind.css`
+
+2. app/static/js/theme.js  
+   - Added themes to THEMES array (line 9)
+   - Added color tokens for new themes (lines 74-77)
+   - Updated toggle cycle (lines 103-114)
+   - Added theme labels (lines 127-130)
+   - VERIFICATION: Run `grep "forge.*ocean.*sunset.*forest" app/static/js/theme.js`
+
+3. app/static/js/global-theme-menu.js
+   - Replaced toggle button handler with dropdown selector support
+   - Added color indicators for new themes (lines 12-15)
+   - Added updateSelector() and handleSelectorChange() functions
+   - Maintains backwards compatibility with toggle buttons
+   - VERIFICATION: Run `grep "data-theme-selector" app/static/js/global-theme-menu.js`
+
+4. app/templates/_partials/header.html
+   - Replaced theme toggle button with dropdown select (lines 48-70)
+   - Shows all 10 themes with friendly names
+   - Styled dropdown with chevron icon
+   - VERIFICATION: Run `grep "theme-selector" app/templates/_partials/header.html`
+
+5. app/templates/_partials/customer_header.html
+   - Replaced theme toggle button with dropdown select (lines 56-78)
+   - Consistent styling with main header
+   - VERIFICATION: Run `grep "theme-selector-customer" app/templates/_partials/customer_header.html`
+
+REQUIRED ACTIONS:
+=================
+
+1. RELOAD FILES in your editor (the changes are saved but might not be visible)
+   - In Cursor: Right-click file > "Reload from Disk" or just close/reopen
+
+2. REBUILD CSS:
+   cd app
+   npm run build:servercss
+
+3. RESTART CONTAINER:
+   docker compose restart web
+
+4. TEST THEMES:
+   - Navigate to http://10.0.0.196:8080/dashboard/
+   - Click theme toggle button multiple times
+   - Should cycle through: Dark → Light → Forge → Ocean → Sunset → Forest → VPC → Chaos → back to Dark
+
+VERIFICATION:
+=============
+If files still look unchanged in your editor:
+1. Close the files completely
+2. Reopen them from file tree
+3. Or run: git diff app/src/app.tailwind.css app/static/js/theme.js
+
+The changes ARE in the files on disk - just need editor to refresh!
+

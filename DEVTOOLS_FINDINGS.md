@@ -29,12 +29,20 @@
 
 **Routes Available:** All major routes now accessible (see list below)
 
+**Data Layer:**
+- ✅ SQLAlchemy models implemented for users, customers, jobs, powders, settings.
+- ✅ Repository layer wired (`customer_repo`, `job_repo`, `powder_repo`).
+- ✅ Jobs/customers/powders blueprints now render live DB data (no placeholder mocks).
+- ✅ Postgres seeded with sample users/customers/powders/jobs via one-off script.
+- ✅ Production intake form persists data via `JobIntakeService`
+- ✅ Jobs & powders list views support server-side search/filter
+
 ### ⏳ Pending Work
-- Repository layer (data persistence)
 - Form submission handling
 - JavaScript interactivity (search, filters, drag-and-drop)
 - Full legacy template migration for complex pages (powders details, customers with JS)
 - Integration with existing legacy auth/session management
+- Theme selector UI (optional enhancement)
 
 ---
 
@@ -45,6 +53,98 @@
 - [x] Verify dashboard after hard refresh – styling now matches Tailwind design
 
 ✅ Outcome: Flask now serves the compiled `app/static/css/app.css` (~75 KB), dashboard logo constrained to 56px height, metric cards render with proper Tailwind styling.
+
+---
+
+## 🎨 NEW THEMES ADDED (2025-10-12 17:57 UTC)
+
+**Status:** ✅ Themes integrated (forge/ocean/sunset/forest) — CSS rebuilt (`npm install && npm run build:servercss` at 2025-10-12 19:10 UTC)
+
+**Status:** ✅ Database seeded (2025-10-12 18:15 UTC)
+- Admin user: `admin`
+- Customer portal account: `customer@acmefab.ca`
+- Customers: Acme Fabrication, Island Builders Co.
+- Powders: Tiger Drylac RAL 9005, Prismatic Illusion Cherry
+- Jobs: PO ACM-4587 (Prep), PO IBC-104 (Coating)
+- Note: React dev server removed; only Flask app on `http://10.0.0.196:8080/`
+- ✅ Production intake form now creates a job and flashes success/errors
+
+### Themes Added:
+1. **`theme-forge`** - Industrial Forge (Powder coating inspired)
+   - Warm charcoal backgrounds with forge orange accents
+   - Metallic card gradients with copper borders
+   - Glowing button effects
+
+2. **`theme-ocean`** - Ocean Breeze
+   - Deep navy/coastal blues
+   - Cyan/teal accents
+   - Aquatic feel
+
+3. **`theme-sunset`** - Sunset Glow
+   - Warm purple/pink gradients
+   - Romantic evening aesthetic
+   - Soft glowing cards
+
+4. **`theme-forest`** - Emerald Forest
+   - Deep forest greens
+   - Natural/organic feel
+   - Green glowing accents
+
+### To Activate Themes:
+```bash
+# Via SSH/Docker:
+cd app
+npm run build:servercss
+docker compose restart web
+```
+
+### To Test Themes:
+Use browser console to change theme:
+```javascript
+document.documentElement.dataset.theme = 'forge';  // or 'ocean', 'sunset', 'forest'
+```
+
+**Theme Integration Issue - FIXED (2025-10-12 18:25 UTC):**
+- ❌ **Problem**: CSS was rebuilt but themes didn't show up when toggling
+- ✅ **Root Cause**: `app/static/js/theme.js` didn't know about new themes
+- ✅ **Fix Applied**: Updated theme.js to include forge, ocean, sunset, forest themes
+  - Added to THEMES array
+  - Added color tokens for each theme
+  - Updated toggle cycle to include all new themes
+  - Added friendly labels
+
+**To Activate:**
+```bash
+docker compose restart web
+```
+
+**Theme Cycle Order:**
+Dark → Light → **Industrial Forge** → **Ocean Breeze** → **Sunset Glow** → **Emerald Forest** → VPC → VPC Light → Chaos → Chaos Light → (back to Dark)
+
+**Verification (2025-10-12 18:47 UTC):**
+- Manually tested theme switching via browser console
+- **Issue**: CSS variables still show default colors - CSS not actually rebuilt yet
+- CSS needs `npm run build:servercss` to compile new theme variables from source
+
+**UI Enhancement - Dropdown Selector (2025-10-12 19:05 UTC):**
+- ✅ Replaced theme toggle button with dropdown selector
+- ✅ Shows all 10 themes with friendly names in dropdown
+- ✅ Updated both headers: main header + customer portal header
+- ✅ Updated JavaScript to handle select change events
+- ✅ Maintains backwards compatibility with toggle buttons
+
+**Files Modified:**
+1. `app/templates/_partials/header.html` - Theme dropdown (lines 48-70)
+2. `app/templates/_partials/customer_header.html` - Theme dropdown (lines 56-78)
+3. `app/static/js/global-theme-menu.js` - Dropdown handler logic
+
+**Next Steps:**
+- ✅ Source CSS updated (`app/src/app.tailwind.css`)
+- ✅ JS updated with theme integration (`app/static/js/theme.js`)
+- ✅ Theme dropdown selector implemented
+- ✅ CSS rebuilt (`npm install && npm run build:servercss`)
+- ✅ Container restarted (`docker compose build web && docker compose up -d web`)
+- ⏳ Manual UI sweep to screenshot each theme (optional)
 
 ---
 
@@ -68,6 +168,8 @@
 ---
 
 ### 🔧 Issues to Fix
+
+> *(All repository/data related items now completed.)*
 
 #### ✅ Accessibility - Login Form Autocomplete
 **Page:** `http://10.0.0.196:8080/auth/login`  
@@ -158,8 +260,9 @@
 - ✅ **HTTP 200** - Page loads successfully
 - ✅ **No Console Errors** - Clean console
 - ✅ **Assets Load** - All CSS, JS, logo load properly
-- ✅ **Content** - Shows 5 job cards with placeholder data, search/filter controls present
-- 🟢 Search/filter controls not yet functional (expected - waiting for repository layer)
+- ✅ **Content** - Shows seeded jobs (Acme Fabrication, Island Builders) with search/filter controls
+- ✅ **Search** - `q` query param filters by company/description
+- 🟢 Search/filter controls not yet functional (expected - waiting for repository layer enhancements)
 
 ### Jobs Kanban (`http://10.0.0.196:8080/jobs/kanban`)
 - ✅ **HTTP 200** - Page loads successfully
@@ -191,14 +294,15 @@
 ### Customers Admin (`http://10.0.0.196:8080/customers/`)
 - ✅ **HTTP 200** - Page loads successfully
 - ✅ **No Console Errors** - Clean console
-- ✅ **Content** - Search interface, "+ New Customer" button, placeholder notice
-- 🟢 No data shown (expected - pending repository)
+- ✅ **Content** - Shows seeded customers (Acme Fabrication, Island Builders) plus contact info
+- 🟢 No editing yet (expected - pending form handlers)
 
 ### Powders (`http://10.0.0.196:8080/powders/`)
 - ✅ **HTTP 200** - Page loads successfully
 - ✅ **No Console Errors** - Clean console
-- ✅ **Content** - Filter input, "+ Add Powder" button, "Import CSV" link, placeholder notice
-- 🟢 No data shown (expected - pending repository)
+- ✅ **Content** - Displays seeded inventory (Tiger Drylac RAL 9005, Prismatic Illusion Cherry)
+- ✅ **Filters** - Search + manufacturer dropdown wired to repository
+- 🟢 CSV import pending (expected - waiting for interactivity)
 
 ### Inventory (`http://10.0.0.196:8080/inventory/`)
 - ✅ **HTTP 200** - Page loads successfully
@@ -211,7 +315,7 @@
 - ✅ **HTTP 200** - Page loads successfully
 - ✅ **No Console Errors** - Clean console
 - ✅ **Form** - Customer info (contact, company, phone, email) and job details sections
-- 🟢 Form submission not yet functional (expected - waiting for repository layer)
+- ✅ **Form submission** - Creates `Job` + `Customer` (if new), redirects to job detail with flash
 
 **Railing Intake** (`http://10.0.0.196:8080/intake/railing`)
 - ✅ **HTTP 200** - Page loads successfully
@@ -262,6 +366,9 @@
 - Include screenshots/HAR files in `_logs/` if needed
 - Tag priority: 🔴 Critical, 🟡 Important, 🟢 Nice-to-have
 - Reference specific files/line numbers when possible
+- When backend Python files change (models/services), run `docker compose build web` followed by `docker compose up -d web` to ensure the container picks up code updates.
+- React/Vite dev server retired; only Flask app on `http://10.0.0.196:8080/`
+- `JobIntakeService` handles production form (validation + create customer/job)
 
 ---
 

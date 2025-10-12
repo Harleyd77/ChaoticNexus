@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import os
-from functools import lru_cache
-from typing import Type
+from functools import cache
 
 
 class BaseConfig:
     SECRET_KEY = os.environ.get("SECRET_KEY", "change-me")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL",
-        "postgresql+psycopg://postgres:postgres@db:5432/chaotic_nexus",
+        "postgresql+psycopg://appuser:apppass@postgres:5432/chaoticnexus",
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SESSION_COOKIE_SECURE = True
@@ -39,15 +38,15 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
 
 
-CONFIG_MAP: dict[str, Type[BaseConfig]] = {
+CONFIG_MAP: dict[str, type[BaseConfig]] = {
     "development": DevelopmentConfig,
     "testing": TestingConfig,
     "production": ProductionConfig,
 }
 
 
-@lru_cache(maxsize=None)
-def get_config(env: str | None) -> Type[BaseConfig]:
+@cache
+def get_config(env: str | None) -> type[BaseConfig]:
     """Resolve the config class for the provided environment name."""
     if not env:
         env = os.environ.get("FLASK_ENV", "production")

@@ -19,7 +19,7 @@
     {{ metric_card("Awaiting Pickup", metrics.awaiting_pickup, color="sky") }}
   </dl>
 
-    <form class="flex flex-wrap items-center gap-3" role="search">
+    <form class="flex flex-wrap items-center gap-3" role="search" method="get" action="">
       {{ search_input(name="q", placeholder="Search by customer, job id, coating...", value=filters.query) }}
       <label class="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 focus-within:border-slate-500 focus-within:ring-2 focus-within:ring-slate-500/40">
         <span class="text-slate-500">Stage</span>
@@ -55,21 +55,27 @@
           <header class="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 class="text-lg font-semibold text-slate-100">
-                <span>{{ job.customer }}</span>
-                <span class="ml-2 text-sm font-normal text-slate-400">{{ job.reference }}</span>
+                <span>{{ job.company or job.customer }}</span>
+                {% if job.po or job.reference %}
+                  <span class="ml-2 text-sm font-normal text-slate-400">{{ job.po or job.reference }}</span>
+                {% endif %}
               </h3>
               <p class="text-sm text-slate-400">
-                Job <span class="font-semibold text-slate-200">#{{ job.id }}</span> • {{ job.status }}
+                Job <span class="font-semibold text-slate-200">#{{ job.id }}</span> • {{ job.status or (job.department | default('Unknown') | capitalize) }}
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-2 text-xs">
-              {% if job.has_photos %}
+              {% if job.photos %}
                 <span class="inline-flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-sky-200">
                   <span aria-hidden="true">📷</span> Photos
                 </span>
               {% endif %}
               <span class="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/80 px-3 py-1 text-slate-300">
-                Due {{ job.due }}
+                {% if job.due_by %}
+                  Due {{ job.due_by.strftime("%b %d") }}
+                {% else %}
+                  No due date
+                {% endif %}
               </span>
             </div>
           </header>
@@ -77,20 +83,20 @@
           <dl class="mt-4 grid gap-3 md:grid-cols-3">
             <div>
               <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Coating</dt>
-              <dd class="mt-1 text-sm font-medium text-slate-200">{{ job.coating }}</dd>
+              <dd class="mt-1 text-sm font-medium text-slate-200">{{ job.color or '—' }}</dd>
             </div>
             <div>
               <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Next Step</dt>
-              <dd class="mt-1 text-sm font-medium text-slate-200">{{ job.next_step }}</dd>
+              <dd class="mt-1 text-sm font-medium text-slate-200">{{ job.shop_notes or '—' }}</dd>
             </div>
             <div>
               <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Status</dt>
-              <dd class="mt-1 text-sm font-medium text-slate-200">{{ job.status }}</dd>
+              <dd class="mt-1 text-sm font-medium text-slate-200">{{ job.status or (job.department | default('Unknown') | capitalize) }}</dd>
             </div>
           </dl>
 
           <p class="mt-4 text-sm leading-6 text-slate-300">
-            {{ job.notes }}
+            {{ job.notes or job.description or 'No description available.' }}
           </p>
 
           <footer class="mt-6 flex flex-wrap items-center gap-3">
