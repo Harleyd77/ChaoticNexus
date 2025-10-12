@@ -35,6 +35,7 @@ class Customer(BaseModel, TimestampMixin):
 
     contacts = relationship("Contact", back_populates="customer", cascade="all, delete-orphan")
     jobs = relationship("Job", back_populates="customer", cascade="all, delete-orphan")
+    accounts = relationship("CustomerAccount", back_populates="customer")
 
 
 class Contact(BaseModel, TimestampMixin):

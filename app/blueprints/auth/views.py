@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from flask import flash, redirect, render_template, request, session, url_for
 
+from app.services.auth_service import customer_auth_service
+
 from . import bp
 
 # TODO: Replace with actual auth service once repositories are implemented
@@ -22,9 +24,17 @@ def login():
     customer = None
 
     if request.method == "POST":
-        # Placeholder - redirect to dashboard for now
-        flash("Login functionality pending migration", "info")
-        return redirect(url_for("dashboard.index"))
+        identifier = request.form.get("identifier", "")
+        password = request.form.get("password", "")
+
+        result = customer_auth_service.authenticate_customer(email=identifier, password=password)
+        if result:
+            session["customer_account_id"] = result.account.id
+            session["customer_email"] = result.account.email
+            flash("Welcome back!", "success")
+            return redirect(url_for("customer_portal.dashboard"))
+
+        flash("Invalid email or password", "error")
 
     return render_template(
         "auth/login.html",

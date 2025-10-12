@@ -38,5 +38,8 @@ class CustomerRepository:
             session.flush()
             return customer
 
+    def query_by_company(self, company_name: str):
+        return select(Customer).filter(Customer.company.ilike(company_name))
+
 
 customer_repo = CustomerRepository()

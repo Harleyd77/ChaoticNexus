@@ -1,0 +1,129 @@
+"""Customer portal data service layer."""
+
+from __future__ import annotations
+
+from collections.abc import Iterable
+from dataclasses import dataclass
+from datetime import date
+
+from sqlalchemy import func, select
+from sqlalchemy.orm import selectinload
+
+from app.models import CustomerAccount, Job
+from app.repositories import session_scope
+
+
+@dataclass
+class CustomerDashboardStats:
+    total: int
+    pending: int
+    completed: int
+    overdue: int
+
+
+class CustomerPortalService:
+    """Helpers for customer portal dashboard, jobs, and profile data."""
+
+    def get_account_with_customer(self, account_id: int) -> CustomerAccount | None:
+        with session_scope() as session:
+            return (
+                session.execute(
+                    select(CustomerAccount)
+                    .options(selectinload(CustomerAccount.customer))
+                    .filter(CustomerAccount.id == account_id)
+                )
+                .scalars()
+                .one_or_none()
+            )
+
+    def list_jobs_for_account(
+        self,
+        account_id: int,
+        *,
+        search: str | None = None,
+        status: str | None = None,
+    ) -> Iterable[Job]:
+        stmt = (
+            select(Job)
+            .options(
+                selectinload(Job.powder_usage),
+                selectinload(Job.time_logs),
+            )
+            .filter(Job.customer_account_id == account_id)
+            .order_by(Job.created_at.desc())
+        )
+        if search:
+            like = f"%{search}%"
+            stmt = stmt.filter(Job.description.ilike(like) | Job.po.ilike(like))
+        if status:
+            stmt = stmt.filter(Job.status == status)
+
+        with session_scope() as session:
+            return session.execute(stmt).scalars().all()
+
+    def get_job(self, account_id: int, job_id: int) -> Job | None:
+        with session_scope() as session:
+            return (
+                session.execute(
+                    select(Job)
+                    .options(
+                        selectinload(Job.powder_usage),
+                        selectinload(Job.time_logs),
+                    )
+                    .filter(Job.customer_account_id == account_id, Job.id == job_id)
+                )
+                .scalars()
+                .one_or_none()
+            )
+
+    def dashboard_stats(self, account_id: int) -> CustomerDashboardStats:
+        today = date.today()
+        with session_scope() as session:
+            total = (
+                session.execute(
+                    select(func.count()).filter(Job.customer_account_id == account_id)
+                ).scalar_one()
+                or 0
+            )
+
+            pending = (
+                session.execute(
+                    select(func.count()).filter(
+                        Job.customer_account_id == account_id,
+                        Job.status.in_(["In Progress", "Not Started", "Pending Approval"]),
+                    )
+                ).scalar_one()
+                or 0
+            )
+
+            completed = (
+                session.execute(
+                    select(func.count()).filter(
+                        Job.customer_account_id == account_id,
+                        Job.status == "Completed",
+                    )
+                ).scalar_one()
+                or 0
+            )
+
+            overdue = (
+                session.execute(
+                    select(func.count()).filter(
+                        Job.customer_account_id == account_id,
+                        Job.due_by.isnot(None),
+                        Job.due_by < today,
+                        Job.status != "Completed",
+                    )
+                ).scalar_one()
+                or 0
+            )
+
+        return CustomerDashboardStats(
+            total=total,
+            pending=pending,
+            completed=completed,
+            overdue=overdue,
+        )
+
+
+customer_portal_service = CustomerPortalService()

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import Boolean, Column, DateTime, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -27,6 +27,8 @@ class CustomerAccount(BaseModel, TimestampMixin):
     last_login = Column(DateTime(timezone=True), nullable=True)
     reset_token = Column(String(255), nullable=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
+    customer_id = Column(Integer, ForeignKey("customers.id", ondelete="SET NULL"), nullable=True)
 
     jobs = relationship("Job", back_populates="customer_account")
     edit_history = relationship("JobEditHistory", back_populates="customer_account")
+    customer = relationship("Customer", back_populates="accounts")
