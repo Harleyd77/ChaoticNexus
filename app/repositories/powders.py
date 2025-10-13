@@ -61,5 +61,44 @@ class PowderRepository:
                 )
             return items
 
+    def get_powder(self, powder_id: int) -> Powder | None:
+        with session_scope() as session:
+            return session.get(Powder, powder_id)
+
+    def find_by_color_name(self, color_name: str) -> Powder | None:
+        with session_scope() as session:
+            return (
+                session.execute(select(Powder).filter(Powder.powder_color.ilike(color_name)))
+                .scalars()
+                .one_or_none()
+            )
+
+    def create_powder(self, **kwargs) -> Powder:
+        with session_scope() as session:
+            powder = Powder(**kwargs)
+            session.add(powder)
+            session.flush()
+            return powder
+
+    def update_powder(self, powder_id: int, **fields) -> Powder | None:
+        with session_scope() as session:
+            powder = session.get(Powder, powder_id)
+            if not powder:
+                return None
+            for key, value in fields.items():
+                if hasattr(powder, key):
+                    setattr(powder, key, value)
+            session.flush()
+            return powder
+
+    def delete_powder(self, powder_id: int) -> bool:
+        with session_scope() as session:
+            powder = session.get(Powder, powder_id)
+            if not powder:
+                return False
+            session.delete(powder)
+            session.flush()
+            return True
+
 
 powder_repo = PowderRepository()

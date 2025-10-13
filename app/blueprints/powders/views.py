@@ -47,19 +47,22 @@ def colors_full_json():
 
 @bp.get("/by_color.json")
 def by_color_json():
-    """Return powders filtered by color query (legacy parity)."""
-    q = request.args.get("q", "").strip()
-    powders = powder_repo.list_powders(query=q or None)
-    items = [
+    """Return powder by exact color name with in_stock value (legacy expects this)."""
+    name = (request.args.get("name") or request.args.get("q") or "").strip()
+    if not name:
+        return jsonify({}), 200
+    hit = powder_repo.find_by_color_name(name)
+    if not hit:
+        return jsonify({}), 200
+    return jsonify(
         {
-            "id": p.id,
-            "color": getattr(p, "powder_color", None),
-            "manufacturer": getattr(p, "manufacturer", None),
-            "product_code": getattr(p, "product_code", None),
+            "id": hit.id,
+            "color": getattr(hit, "powder_color", None),
+            "manufacturer": getattr(hit, "manufacturer", None),
+            "product_code": getattr(hit, "product_code", None),
+            "in_stock": float(hit.on_hand_kg or hit.in_stock or 0),
         }
-        for p in powders
-    ]
-    return jsonify(items)
+    )
 
 
 @bp.get("/../powders.csv")
