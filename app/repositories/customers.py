@@ -6,7 +6,7 @@ from collections.abc import Iterable
 
 from sqlalchemy import select
 
-from ..models import Contact, Customer
+from ..models import Contact, Customer, CustomerAccount
 from .session import session_scope
 
 
@@ -55,6 +55,50 @@ class CustomerRepository:
                 .order_by(Customer.company)
             )
             return session.execute(stmt).scalars().all()
+
+    # Customer portal accounts (admin side)
+    def list_accounts(self, customer_id: int | None = None) -> list[CustomerAccount]:
+        with session_scope() as session:
+            stmt = select(CustomerAccount).order_by(CustomerAccount.email)
+            if customer_id:
+                stmt = stmt.filter(CustomerAccount.customer_id == customer_id)
+            return session.execute(stmt).scalars().all()
+
+    def create_account(
+        self,
+        *,
+        email: str,
+        password_hash: str,
+        first_name: str,
+        last_name: str,
+        customer_id: int | None = None,
+        company_name: str | None = None,
+        phone: str | None = None,
+    ) -> CustomerAccount:
+        with session_scope() as session:
+            acct = CustomerAccount(
+                email=email,
+                password_hash=password_hash,
+                first_name=first_name,
+                last_name=last_name,
+                customer_id=customer_id,
+                company_name=company_name,
+                phone=phone,
+                email_verified=False,
+                is_active=True,
+            )
+            session.add(acct)
+            session.flush()
+            return acct
+
+    def set_account_active(self, account_id: int, *, is_active: bool) -> bool:
+        with session_scope() as session:
+            acct = session.get(CustomerAccount, account_id)
+            if not acct:
+                return False
+            acct.is_active = is_active
+            session.flush()
+            return True
 
     # Contacts CRUD
     def list_contacts(self, customer_id: int) -> list[Contact]:

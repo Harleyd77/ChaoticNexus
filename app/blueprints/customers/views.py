@@ -5,6 +5,7 @@ from __future__ import annotations
 from flask import flash, jsonify, redirect, render_template, request, url_for
 
 from app.repositories import customer_repo
+from app.services.auth_service import _hash_password
 
 from . import bp
 
@@ -48,6 +49,56 @@ def profile(cust_id: int):
         return redirect(url_for("customers.profile", cust_id=cust_id))
 
     return render_template("customers/profile.html", customer=customer, is_admin=True)
+
+
+@bp.get("/accounts")
+def accounts_index():
+    """Admin: list customer portal accounts."""
+    accounts = customer_repo.list_accounts()
+    return render_template(
+        "customers/accounts.html",
+        is_admin=True,
+        accounts=accounts,
+    )
+
+
+@bp.post("/accounts/create")
+def accounts_create():
+    email = (request.form.get("email") or "").strip().lower()
+    first_name = (request.form.get("first_name") or "").strip()
+    last_name = (request.form.get("last_name") or "").strip()
+    password = (request.form.get("password") or "").strip()
+    customer_id = request.form.get("customer_id")
+    company_name = request.form.get("company_name")
+    phone = request.form.get("phone")
+
+    if not email or "@" not in email or not first_name or not last_name or len(password) < 8:
+        flash("Enter valid name, email and password (8+ chars)", "error")
+        return redirect(url_for("customers.accounts_index"))
+
+    acct = customer_repo.create_account(
+        email=email,
+        password_hash=_hash_password(password),
+        first_name=first_name,
+        last_name=last_name,
+        customer_id=int(customer_id) if customer_id else None,
+        company_name=company_name,
+        phone=phone,
+    )
+    flash(f"Account created for {acct.email}", "success")
+    return redirect(url_for("customers.accounts_index"))
+
+
+@bp.post("/accounts/<int:account_id>/toggle")
+def accounts_toggle(account_id: int):
+    action = (request.form.get("action") or "").strip().lower()
+    enable = action != "disable"
+    ok = customer_repo.set_account_active(account_id, is_active=enable)
+    flash(
+        ("Enabled" if enable else "Disabled") + (" account" if ok else " failed"),
+        "success" if ok else "error",
+    )
+    return redirect(url_for("customers.accounts_index"))
 
 
 @bp.route("/new", methods=["GET", "POST"])
