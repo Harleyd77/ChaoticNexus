@@ -45,10 +45,12 @@ List ⚠️/❌ from the Parity Matrix with precise gaps and minimal fixes (no s
   - Risk: Medium; Effort: M
 
 ## Intake
-- Gap: production/railing forms and submit persistence missing.
-  - Files: intake/views.py, intake_service.py
-  - Minimal fix: implement forms/validation and POST handlers to Postgres.
-  - Risk: Medium; Effort: M
+- Status: Core fields mapped for Production and Railing; persisted to Jobs.
+- Remaining Gaps:
+  - Railing: UI editor for sections/hardware counts not yet mirrored; counts are appended to notes.
+    - Files: intake/templates/railing.html (placeholder), intake/views.py
+    - Minimal fix: add JS UI for sections list and counts, append summary into notes on submit.
+    - Risk: Low; Effort: S-M
 
 ## Admin
 - Gap: branding uploads and users admin incomplete.

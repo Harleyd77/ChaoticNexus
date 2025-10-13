@@ -20,6 +20,36 @@ def index():
     )
 
 
+@bp.route("/<int:cust_id>", methods=["GET", "POST"])
+def profile(cust_id: int):
+    """Customer profile view/edit page."""
+    customer = customer_repo.get_customer(cust_id)
+    if not customer:
+        flash("Customer not found", "error")
+        return redirect(url_for("customers.index"))
+
+    if request.method == "POST":
+        updated = customer_repo.update_customer(
+            cust_id,
+            company=request.form.get("company") or customer.company,
+            contact_name=request.form.get("contact_name") or customer.contact_name,
+            email=request.form.get("email") or customer.email,
+            phone=request.form.get("phone") or customer.phone,
+            street=request.form.get("street") or customer.street,
+            city=request.form.get("city") or customer.city,
+            region=request.form.get("region") or customer.region,
+            postal_code=request.form.get("postal_code") or customer.postal_code,
+            account_number=request.form.get("account_number") or customer.account_number,
+            terms=request.form.get("terms") or customer.terms,
+            status=request.form.get("status") or customer.status,
+            notes=request.form.get("notes") or customer.notes,
+        )
+        flash("Customer updated" if updated else "Update failed", "success" if updated else "error")
+        return redirect(url_for("customers.profile", cust_id=cust_id))
+
+    return render_template("customers/profile.html", customer=customer, is_admin=True)
+
+
 @bp.route("/new", methods=["GET", "POST"])
 def new_customer():
     """Create a new customer record."""

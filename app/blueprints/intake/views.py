@@ -20,6 +20,16 @@ def intake_form():
                 email=form.get("email"),
                 description=form.get("description", ""),
                 notes=form.get("notes"),
+                date_in=form.get("dateIn"),
+                due_by=form.get("dueBy"),
+                po=form.get("po"),
+                category=form.get("category"),
+                blast=form.get("blast"),
+                priority=form.get("priority"),
+                prep=form.get("prep"),
+                color=form.get("color"),
+                color_source=form.get("color_source"),
+                intake_source=form.get("intake_source") or "production",
             )
         except ValueError as error:
             flash(str(error), "error")
@@ -37,11 +47,29 @@ def railing_intake():
     if request.method == "POST":
         form = request.form
         try:
-            job = job_intake_service.create_railing_job(
+            # Map railing form to production fields plus measurements appended in notes
+            notes = form.get("notes") or ""
+            sections_text = form.get("sections_text") or ""
+            if sections_text:
+                notes = (notes or "") + "\n" + sections_text
+
+            job = job_intake_service.create_production_job(
                 contact_name=form.get("contact_name", ""),
                 company=form.get("company", ""),
+                phone=form.get("phone"),
+                email=form.get("email"),
                 description=form.get("description", ""),
-                measurements=form.get("measurements"),
+                notes=notes,
+                date_in=form.get("dateIn"),
+                due_by=form.get("dueBy"),
+                po=form.get("po"),
+                category="Railing",
+                blast=form.get("blast"),
+                priority=form.get("priority"),
+                prep=form.get("prep"),
+                color=form.get("color"),
+                color_source=None,
+                intake_source="railing",
             )
         except ValueError as error:
             flash(str(error), "error")
