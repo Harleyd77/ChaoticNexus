@@ -48,10 +48,26 @@
       {{ text_field("email", "Email", value=form_data.email, type="email") }}
       {{ text_field("company", "Company", value=job.company or '', disabled=True) }}
       {{ text_field("po", "Purchase Order", value=form_data.po) }}
-      {{ select_field("type", "Category", form_options.category, form_data.type, placeholder="Select category") }}
-      {{ select_field("priority", "Priority", form_options.priority, form_data.priority, placeholder="Select priority") }}
-      {{ select_field("blast", "Sandblasting", form_options.blast, form_data.blast, placeholder="Select option") }}
-      {{ select_field("prep", "Prep", form_options.prep, form_data.prep, placeholder="Select option") }}
+      <div class="relative">
+        {{ select_field("type", "Category", form_options.category, form_data.type, placeholder="Select category") }}
+        <button type="button" class="absolute right-2 top-7 text-xs text-slate-400 hover:text-slate-200 underline"
+                hx-get="{{ url_for('admin.options_drawer') }}?name=category" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
+      </div>
+      <div class="relative">
+        {{ select_field("priority", "Priority", form_options.priority, form_data.priority, placeholder="Select priority") }}
+        <button type="button" class="absolute right-2 top-7 text-xs text-slate-400 hover:text-slate-200 underline"
+                hx-get="{{ url_for('admin.options_drawer') }}?name=priority" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
+      </div>
+      <div class="relative">
+        {{ select_field("blast", "Sandblasting", form_options.blast, form_data.blast, placeholder="Select option") }}
+        <button type="button" class="absolute right-2 top-7 text-xs text-slate-400 hover:text-slate-200 underline"
+                hx-get="{{ url_for('admin.options_drawer') }}?name=blast" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
+      </div>
+      <div class="relative">
+        {{ select_field("prep", "Prep", form_options.prep, form_data.prep, placeholder="Select option") }}
+        <button type="button" class="absolute right-2 top-7 text-xs text-slate-400 hover:text-slate-200 underline"
+                hx-get="{{ url_for('admin.options_drawer') }}?name=prep" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
+      </div>
       {{ text_field("color", "Color / Coating", value=form_data.color) }}
       <label class="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
         <span>Status</span>
