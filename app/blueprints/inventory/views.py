@@ -52,7 +52,10 @@ def index():
 
 @bp.get("/api/powders")
 def api_powders():
-    """Return powder inventory data for UI tables (parity JSON)."""
+    """Return powder inventory data.
+
+    Supports legacy flat response when `flat=1` is provided.
+    """
     search = request.args.get("search") or None
     manufacturer = request.args.get("manufacturer") or None
     threshold_param = request.args.get("threshold")
@@ -77,6 +80,8 @@ def api_powders():
         }
         for p in powders
     ]
+    if (request.args.get("flat") or "").strip() == "1":
+        return jsonify(data)
     return jsonify(
         {
             "summary": {
