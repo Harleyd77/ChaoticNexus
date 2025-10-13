@@ -176,6 +176,18 @@ class JobRepository:
                     job.screen_order_index = index
             session.flush()
 
+    def reorder_jobs(self, job_ids_in_order: list[int]) -> None:
+        """Set global order_index for jobs according to provided order.
+
+        This mirrors legacy '/jobs/reorder' behavior for list ordering.
+        """
+        with session_scope() as session:
+            for index, job_id in enumerate(job_ids_in_order, start=1):
+                job = session.get(Job, job_id)
+                if job:
+                    job.order_index = index
+            session.flush()
+
     # Status and lifecycle
     def archive_job(self, job_id: int, *, reason: str | None = None) -> bool:
         with session_scope() as session:

@@ -200,6 +200,7 @@ def _find_job(job_id: int):
     return job_repo.get_job(job_id)
 
 
+@bp.get("/<int:job_id>")
 @bp.get("/<int:job_id>/")
 def detail(job_id: int):
     """Render the job detail view."""
@@ -269,6 +270,19 @@ def screen_reorder():
     job_ids = payload.get("job_ids") or []
     job_repo.reorder_screen([int(j) for j in job_ids])
     return jsonify({"ok": True})
+
+
+@bp.post("/reorder")
+def reorder_jobs():
+    """Reorder jobs globally by provided id order (legacy parity)."""
+    payload = request.get_json(silent=True) or {}
+    order = payload.get("order") or []
+    try:
+        ids = [int(x) for x in order]
+    except Exception:
+        return jsonify({"error": "invalid order payload"}), 400
+    job_repo.reorder_jobs(ids)
+    return jsonify({"ok": True, "count": len(ids)})
 
 
 @bp.post("/<int:job_id>/screen/add")
