@@ -1,7 +1,10 @@
 """HTTP endpoints for the Admin blueprint."""
 
 from flask import flash, redirect, render_template, request, url_for
+from sqlalchemy import select
 
+from app.models import User
+from app.repositories import session_scope
 from app.services.settings_service import settings_service
 
 from . import bp
@@ -10,11 +13,9 @@ from . import bp
 @bp.route("/users")
 def users():
     """User management page."""
-    # TODO: Load from repository once implemented
-    return render_template(
-        "admin/users.html",
-        users=[],
-    )
+    with session_scope() as session:
+        rows = session.execute(select(User).order_by(User.username)).scalars().all()
+    return render_template("admin/users.html", users=rows)
 
 
 @bp.route("/settings", methods=["GET", "POST"])
