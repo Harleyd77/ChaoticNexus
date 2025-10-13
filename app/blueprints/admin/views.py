@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from app.models import User
 from app.repositories import session_scope
+from app.services.options_service import options_service
 from app.services.settings_service import settings_service
 
 from . import bp
@@ -36,8 +37,25 @@ def settings():
             return redirect(url_for("admin.settings"))
 
     payload = settings_service.get_settings()
+    job_options = options_service.get_job_form_options()
+    return render_template("admin/settings.html", settings=payload, job_options=job_options)
 
+
+@bp.get("/options/drawer")
+def options_drawer():
+    name = (request.args.get("name") or "").strip()
+    items = options_service.get_job_option_list(name)
+    return render_template("admin/_options_drawer.html", name=name, items=items)
+
+
+@bp.post("/options/save")
+def options_save():
+    name = (request.form.get("name") or "").strip()
+    items_raw = request.form.get("items") or ""
+    items = [line.strip() for line in items_raw.splitlines()]
+    options_service.set_job_option_list(name, items)
     return render_template(
-        "admin/settings.html",
-        settings=payload,
+        "admin/_options_drawer_saved.html",
+        name=name,
+        items=options_service.get_job_option_list(name),
     )

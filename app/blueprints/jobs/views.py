@@ -8,6 +8,7 @@ from datetime import date
 from flask import Response, flash, jsonify, redirect, render_template, request, url_for
 
 from app.repositories import job_repo
+from app.services.options_service import options_service
 
 from . import bp
 
@@ -20,6 +21,7 @@ _KANBAN_COLUMNS: list[dict[str, str | bool]] = [
 ]
 
 _FORM_OPTIONS = {
+    # Initial defaults; will be overridden by options service
     "category": ["Production", "Architectural", "Industrial", "Custom"],
     "priority": ["Critical", "High", "Normal", "Low"],
     "blast": ["None", "Mechanical", "Chemical"],
@@ -463,11 +465,18 @@ def edit(job_id: int):
         flash("Job updated successfully", "success")
         return redirect(url_for("jobs.detail", job_id=job.id))
 
+    opts = options_service.get_job_form_options()
+    form_options = {
+        "category": opts.category,
+        "priority": opts.priority,
+        "blast": opts.blast,
+        "prep": opts.prep,
+    }
     status_options = list(dict.fromkeys(_STATUS_OPTIONS + ([job.status] if job.status else [])))
     return render_template(
         "jobs/edit.html",
         job=job,
-        form_options=_FORM_OPTIONS,
+        form_options=form_options,
         departments=_DEPARTMENTS,
         status_options=status_options,
         form_data=form_data,

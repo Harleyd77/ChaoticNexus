@@ -37,7 +37,7 @@
     >
       Skip to main content
     </a>
-    <div id="app-shell" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8">
+    <div id="app-shell" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8" x-data>
       {% block header %}
         {% include "_partials/header.html" %}
       {% endblock %}
@@ -45,6 +45,7 @@
         {% block content %}{% endblock %}
       </main>
     </div>
+    <div id="drawer-root"></div>
     <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/motion.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/ui-core.js') }}" defer></script>
