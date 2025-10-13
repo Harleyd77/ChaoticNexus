@@ -241,9 +241,21 @@ def detail(job_id: int):
 @bp.get("/<int:job_id>/photos.json")
 def photos_json(job_id: int):
     photos = job_repo.list_photos(job_id)
-    return jsonify(
-        [{"id": p.id, "filename": p.filename, "original_name": p.original_name} for p in photos]
-    )
+    items = []
+    for p in photos:
+        fname = p.filename or ""
+        ext = fname.rsplit(".", 1)[-1].lower() if "." in fname else ""
+        kind = "pdf" if ext == "pdf" else "image"
+        items.append(
+            {
+                "id": p.id,
+                "filename": fname,
+                "original_name": p.original_name,
+                "url": url_for("uploads", name=fname),
+                "kind": kind,
+            }
+        )
+    return jsonify(items)
 
 
 @bp.post("/<int:job_id>/photos/upload")
