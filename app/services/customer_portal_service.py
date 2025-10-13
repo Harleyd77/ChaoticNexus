@@ -9,7 +9,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models import CustomerAccount, Job
+from app.models import CustomerAccount, Job, JobEditHistory
 from app.repositories import session_scope
 
 
@@ -160,6 +160,18 @@ class CustomerPortalService:
             "pending_approval": pending_approval,
             "ready_for_pickup": ready_for_pickup,
         }
+
+    def list_job_edit_history(self, job_id: int) -> list[JobEditHistory]:
+        with session_scope() as session:
+            return (
+                session.execute(
+                    select(JobEditHistory)
+                    .filter(JobEditHistory.job_id == job_id)
+                    .order_by(JobEditHistory.created_at.desc())
+                )
+                .scalars()
+                .all()
+            )
 
     def update_account(self, account_id: int, **fields) -> CustomerAccount | None:
         with session_scope() as session:

@@ -84,7 +84,7 @@ def job_detail(job_id: int):
         flash("Job not found", "error")
         return redirect(url_for("customer_portal.jobs_list"))
 
-    edit_history = []  # TODO: Load from repository
+    edit_history = customer_portal_service.list_job_edit_history(job.id)
 
     return render_template(
         "customer_portal/job_detail.html",
@@ -267,6 +267,22 @@ def logout():
 @bp.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     """Forgot password flow."""
-    # TODO: Implement password reset
-    flash("Password reset functionality pending migration", "info")
-    return redirect(url_for("auth.login"))
+    if request.method == "POST":
+        email = (request.form.get("email") or "").strip().lower()
+        if email:
+            customer_auth_service.initiate_password_reset(email=email)
+        flash("If the email exists, a reset link was sent.", "info")
+        return redirect(url_for("auth.login"))
+    return render_template("customer_portal/forgot_password.html")
+
+
+@bp.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    token = request.args.get("token") or request.form.get("token")
+    if request.method == "POST":
+        new_password = request.form.get("password") or ""
+        if customer_auth_service.reset_password(token=token or "", new_password=new_password):
+            flash("Password updated. Please sign in.", "success")
+            return redirect(url_for("auth.login"))
+        flash("Invalid or expired token, or weak password.", "error")
+    return render_template("customer_portal/reset_password.html", token=token)

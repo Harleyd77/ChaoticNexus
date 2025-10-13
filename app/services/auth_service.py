@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import secrets
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.exc import IntegrityError
 
@@ -108,6 +109,45 @@ class CustomerAuthService:
             session.flush()
             customer = account.customer
             return CustomerAuthResult(account=account, customer=customer)
+
+    def initiate_password_reset(self, *, email: str) -> None:
+        """Generate a reset token and set expiry for a customer account.
+
+        For security, this is a no-op if the account doesn't exist.
+        """
+        with session_scope() as session:
+            account = (
+                session.query(CustomerAccount)
+                .filter(CustomerAccount.email == email.lower())
+                .one_or_none()
+            )
+            if not account:
+                return
+            account.reset_token = secrets.token_urlsafe(32)
+            account.reset_token_expires = datetime.utcnow() + timedelta(hours=2)
+            session.flush()
+
+    def reset_password(self, *, token: str, new_password: str) -> bool:
+        """Reset password using a token if valid and not expired."""
+        if len(new_password or "") < 8:
+            return False
+        now = datetime.utcnow()
+        with session_scope() as session:
+            account = (
+                session.query(CustomerAccount)
+                .filter(
+                    CustomerAccount.reset_token == token,
+                    CustomerAccount.reset_token_expires != None,  # noqa: E711
+                )
+                .one_or_none()
+            )
+            if not account or not account.reset_token_expires or account.reset_token_expires < now:
+                return False
+            account.password_hash = _hash_password(new_password)
+            account.reset_token = None
+            account.reset_token_expires = None
+            session.flush()
+            return True
 
 
 customer_auth_service = CustomerAuthService()
