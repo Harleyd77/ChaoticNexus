@@ -24,6 +24,9 @@ def settings():
         try:
             settings_service.update_settings(
                 company_name=request.form.get("company_name"),
+                brand_primary=request.form.get("brand_primary"),
+                brand_accent=request.form.get("brand_accent"),
+                logo_url=request.form.get("logo_url"),
             )
         except ValueError as error:
             flash(str(error), "error")
