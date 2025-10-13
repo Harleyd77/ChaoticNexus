@@ -1,6 +1,6 @@
 """HTTP endpoints for the Powders blueprint."""
 
-from flask import Response, jsonify, render_template, request
+from flask import Response, flash, jsonify, redirect, render_template, request, url_for
 
 from app.repositories import powder_repo
 
@@ -23,6 +23,52 @@ def index():
             "manufacturer": manufacturer or "",
         },
     )
+
+
+@bp.get("/<int:powder_id>.json")
+def powder_detail_json(powder_id: int):
+    """Return powder detail JSON for a single powder (legacy parity shape)."""
+    p = powder_repo.get_powder(powder_id)
+    if not p:
+        return jsonify({}), 404
+    return jsonify(
+        {
+            "id": p.id,
+            "powder_color": getattr(p, "powder_color", None),
+            "manufacturer": getattr(p, "manufacturer", None),
+            "product_code": getattr(p, "product_code", None),
+            "gloss_level": getattr(p, "gloss_level", None),
+            "finish": getattr(p, "finish", None),
+            "metallic": getattr(p, "metallic", None),
+            "needs_clear": getattr(p, "needs_clear", None),
+            "int_ext": getattr(p, "int_ext", None),
+            "additional_code": getattr(p, "additional_code", None),
+            "on_hand_kg": float(p.on_hand_kg or 0),
+            "last_weighed_kg": float(p.last_weighed_kg or 0),
+            "last_weighed_at": getattr(p, "last_weighed_at", None),
+            "in_stock": float(p.in_stock or 0),
+            "weight_box_kg": float(p.weight_box_kg or 0),
+            "picture_url": getattr(p, "picture_url", None),
+            "msds_url": getattr(p, "msds_url", None),
+            "sds_url": getattr(p, "sds_url", None),
+            "web_link": getattr(p, "web_link", None),
+            "notes": getattr(p, "notes", None),
+            "additional_info": getattr(p, "additional_info", None),
+            "cure_schedule": getattr(p, "cure_schedule", None),
+        }
+    )
+
+
+@bp.post("/import")
+def import_csv():
+    """Stub CSV import endpoint for parity: accepts file and flashes message."""
+    file = request.files.get("file")
+    if not file:
+        flash("No file uploaded", "error")
+        return redirect(url_for("powders.index"))
+    # Parity stub: do not parse; acknowledge upload
+    flash("CSV import received (parity stub)", "success")
+    return redirect(url_for("powders.index"))
 
 
 @bp.get("/families.json")
