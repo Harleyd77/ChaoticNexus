@@ -82,7 +82,8 @@ def _register_cli(app: Flask) -> None:
 
 def _register_routes(app: Flask) -> None:
     """Register lightweight routes that do not warrant blueprints."""
-    from flask import redirect, url_for
+    from flask import redirect, send_from_directory, url_for
+    import os
 
     @app.get("/")
     def index():
@@ -93,3 +94,9 @@ def _register_routes(app: Flask) -> None:
     def healthz() -> dict[str, Any]:
         """Container health check endpoint."""
         return {"ok": True}
+
+    @app.get("/favicon.ico")
+    def favicon() -> Any:
+        """Serve favicon for legacy agents and browsers requesting /favicon.ico."""
+        static_dir = os.path.join(app.root_path, "static", "img")
+        return send_from_directory(static_dir, "favicon.png")
