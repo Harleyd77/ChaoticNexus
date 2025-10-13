@@ -17,6 +17,10 @@
         >
           Reorder List
         </a>
+        {% if is_admin %}
+        <button type="button" class="text-xs text-slate-400 underline hover:text-slate-200"
+                hx-get="{{ url_for('admin.options_drawer') }}?name=priority" hx-target="#drawer-root" hx-swap="innerHTML">Edit Priorities</button>
+        {% endif %}
       </div>
     </div>
 
