@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, jsonify, redirect, render_template, request, url_for
 
 from app.repositories import customer_repo
 
@@ -81,3 +81,74 @@ def new_customer():
         return render_template("customers/new.html", is_admin=True, form_data=form_data)
 
     return render_template("customers/new.html", is_admin=True, form_data={})
+
+
+@bp.get("/contacts.json")
+def contacts_json():
+    """Return contacts for a given customer by query param id (legacy search compat)."""
+    customer_id = request.args.get("id")
+    if not customer_id:
+        return jsonify([])
+    contacts = customer_repo.list_contacts(int(customer_id))
+    return jsonify(
+        [{"id": c.id, "name": c.name, "phone": c.phone, "email": c.email} for c in contacts]
+    )
+
+
+@bp.get("/search.json")
+def search_json():
+    q = request.args.get("q", "").strip()
+    rows = customer_repo.search_customers(q) if q else []
+    return jsonify(
+        [
+            {
+                "id": c.id,
+                "company": c.company,
+                "contact_name": c.contact_name,
+                "phone": c.phone,
+                "email": c.email,
+            }
+            for c in rows
+        ]
+    )
+
+
+@bp.get("/<int:cust_id>/contacts.json")
+def contacts_for_customer(cust_id: int):
+    contacts = customer_repo.list_contacts(cust_id)
+    return jsonify(
+        [{"id": c.id, "name": c.name, "phone": c.phone, "email": c.email} for c in contacts]
+    )
+
+
+@bp.post("/<int:cust_id>/contacts/add")
+def add_contact(cust_id: int):
+    name = request.form.get("name", "")
+    phone = request.form.get("phone")
+    email = request.form.get("email")
+    if not name.strip():
+        flash("Contact name is required", "error")
+        return redirect(url_for("customers.index"))
+    customer_repo.add_contact(cust_id, name=name, phone=phone, email=email)
+    flash("Contact added", "success")
+    return redirect(url_for("customers.index"))
+
+
+@bp.post("/<int:cust_id>/contacts/<int:ct_id>/save")
+def save_contact(cust_id: int, ct_id: int):
+    updated = customer_repo.update_contact(
+        cust_id,
+        ct_id,
+        name=request.form.get("name"),
+        phone=request.form.get("phone"),
+        email=request.form.get("email"),
+    )
+    flash("Contact saved" if updated else "Contact not found", "success" if updated else "error")
+    return redirect(url_for("customers.index"))
+
+
+@bp.post("/<int:cust_id>/contacts/<int:ct_id>/delete")
+def delete_contact(cust_id: int, ct_id: int):
+    ok = customer_repo.delete_contact(cust_id, ct_id)
+    flash("Contact deleted" if ok else "Contact not found", "success" if ok else "error")
+    return redirect(url_for("customers.index"))

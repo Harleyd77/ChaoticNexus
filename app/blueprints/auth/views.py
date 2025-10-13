@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from flask import flash, redirect, render_template, request, session, url_for
 
-from app.services.auth_service import customer_auth_service
+from app.services.auth_service import admin_auth_service, customer_auth_service
 
 from . import bp
 
@@ -27,14 +27,27 @@ def login():
         identifier = request.form.get("identifier", "")
         password = request.form.get("password", "")
 
+        # Admin login (username/password) when identifier is not an email
+        if identifier and "@" not in identifier:
+            admin = admin_auth_service.authenticate_admin(username=identifier, password=password)
+            if admin:
+                session.clear()
+                session["is_admin"] = True
+                session["user_id"] = admin.id
+                session["me_username"] = admin.username
+                flash("Signed in as admin", "success")
+                return redirect(url_for("dashboard.index"))
+
+        # Customer portal login via email/password
         result = customer_auth_service.authenticate_customer(email=identifier, password=password)
         if result:
+            session.clear()
             session["customer_account_id"] = result.account.id
             session["customer_email"] = result.account.email
             flash("Welcome back!", "success")
             return redirect(url_for("customer_portal.dashboard"))
 
-        flash("Invalid email or password", "error")
+        flash("Invalid credentials", "error")
 
     return render_template(
         "auth/login.html",

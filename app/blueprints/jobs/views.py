@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import date
 
-from flask import Response, flash, redirect, render_template, request, url_for
+from flask import Response, flash, jsonify, redirect, render_template, request, url_for
 
 from app.repositories import job_repo
 
@@ -152,6 +152,15 @@ def export_csv() -> Response:
     )
 
 
+@bp.get("/../jobs.csv")
+def legacy_jobs_csv() -> Response:
+    """Legacy CSV path for jobs: /jobs.csv
+
+    Keep functioning during parity; delegate to the canonical exporter.
+    """
+    return export_csv()
+
+
 @bp.get("/kanban")
 def kanban():
     """Render the jobs kanban board."""
@@ -171,6 +180,19 @@ def kanban():
         filters=filters,
         color_options=color_options,
         status_options=status_options,
+    )
+
+
+@bp.get("/screen")
+def screen_view():
+    jobs = [j for j in job_repo.list_jobs() if getattr(j, "on_screen", False)]
+    return render_template(
+        "jobs/kanban.html",
+        columns_meta=_KANBAN_COLUMNS,
+        columns={"completed": jobs},
+        filters={},
+        color_options=[],
+        status_options=[],
     )
 
 
@@ -213,6 +235,89 @@ def detail(job_id: int):
         total_powder=total_powder,
         is_admin=True,
     )
+
+
+@bp.get("/<int:job_id>/photos.json")
+def photos_json(job_id: int):
+    photos = job_repo.list_photos(job_id)
+    return jsonify(
+        [{"id": p.id, "filename": p.filename, "original_name": p.original_name} for p in photos]
+    )
+
+
+@bp.post("/<int:job_id>/photos/upload")
+def upload_photo(job_id: int):
+    file = request.files.get("file")
+    if not file:
+        return {"error": "file missing"}, 400
+    # In parity mode we save filename only; storage handled by web server/volume
+    job_repo.add_photo(job_id, filename=file.filename, original_name=file.filename)
+    flash("Photo uploaded", "success")
+    return redirect(url_for("jobs.detail", job_id=job_id))
+
+
+@bp.post("/<int:job_id>/photos/<int:photo_id>/delete")
+def delete_photo(job_id: int, photo_id: int):
+    ok = job_repo.delete_photo(job_id, photo_id)
+    flash("Photo deleted" if ok else "Photo not found", "success" if ok else "error")
+    return redirect(url_for("jobs.detail", job_id=job_id))
+
+
+@bp.post("/screen/reorder")
+def screen_reorder():
+    payload = request.get_json(silent=True) or {}
+    job_ids = payload.get("job_ids") or []
+    job_repo.reorder_screen([int(j) for j in job_ids])
+    return jsonify({"ok": True})
+
+
+@bp.post("/<int:job_id>/screen/add")
+def screen_add(job_id: int):
+    job_repo.set_on_screen(job_id, on_screen=True)
+    return redirect(url_for("jobs.detail", job_id=job_id))
+
+
+@bp.post("/<int:job_id>/screen/remove")
+def screen_remove(job_id: int):
+    job_repo.set_on_screen(job_id, on_screen=False)
+    return redirect(url_for("jobs.detail", job_id=job_id))
+
+
+@bp.get("/completed")
+def completed():
+    jobs = [j for j in job_repo.list_jobs() if (j.department or "").lower() == "completed"]
+    return render_template("jobs/completed.html", jobs=jobs)
+
+
+@bp.post("/<int:job_id>/archive")
+def archive(job_id: int):
+    job_repo.archive_job(job_id, reason=request.form.get("reason"))
+    return redirect(url_for("jobs.detail", job_id=job_id))
+
+
+@bp.post("/<int:job_id>/unarchive")
+def unarchive(job_id: int):
+    job_repo.unarchive_job(job_id)
+    return redirect(url_for("jobs.detail", job_id=job_id))
+
+
+@bp.post("/<int:job_id>/complete")
+def complete(job_id: int):
+    job_repo.complete_job(job_id)
+    return redirect(url_for("jobs.detail", job_id=job_id))
+
+
+@bp.post("/<int:job_id>/reopen")
+def reopen(job_id: int):
+    job_repo.reopen_job(job_id)
+    return redirect(url_for("jobs.detail", job_id=job_id))
+
+
+@bp.post("/<int:job_id>/delete")
+def delete(job_id: int):
+    job_repo.delete_job(job_id)
+    flash("Job deleted", "success")
+    return redirect(url_for("jobs.index"))
 
 
 @bp.route("/<int:job_id>/edit", methods=["GET", "POST"])
@@ -342,3 +447,28 @@ def edit(job_id: int):
         form_data=form_data,
         is_admin=True,
     )
+
+
+@bp.get("/<int:job_id>/worksheet")
+def worksheet(job_id: int):
+    job = _find_job(job_id)
+    if not job:
+        return (
+            render_template(
+                "errors/error.html",
+                error="Job Not Found",
+                message="We couldn't locate that job. It may have been archived.",
+            ),
+            404,
+        )
+    return render_template("jobs/worksheet.html", job=job)
+
+
+@bp.post("/<int:job_id>/worksheet/save")
+def worksheet_save(job_id: int):
+    # For parity, persist shop_notes and customer_notes from form
+    notes = request.form.get("shop_notes")
+    customer_notes = request.form.get("customer_notes")
+    job_repo.update_job(job_id, shop_notes=notes, customer_notes=customer_notes)
+    flash("Worksheet saved", "success")
+    return redirect(url_for("jobs.worksheet", job_id=job_id))

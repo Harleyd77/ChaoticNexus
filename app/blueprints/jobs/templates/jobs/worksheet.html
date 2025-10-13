@@ -1,0 +1,33 @@
+{% extends "_layouts/base.html" %}
+{% block title %}Job Worksheet{% endblock %}
+{% block content %}
+<div class="space-y-6 print:space-y-2 print:text-black">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-semibold tracking-tight">Job #{{ job.id }} Worksheet</h1>
+    <a href="{{ url_for('jobs.detail', job_id=job.id) }}" class="hidden print:hidden inline-flex items-center gap-2 rounded-lg border border-transparent bg-slate-800/70 px-4 py-2 text-sm font-semibold text-white">Back</a>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="border border-slate-800/70 rounded-xl p-4">
+      <div class="text-xs font-semibold uppercase tracking-[0.26em] text-slate-400">Customer</div>
+      <div class="mt-2 text-sm">{{ job.company }} — {{ job.contact_name or '' }}</div>
+      <div class="text-sm">{{ job.phone or '' }} · {{ job.email or '' }}</div>
+    </div>
+    <div class="border border-slate-800/70 rounded-xl p-4">
+      <div class="text-xs font-semibold uppercase tracking-[0.26em] text-slate-400">Details</div>
+      <div class="mt-2 text-sm">Status: {{ job.status }} · Dept: {{ job.department or '-' }}</div>
+      <div class="text-sm">Due: {{ job.due_by or '-' }}</div>
+      <div class="text-sm">Color: {{ job.color or '-' }}</div>
+    </div>
+  </div>
+  <div class="border border-slate-800/70 rounded-xl p-4">
+    <div class="text-xs font-semibold uppercase tracking-[0.26em] text-slate-400">Description</div>
+    <div class="mt-2 text-sm whitespace-pre-wrap">{{ job.description or '' }}</div>
+  </div>
+  <div class="border border-slate-800/70 rounded-xl p-4">
+    <div class="text-xs font-semibold uppercase tracking-[0.26em] text-slate-400">Shop Notes</div>
+    <div class="mt-2 text-sm whitespace-pre-wrap">{{ job.shop_notes or job.notes or '' }}</div>
+  </div>
+</div>
+{% endblock %}
+
+

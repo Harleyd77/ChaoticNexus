@@ -18,6 +18,11 @@ class BaseConfig:
     SESSION_COOKIE_SAMESITE = "Lax"
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
     WTF_CSRF_ENABLED = True
+    # File storage
+    UPLOADS_DIR = os.environ.get(
+        "UPLOADS_DIR",
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "_data", "uploads")),
+    )
 
 
 class DevelopmentConfig(BaseConfig):

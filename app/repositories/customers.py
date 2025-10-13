@@ -6,7 +6,7 @@ from collections.abc import Iterable
 
 from sqlalchemy import select
 
-from ..models import Customer
+from ..models import Contact, Customer
 from .session import session_scope
 
 
@@ -40,6 +40,59 @@ class CustomerRepository:
 
     def query_by_company(self, company_name: str):
         return select(Customer).filter(Customer.company.ilike(company_name))
+
+    def search_customers(self, query: str) -> list[Customer]:
+        like = f"%{query}%"
+        with session_scope() as session:
+            stmt = (
+                select(Customer)
+                .filter(
+                    Customer.company.ilike(like)
+                    | Customer.contact_name.ilike(like)
+                    | Customer.email.ilike(like)
+                    | Customer.phone.ilike(like)
+                )
+                .order_by(Customer.company)
+            )
+            return session.execute(stmt).scalars().all()
+
+    # Contacts CRUD
+    def list_contacts(self, customer_id: int) -> list[Contact]:
+        with session_scope() as session:
+            return (
+                session.execute(select(Contact).filter(Contact.customer_id == customer_id))
+                .scalars()
+                .all()
+            )
+
+    def add_contact(
+        self, customer_id: int, *, name: str, phone: str | None, email: str | None
+    ) -> Contact:
+        with session_scope() as session:
+            contact = Contact(customer_id=customer_id, name=name, phone=phone, email=email)
+            session.add(contact)
+            session.flush()
+            return contact
+
+    def update_contact(self, customer_id: int, contact_id: int, **fields) -> Contact | None:
+        with session_scope() as session:
+            contact = session.get(Contact, contact_id)
+            if not contact or contact.customer_id != customer_id:
+                return None
+            for key, value in fields.items():
+                if hasattr(contact, key):
+                    setattr(contact, key, value)
+            session.flush()
+            return contact
+
+    def delete_contact(self, customer_id: int, contact_id: int) -> bool:
+        with session_scope() as session:
+            contact = session.get(Contact, contact_id)
+            if not contact or contact.customer_id != customer_id:
+                return False
+            session.delete(contact)
+            session.flush()
+            return True
 
 
 customer_repo = CustomerRepository()

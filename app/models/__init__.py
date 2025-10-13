@@ -7,7 +7,9 @@ from .customer import Contact, Customer
 from .customer_account import CustomerAccount
 from .job import Job, JobEditHistory, JobPhoto, TimeLog
 from .powder import InventoryLog, JobPowder, Powder, PowderUsage, ReorderSetting
+from .print_template import PrintTemplate
 from .setting import Setting
+from .sprayer import SprayBatch, SprayBatchJob
 from .user import User
 
 __all__ = [
@@ -23,6 +25,9 @@ __all__ = [
     "Powder",
     "PowderUsage",
     "ReorderSetting",
+    "PrintTemplate",
+    "SprayBatch",
+    "SprayBatchJob",
     "Setting",
     "TimeLog",
     "User",

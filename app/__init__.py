@@ -58,6 +58,7 @@ def _register_blueprints(app: Flask) -> None:
     from .blueprints.inventory import bp as inventory_bp
     from .blueprints.jobs import bp as jobs_bp
     from .blueprints.powders import bp as powders_bp
+    from .blueprints.print_templates import bp as print_templates_bp
     from .blueprints.sprayer import bp as sprayer_bp
 
     app.register_blueprint(admin_bp)
@@ -70,6 +71,7 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(jobs_bp)
     app.register_blueprint(powders_bp)
     app.register_blueprint(sprayer_bp)
+    app.register_blueprint(print_templates_bp)
 
 
 def _register_cli(app: Flask) -> None:
@@ -78,17 +80,29 @@ def _register_cli(app: Flask) -> None:
 
     app.cli.add_command(cli.hello)
     app.cli.add_command(cli.seed_data)
+    app.cli.add_command(cli.create_admin)
 
 
 def _register_routes(app: Flask) -> None:
     """Register lightweight routes that do not warrant blueprints."""
-    from flask import redirect, send_from_directory, url_for
+    import json
     import os
+
+    from flask import jsonify, redirect, request, send_file, send_from_directory, url_for
 
     @app.get("/")
     def index():
         """Redirect root to dashboard."""
         return redirect(url_for("dashboard.index"))
+
+    @app.get("/nav")
+    def legacy_nav() -> Any:
+        """Legacy navigation endpoint redirecting to dashboard.
+
+        Maintains compatibility with ChaoticNexus-Orig while preferring a
+        same-method permanent redirect.
+        """
+        return redirect(url_for("dashboard.index"), code=308)
 
     @app.get("/healthz")
     def healthz() -> dict[str, Any]:
@@ -99,4 +113,81 @@ def _register_routes(app: Flask) -> None:
     def favicon() -> Any:
         """Serve favicon for legacy agents and browsers requesting /favicon.ico."""
         static_dir = os.path.join(app.root_path, "static", "img")
+        # Prefer .ico if available to match legacy clients; fall back to .png.
+        ico_path = os.path.join(static_dir, "favicon.ico")
+        if os.path.exists(ico_path):  # pragma: no cover - environment dependent
+            return send_from_directory(static_dir, "favicon.ico")
         return send_from_directory(static_dir, "favicon.png")
+
+    @app.get("/uploads/<path:name>")
+    def uploads(name: str):
+        """Serve uploaded files from configured UPLOADS_DIR for legacy parity."""
+        upload_root = app.config.get("UPLOADS_DIR")
+        path = os.path.join(upload_root, name)
+        if not os.path.abspath(path).startswith(os.path.abspath(upload_root)):
+            # Prevent path traversal
+            return {"error": "invalid path"}, 400
+        if not os.path.exists(path):
+            return {"error": "not found"}, 404
+        return send_file(path)
+
+    # Legacy CSV endpoints at top-level paths
+    @app.get("/jobs.csv")
+    def legacy_jobs_csv_top():
+        from .blueprints.jobs.views import export_csv as jobs_export
+
+        return jobs_export()
+
+    @app.get("/powders.csv")
+    def legacy_powders_csv_top():
+        from .blueprints.powders.views import legacy_powders_csv
+
+        return legacy_powders_csv()
+
+    # Legacy intake paths → new intake blueprint
+    @app.get("/intake_form")
+    def legacy_intake_form():
+        return redirect(url_for("intake.intake_form"), code=308)
+
+    @app.get("/railing_intake")
+    def legacy_railing_intake():
+        return redirect(url_for("intake.railing_intake"), code=308)
+
+    # Legacy config JSON endpoints (no /admin prefix per legacy app)
+    @app.get("/config/intake.json")
+    def get_intake_config():
+        from app.repositories.settings import settings_repo
+
+        row = settings_repo.get_setting("config:intake")
+        try:
+            data = json.loads(row.value) if row and row.value else {}
+        except Exception:  # pragma: no cover - defensive
+            data = {}
+        return jsonify(data)
+
+    @app.post("/config/intake")
+    def set_intake_config():
+        from app.repositories.settings import settings_repo
+
+        payload = request.get_json(silent=True) or {}
+        settings_repo.set_setting("config:intake", json.dumps(payload))
+        return jsonify({"ok": True})
+
+    @app.get("/config/railing.json")
+    def get_railing_config():
+        from app.repositories.settings import settings_repo
+
+        row = settings_repo.get_setting("config:railing")
+        try:
+            data = json.loads(row.value) if row and row.value else {}
+        except Exception:  # pragma: no cover - defensive
+            data = {}
+        return jsonify(data)
+
+    @app.post("/config/railing")
+    def set_railing_config():
+        from app.repositories.settings import settings_repo
+
+        payload = request.get_json(silent=True) or {}
+        settings_repo.set_setting("config:railing", json.dumps(payload))
+        return jsonify({"ok": True})

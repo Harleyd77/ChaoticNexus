@@ -31,5 +31,35 @@ class PowderRepository:
         with session_scope() as session:
             return session.execute(stmt).scalars().all()
 
+    def list_color_families(self) -> list[str]:
+        with session_scope() as session:
+            rows = session.execute(
+                select(Powder.color_family)
+                .where(Powder.color_family.isnot(None))
+                .distinct()
+                .order_by(Powder.color_family)
+            ).all()
+            return [r[0] for r in rows if r and r[0]]
+
+    def list_colors_full(self) -> list[dict]:
+        with session_scope() as session:
+            rows = session.execute(
+                select(
+                    Powder.powder_color.label("color"),
+                    Powder.aliases.label("aliases"),
+                    Powder.color_family.label("family"),
+                ).order_by(Powder.powder_color)
+            ).all()
+            items: list[dict] = []
+            for color, aliases, family in rows:
+                items.append(
+                    {
+                        "color": color or "",
+                        "aliases": aliases or "",
+                        "family": family or "",
+                    }
+                )
+            return items
+
 
 powder_repo = PowderRepository()

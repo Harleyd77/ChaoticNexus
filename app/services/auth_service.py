@@ -14,7 +14,7 @@ except ImportError:  # pragma: no cover - optional dependency fallback
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.models import Customer, CustomerAccount
+from app.models import Customer, CustomerAccount, User
 from app.repositories import session_scope
 
 
@@ -111,3 +111,19 @@ class CustomerAuthService:
 
 
 customer_auth_service = CustomerAuthService()
+
+
+class AdminAuthService:
+    """Handle authentication for admin/back-office users."""
+
+    def authenticate_admin(self, *, username: str, password: str) -> User | None:
+        if not username or not password:
+            return None
+        with session_scope() as session:
+            user = session.query(User).filter(User.username == username).one_or_none()
+            if not user or not _verify_password(user.password_hash, password):
+                return None
+            return user
+
+
+admin_auth_service = AdminAuthService()

@@ -6,11 +6,12 @@ from datetime import datetime, timedelta
 
 import click
 from flask import current_app
+from werkzeug.security import generate_password_hash
 
 from .extensions import db
-from .models import Customer, CustomerAccount, Job, JobPowder, Powder
+from .models import Customer, CustomerAccount, Job, JobPowder, Powder, User
 
-__all__ = ["hello", "seed_data"]
+__all__ = ["hello", "seed_data", "create_admin"]
 
 
 @click.command("hello")
@@ -178,3 +179,19 @@ def seed_data(force: bool) -> None:
         db.session.commit()
 
         click.echo("Seed data created: 3 customers, 2 portal accounts, 4 jobs, 3 powders.")
+
+
+@click.command("create-admin")
+@click.option("--username", required=True, help="Admin username")
+@click.option("--password", required=True, help="Admin password")
+def create_admin(username: str, password: str) -> None:
+    """Create or update an admin user with the given credentials."""
+    with current_app.app_context():
+        user = User.query.filter_by(username=username).one_or_none()
+        if user is None:
+            user = User(username=username, is_admin=True)
+            db.session.add(user)
+        user.is_admin = True
+        user.password_hash = generate_password_hash(password)
+        db.session.commit()
+        click.echo(f"Admin user ensured: {username}")
