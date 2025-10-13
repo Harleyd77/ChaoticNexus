@@ -42,6 +42,10 @@ def _register_extensions(app: Flask) -> None:
     migrate.init_app(app, db)
     csrf.init_app(app)
 
+    # Ensure SQLAlchemy models are imported so metadata is registered with the app.
+    with app.app_context():
+        from . import models  # noqa: F401  # pylint: disable=unused-import
+
 
 def _register_blueprints(app: Flask) -> None:
     """Register HTTP blueprints."""
@@ -72,13 +76,8 @@ def _register_cli(app: Flask) -> None:
     """Attach custom CLI commands."""
     from . import cli
 
-    if hasattr(cli, "__all__"):
-        commands = (getattr(cli, name) for name in cli.__all__)  # pragma: no cover
-    else:
-        commands = (cli.hello,)
-
-    for command in commands:
-        app.cli.add_command(command)
+    app.cli.add_command(cli.hello)
+    app.cli.add_command(cli.seed_data)
 
 
 def _register_routes(app: Flask) -> None:

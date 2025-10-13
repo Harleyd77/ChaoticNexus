@@ -39,16 +39,26 @@
       </div>
     </dl>
 
-    <div class="flex flex-wrap items-center gap-3">
+    <form method="get" class="flex flex-wrap items-center gap-3">
       <input
         type="text"
+        name="search"
+        value="{{ request.args.get('search', '') }}"
         class="flex min-w-[240px] flex-1 rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
         placeholder="Search powders..."
+      />
+      <input
+        type="text"
+        name="manufacturer"
+        value="{{ request.args.get('manufacturer', '') }}"
+        class="flex min-w-[200px] rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40"
+        placeholder="Filter by manufacturer"
       />
       <label class="flex items-center gap-2 text-sm text-slate-300">
         Low stock threshold:
         <input
           type="number"
+          name="threshold"
           class="w-20 rounded-lg border border-slate-800 bg-slate-950/70 px-2 py-1 text-sm text-slate-100 focus:border-slate-500 focus:outline-none"
           value="{{ low_stock_threshold }}"
           step="0.1"
@@ -56,12 +66,14 @@
         />
         kg
       </label>
-    </div>
+      <button
+        type="submit"
+        class="rounded-lg border border-slate-700/70 bg-emerald-600/80 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+      >
+        Apply filters
+      </button>
+    </form>
   </header>
-
-  <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-    <strong>Note:</strong> This page is a placeholder. Full inventory management functionality pending migration from legacy app.
-  </div>
 
   {% if powders %}
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -70,7 +82,7 @@
           <h3 class="text-lg font-semibold text-slate-100">{{ powder.powder_color }}</h3>
           <p class="text-sm text-slate-400">{{ powder.manufacturer or 'Unknown' }}</p>
           <div class="mt-4 text-sm text-slate-300">
-            Stock: <span class="font-semibold">{{ powder.on_hand_kg or 0 }} kg</span>
+            Stock: <span class="font-semibold">{{ powder.on_hand_kg or powder.in_stock or 0 }} kg</span>
           </div>
         </article>
       {% endfor %}

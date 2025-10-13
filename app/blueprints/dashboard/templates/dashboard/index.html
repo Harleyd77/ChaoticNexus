@@ -39,11 +39,10 @@
 {% from "_macros/ui.html" import button_primary, button_secondary, alert %}
 
 {% macro action_button(label, href, kind="primary") -%}
-  {%- set pending = href in pending_links -%}
   {% if kind == "primary" %}
-    {{ button_primary(label, href=href, pending=pending) }}
+    {{ button_primary(label, href=href) }}
   {% else %}
-    {{ button_secondary(label, href=href, pending=pending) }}
+    {{ button_secondary(label, href=href) }}
   {% endif %}
 {%- endmacro %}
 

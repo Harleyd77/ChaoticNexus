@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.
 
 # Bring in the application source
 COPY app ${APP_ROOT}/app
+COPY migrations ${APP_ROOT}/migrations
 
 ENV PYTHONPATH=${APP_ROOT}
 ENV HOST=0.0.0.0 PORT=8000 WORKERS=3 TIMEOUT=90
@@ -21,10 +22,10 @@ EXPOSE 8000
 
 # Migrations (Flask-Migrate or Alembic) then start via gunicorn, with common entrypoint fallbacks
 CMD bash -lc ' \
-  if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then \
-    if [ -f manage.py ]; then python manage.py db upgrade || true; \
-    elif [ -d migrations ] && [ -f alembic.ini ]; then alembic upgrade head || true; \
-    fi; \
+  if [ -f manage.py ]; then \
+    python manage.py db upgrade || true; \
+  elif [ -d migrations ]; then \
+    cd /srv/chaoticnexus && flask db upgrade || true; \
   fi; \
   if [ -f app/gunicorn.conf.py ]; then \
     exec gunicorn -c app/gunicorn.conf.py app.wsgi:app; \

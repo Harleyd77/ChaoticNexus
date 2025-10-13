@@ -47,6 +47,7 @@ def upgrade() -> None:
         sa.Column("last_login", sa.DateTime(timezone=True), nullable=True),
         sa.Column("reset_token", sa.String(length=255), nullable=True),
         sa.Column("reset_token_expires", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("customer_id", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("ix_customer_accounts_email", "customer_accounts", ["email"], unique=True)
@@ -86,6 +87,15 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("ix_customers_company", "customers", ["company"], unique=True)
+
+    op.create_foreign_key(
+        "fk_customer_accounts_customer_id",
+        "customer_accounts",
+        "customers",
+        ["customer_id"],
+        ["id"],
+        ondelete="SET NULL",
+    )
 
     op.create_table(
         "powders",
@@ -420,3 +430,29 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("ix_time_logs_job_id", "time_logs", ["job_id"], unique=False)
+
+
+def downgrade() -> None:
+    op.drop_constraint("fk_customer_accounts_customer_id", "customer_accounts", type_="foreignkey")
+    op.drop_index("ix_time_logs_job_id", table_name="time_logs")
+    op.drop_table("time_logs")
+    op.drop_table("powder_usage")
+    op.drop_table("job_powders")
+    op.drop_index("ix_job_photos_job_id", table_name="job_photos")
+    op.drop_table("job_photos")
+    op.drop_index("ix_job_edit_history_job_id", table_name="job_edit_history")
+    op.drop_table("job_edit_history")
+    op.drop_table("reorder_settings")
+    op.drop_table("inventory_log")
+    op.drop_index("ix_jobs_status", table_name="jobs")
+    op.drop_index("ix_jobs_company", table_name="jobs")
+    op.drop_table("jobs")
+    op.drop_table("contacts")
+    op.drop_table("users")
+    op.drop_table("settings")
+    op.drop_index("ix_powders_powder_color", table_name="powders")
+    op.drop_table("powders")
+    op.drop_index("ix_customers_company", table_name="customers")
+    op.drop_table("customers")
+    op.drop_index("ix_customer_accounts_email", table_name="customer_accounts")
+    op.drop_table("customer_accounts")

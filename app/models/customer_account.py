@@ -28,7 +28,6 @@ class CustomerAccount(BaseModel, TimestampMixin):
     reset_token = Column(String(255), nullable=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
     customer_id = Column(Integer, ForeignKey("customers.id", ondelete="SET NULL"), nullable=True)
-
     jobs = relationship("Job", back_populates="customer_account")
     edit_history = relationship("JobEditHistory", back_populates="customer_account")
     customer = relationship("Customer", back_populates="accounts")

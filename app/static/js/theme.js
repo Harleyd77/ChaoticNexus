@@ -6,7 +6,7 @@
 (function () {
   "use strict";
 
-  const THEMES = ["dark", "light", "vpc", "vpc-light", "chaos", "chaos-light"];
+  const THEMES = ["dark", "light", "vpc", "vpc-light", "chaos", "chaos-light", "forge", "ocean", "sunset", "forest"];
   const STORAGE_KEY = "vpc_theme";
   const COOKIE_NAME = "vpc_theme";
   const DEFAULT_THEME = "dark";
@@ -71,6 +71,10 @@
       "vpc-light": { bg: "#F7FAFF", text: "#0F172A" },
       chaos: { bg: "#0D0B12", text: "#F1EAFE" },
       "chaos-light": { bg: "#FBFAFF", text: "#0F172A" },
+      forge: { bg: "#1a1614", text: "#faf8f6" },
+      ocean: { bg: "#0a1628", text: "#e7f1ff" },
+      sunset: { bg: "#1a0f1f", text: "#fef3f8" },
+      forest: { bg: "#0f1912", text: "#ecfdf5" },
     };
     const tokens = tokenMap[theme] || tokenMap.dark;
     html.style.setProperty("--color-bg", tokens.bg);
@@ -98,11 +102,15 @@
     const current = html.dataset.theme || DEFAULT_THEME;
     const toggleMap = {
       dark: "light",
-      light: "dark",
+      light: "forge",
+      forge: "ocean",
+      ocean: "sunset",
+      sunset: "forest",
+      forest: "vpc",
       vpc: "vpc-light",
-      "vpc-light": "vpc",
+      "vpc-light": "chaos",
       chaos: "chaos-light",
-      "chaos-light": "chaos",
+      "chaos-light": "dark",
     };
     setTheme(toggleMap[current] || "light");
   }
@@ -116,6 +124,10 @@
         "vpc-light": "VPC Light",
         chaos: "Chaotic Dark",
         "chaos-light": "Chaotic Light",
+        forge: "Industrial Forge",
+        ocean: "Ocean Breeze",
+        sunset: "Sunset Glow",
+        forest: "Emerald Forest",
       }[theme] || theme
     );
   }

@@ -10,13 +10,12 @@ from .base import BaseModel
 from .mixins import SoftDeleteMixin, TimestampMixin
 
 
-class Job(BaseModel, SoftDeleteMixin):
+class Job(BaseModel, TimestampMixin, SoftDeleteMixin):
     """Represents a powder coating job."""
 
     __tablename__ = "jobs"
     __repr_attrs__ = ("id", "company", "status")
 
-    created_at = Column(DateTime(timezone=True), nullable=False)
     date_in = Column(Date, nullable=True)
     due_by = Column(Date, nullable=True)
     contact_name = Column(String(255), nullable=True)

@@ -31,6 +31,7 @@
 - **Job Edit:** `http://10.0.0.196:8080/jobs/1042/edit`
   - Editable form with all job fields
   - Dropdown selectors for departments/options
+  - Form saves updates and returns to detail view with confirmation
 
 ### Customer Portal (Customer-Facing)
 - **Customer Dashboard:** `http://10.0.0.196:8080/customer/`
@@ -76,7 +77,7 @@
 - **Customers:** `http://10.0.0.196:8080/customers/`
   - Customer database management
   - Search interface ready
-  - New customer button
+  - New customer button opens working form that persists records
 
 - **Powders:** `http://10.0.0.196:8080/powders/`
   - Powder inventory management
@@ -115,9 +116,7 @@
   - Start new batch button
 
 ### React SPA
-- **React App:** `http://10.0.0.196:3001/react/`
-  - Separate Vite dev server running
-  - Modern React dashboard with shadcn/ui components
+~ **React App:** retired dev server (see DEVTOOLS_FINDINGS)
 
 ---
 
@@ -163,8 +162,9 @@ All migrated pages share:
 - ✅ Templates render without errors
 - ✅ Favicon loads correctly
 - ✅ Base layout with theme system works
-- ⏳ Forms don't submit yet (no repository layer)
-- ⏳ No real data displayed (placeholder data only)
+- ✅ Admin job/customer forms save to the database
+- ⏳ Remaining forms still rely on placeholder repositories
+- ⏳ No real data displayed outside seeded records
 - ⏳ JavaScript interactivity pending (search, filters, drag-drop)
 
 ---
@@ -172,22 +172,21 @@ All migrated pages share:
 ## 🚀 Next Steps
 
 ### High Priority
-1. **Repository Layer** - Connect to Postgres and load real data
-2. **Auth Integration** - Wire up existing session management
-3. **Form Handlers** - Implement POST endpoints for all forms
-4. **Static Assets** - Copy missing logos/images from legacy
+- [ ] **Repository Layer:** expand beyond jobs/customers to remaining domains (powders, inventory, sprayer, intake)
+- [ ] **Auth Integration:** connect admin + customer auth to the new data layer
+- [ ] **Form Handlers:** implement POST flows for customer portal submit/edit, intake forms, sprayer actions
 
 ### Medium Priority
-5. **JavaScript Features** - Migrate search, filters, modals from legacy
-6. **API Endpoints** - Create JSON endpoints for AJAX operations
-7. **Customer Portal Auth** - Implement customer login flow
-8. **File Uploads** - Wire up photo/document upload handlers
+- [ ] **JavaScript Features:** migrate search/filter interactivity, modals, Kanban drag/drop
+- [ ] **API Endpoints:** create JSON endpoints to back interactive UIs
+- [ ] **Customer Portal Auth:** finish login/reset flows for customers
+- [ ] **File Uploads:** wire up photo/doc upload handlers for jobs, intake, portal
 
 ### Low Priority
-9. **Advanced Features** - Kanban drag-and-drop, live updates
-10. **Print Templates** - Migrate PDF generation
-11. **Reporting** - Analytics and export features
-12. **Mobile Optimization** - Fine-tune responsive breakpoints
+- [ ] **Advanced Features:** Kanban drag/drop, live updates, production dashboards
+- [ ] **Print Templates:** migrate PDF/worksheet generation
+- [ ] **Reporting:** analytics and expanded exports
+- [ ] **Mobile Optimization:** fine-tune responsive breakpoints and touch interactions
 
 ---
 
@@ -195,7 +194,7 @@ All migrated pages share:
 
 **Window 2 (Chrome DevTools MCP):**
 - All pages listed above are now browsable
-- Forms render but won't save data yet (expected)
+- Admin job/customer forms persist changes; other forms still read-only
 - Look for layout issues, broken CSS, console errors
 - Test mobile responsive views
 - Check accessibility (keyboard navigation, focus states)

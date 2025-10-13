@@ -53,16 +53,29 @@
       </div>
     </div>
 
-    {# Theme Toggle #}
-    <button
-      type="button"
-      data-theme-toggle
-      class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      aria-label="Toggle theme"
-    >
-      <span class="h-2 w-2 rounded-full bg-emerald-400" data-theme-indicator aria-hidden="true"></span>
-      <span data-theme-label class="hidden sm:inline">Theme</span>
-    </button>
+    {# Theme Selector #}
+    <div class="relative">
+      <label for="theme-selector-customer" class="sr-only">Select Theme</label>
+      <select
+        id="theme-selector-customer"
+        data-theme-selector
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 pr-8 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 cursor-pointer appearance-none"
+      >
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+        <option value="forge">Industrial Forge</option>
+        <option value="ocean">Ocean Breeze</option>
+        <option value="sunset">Sunset Glow</option>
+        <option value="forest">Emerald Forest</option>
+        <option value="vpc">VPC Dark</option>
+        <option value="vpc-light">VPC Light</option>
+        <option value="chaos">Chaotic Dark</option>
+        <option value="chaos-light">Chaotic Light</option>
+      </select>
+      <svg class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </div>
   </div>
 </header>
 

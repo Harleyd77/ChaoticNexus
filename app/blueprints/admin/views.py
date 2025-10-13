@@ -1,6 +1,8 @@
 """HTTP endpoints for the Admin blueprint."""
 
-from flask import render_template
+from flask import flash, redirect, render_template, request, url_for
+
+from app.services.settings_service import settings_service
 
 from . import bp
 
@@ -15,11 +17,23 @@ def users():
     )
 
 
-@bp.route("/settings")
+@bp.route("/settings", methods=["GET", "POST"])
 def settings():
     """Application settings page."""
-    # TODO: Load from repository once implemented
+    if request.method == "POST":
+        try:
+            settings_service.update_settings(
+                company_name=request.form.get("company_name"),
+            )
+        except ValueError as error:
+            flash(str(error), "error")
+        else:
+            flash("Settings updated successfully", "success")
+            return redirect(url_for("admin.settings"))
+
+    payload = settings_service.get_settings()
+
     return render_template(
         "admin/settings.html",
-        settings={},
+        settings=payload,
     )

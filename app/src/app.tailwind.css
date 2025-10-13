@@ -189,6 +189,114 @@
     --shadow-xl: 0 24px 48px rgba(24, 16, 48, 0.22);
   }
 
+  /* === Industrial Forge (Dark) — Powder Coating Inspired ================ */
+  html.theme-forge {
+    --color-bg: #1a1614;
+    --color-surface: #252220;
+    --color-surface-muted: #1f1d1b;
+    --color-card: #2a2623;
+    --color-border: #3a3331;
+    --color-text: #faf8f6;
+    --color-text-muted: #b8ada5;
+    
+    --color-accent: #ff8c42;
+    --color-accent-strong: #ff7320;
+    --color-accent-hover: #ff6b00;
+    --color-success: #4ade80;
+    --color-warning: #fbbf24;
+    --color-danger: #f87171;
+    --color-info: #6b8cae;
+    
+    --color-hover: #2f2b28;
+    --color-active: #3a3532;
+    
+    --shadow-sm: 0 2px 4px rgba(255, 140, 66, 0.1);
+    --shadow-md: 0 6px 14px rgba(255, 140, 66, 0.15);
+    --shadow-lg: 0 14px 32px rgba(255, 115, 32, 0.2);
+    --shadow-xl: 0 28px 56px rgba(255, 107, 0, 0.25);
+  }
+
+  /* === Ocean Breeze (Dark) — Coastal Blues & Teals ====================== */
+  html.theme-ocean {
+    --color-bg: #0a1628;
+    --color-surface: #0f1e33;
+    --color-surface-muted: #0c1a2e;
+    --color-card: #132845;
+    --color-border: #1e3a5f;
+    --color-text: #e7f1ff;
+    --color-text-muted: #8ba8c7;
+    
+    --color-accent: #06b6d4;
+    --color-accent-strong: #0891b2;
+    --color-accent-hover: #0e7490;
+    --color-success: #14b8a6;
+    --color-warning: #f59e0b;
+    --color-danger: #f43f5e;
+    --color-info: #38bdf8;
+    
+    --color-hover: #1a3350;
+    --color-active: #1f3d5c;
+    
+    --shadow-sm: 0 2px 4px rgba(6, 182, 212, 0.1);
+    --shadow-md: 0 6px 14px rgba(6, 182, 212, 0.15);
+    --shadow-lg: 0 14px 32px rgba(8, 145, 178, 0.2);
+    --shadow-xl: 0 28px 56px rgba(14, 116, 144, 0.25);
+  }
+
+  /* === Sunset Glow (Dark) — Warm Gradient Aesthetic ==================== */
+  html.theme-sunset {
+    --color-bg: #1a0f1f;
+    --color-surface: #251828;
+    --color-surface-muted: #1f1323;
+    --color-card: #2d1f37;
+    --color-border: #3d2d47;
+    --color-text: #fef3f8;
+    --color-text-muted: #c9adb8;
+    
+    --color-accent: #f472b6;
+    --color-accent-strong: #ec4899;
+    --color-accent-hover: #db2777;
+    --color-success: #22c55e;
+    --color-warning: #fb923c;
+    --color-danger: #f87171;
+    --color-info: #a78bfa;
+    
+    --color-hover: #362638;
+    --color-active: #402e45;
+    
+    --shadow-sm: 0 2px 4px rgba(244, 114, 182, 0.1);
+    --shadow-md: 0 6px 14px rgba(236, 72, 153, 0.15);
+    --shadow-lg: 0 14px 32px rgba(219, 39, 119, 0.2);
+    --shadow-xl: 0 28px 56px rgba(190, 24, 93, 0.25);
+  }
+
+  /* === Emerald Forest (Dark) — Natural Greens ========================== */
+  html.theme-forest {
+    --color-bg: #0f1912;
+    --color-surface: #142820;
+    --color-surface-muted: #11221a;
+    --color-card: #1a332b;
+    --color-border: #243f35;
+    --color-text: #ecfdf5;
+    --color-text-muted: #86bda0;
+    
+    --color-accent: #10b981;
+    --color-accent-strong: #059669;
+    --color-accent-hover: #047857;
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+    --color-info: #06b6d4;
+    
+    --color-hover: #1f3d2f;
+    --color-active: #254739;
+    
+    --shadow-sm: 0 2px 4px rgba(16, 185, 129, 0.1);
+    --shadow-md: 0 6px 14px rgba(5, 150, 105, 0.15);
+    --shadow-lg: 0 14px 32px rgba(4, 120, 87, 0.2);
+    --shadow-xl: 0 28px 56px rgba(4, 120, 87, 0.25);
+  }
+
   /* === Base Styles ====================================================== */
   * {
     box-sizing: border-box;
@@ -333,6 +441,61 @@
     height: 1px;
     background: var(--color-border);
     border: none;
+  }
+
+  /* === Theme-Specific Enhancements ======================================= */
+  
+  /* Industrial Forge - Metallic card effects */
+  html.theme-forge .card {
+    background: linear-gradient(135deg, var(--color-card) 0%, #2d2925 100%);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--color-border);
+  }
+  
+  html.theme-forge .card-hover:hover {
+    box-shadow: 
+      0 0 20px rgba(255, 140, 66, 0.15),
+      0 14px 32px rgba(255, 115, 32, 0.2);
+    border-color: rgba(255, 140, 66, 0.25);
+  }
+  
+  html.theme-forge .btn-primary {
+    background: linear-gradient(135deg, #ff8c42 0%, #ff7320 100%);
+    box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+  }
+  
+  html.theme-forge .btn-primary:hover {
+    background: linear-gradient(135deg, #ff7320 0%, #ff6b00 100%);
+    box-shadow: 0 4px 12px rgba(255, 115, 32, 0.4);
+  }
+  
+  /* Ocean Breeze - Glowing cyan accents */
+  html.theme-ocean .card-hover:hover {
+    box-shadow: 
+      0 0 20px rgba(6, 182, 212, 0.15),
+      0 14px 32px rgba(8, 145, 178, 0.2);
+    border-color: rgba(6, 182, 212, 0.25);
+  }
+  
+  /* Sunset Glow - Pink/purple gradients */
+  html.theme-sunset .card {
+    background: linear-gradient(135deg, var(--color-card) 0%, #321d3a 100%);
+  }
+  
+  html.theme-sunset .card-hover:hover {
+    box-shadow: 
+      0 0 20px rgba(244, 114, 182, 0.15),
+      0 14px 32px rgba(236, 72, 153, 0.2);
+    border-color: rgba(244, 114, 182, 0.25);
+  }
+  
+  /* Emerald Forest - Green glow */
+  html.theme-forest .card-hover:hover {
+    box-shadow: 
+      0 0 20px rgba(16, 185, 129, 0.15),
+      0 14px 32px rgba(5, 150, 105, 0.2);
+    border-color: rgba(16, 185, 129, 0.25);
   }
 }
 

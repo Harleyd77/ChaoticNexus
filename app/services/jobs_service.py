@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from app.models import Customer, Job
 from app.repositories import session_scope
@@ -85,8 +86,8 @@ class JobIntakeService:
         session,
         company: str,
         contact_name: str,
-        phone: str | None,
-        email: str | None,
+        phone: Optional[str],
+        email: Optional[str],
     ) -> Customer:
         customer = session.query(Customer).filter(Customer.company == company).one_or_none()
         if customer:
