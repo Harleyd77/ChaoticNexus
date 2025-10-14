@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from app.models import User
 from app.repositories import session_scope
+from app.services.auth_service import _hash_password
 from app.services.options_service import options_service
 from app.services.settings_service import settings_service
 
@@ -17,6 +18,62 @@ def users():
     with session_scope() as session:
         rows = session.execute(select(User).order_by(User.username)).scalars().all()
     return render_template("admin/users.html", users=rows)
+
+
+@bp.post("/users/<int:user_id>/save")
+def users_save(user_id: int):
+    """Save user admin flag and permissions."""
+    perms = []
+    for key in [
+        "see_jobs",
+        "see_powders",
+        "see_inventory",
+        "edit_options",
+        "manage_users",
+    ]:
+        if request.form.get(key) == "on":
+            perms.append(key)
+
+    is_admin_flag = request.form.get("is_admin") == "on"
+
+    with session_scope() as session:
+        user = session.get(User, user_id)
+        if not user:
+            flash("User not found", "error")
+            return redirect(url_for("admin.users"))
+        user.is_admin = is_admin_flag
+        user.permissions_json = {"perms": perms} if perms else None
+        session.flush()
+
+    flash("User updated", "success")
+    return redirect(url_for("admin.users"))
+
+
+@bp.post("/users/create")
+def users_create():
+    """Create a new admin/back-office user."""
+    username = (request.form.get("username") or "").strip()
+    password = (request.form.get("password") or "").strip()
+    is_admin_flag = request.form.get("is_admin") == "on"
+    if not username or not password:
+        flash("Username and password required", "error")
+        return redirect(url_for("admin.users"))
+
+    with session_scope() as session:
+        exists = session.execute(
+            select(User).filter(User.username == username)
+        ).scalar_one_or_none()
+        if exists:
+            flash("Username already exists", "error")
+            return redirect(url_for("admin.users"))
+        user = User(
+            username=username, password_hash=_hash_password(password), is_admin=is_admin_flag
+        )
+        session.add(user)
+        session.flush()
+
+    flash("User created", "success")
+    return redirect(url_for("admin.users"))
 
 
 @bp.route("/settings", methods=["GET", "POST"])
