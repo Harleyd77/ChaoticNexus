@@ -23,6 +23,10 @@
     <a href="/customers/" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/customers') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Customers</a>
     <a href="/powders/" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/powders') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Powders</a>
     <a href="/inventory/" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/inventory') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Inventory</a>
+    {% if header_is_admin %}
+    <a href="/admin/settings" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/admin/settings') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Admin Settings</a>
+    <a href="/admin/users" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path.startswith('/admin/users') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Users</a>
+    {% endif %}
   </nav>
 
   {# User Controls #}
@@ -78,7 +82,7 @@
         <span class="hidden sm:inline">Logout</span>
         <span class="sm:hidden">
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
           </svg>
         </span>
       </a>
