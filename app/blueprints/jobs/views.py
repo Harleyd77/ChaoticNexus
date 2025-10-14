@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from datetime import date
+from datetime import date, datetime
 
 from flask import Response, flash, jsonify, redirect, render_template, request, url_for
 
 from app.repositories import job_repo
 from app.services.options_service import options_service
+from app.services.upload_service import delete_uploaded_file, save_job_files
 
 from . import bp
 
@@ -55,6 +56,24 @@ def _group_jobs_by_department(jobs: Sequence) -> dict[str, list]:
     return grouped
 
 
+def _normalize_date_for_input(value) -> str:
+    """Return YYYY-MM-DD string for date/datetime/str values, else empty."""
+    if not value:
+        return ""
+    try:
+        if isinstance(value, date) and not isinstance(value, datetime):
+            return value.isoformat()
+        if isinstance(value, datetime):
+            return value.date().isoformat()
+        # String fallback: best-effort slice first 10 chars if looks like ISO
+        s = str(value).strip()
+        if len(s) >= 10 and s[4] == "-" and s[7] == "-":
+            return s[:10]
+    except Exception:
+        return ""
+    return ""
+
+
 def _job_to_form_data(job) -> dict[str, str]:
     return {
         "contact_name": job.contact_name or "",
@@ -66,11 +85,12 @@ def _job_to_form_data(job) -> dict[str, str]:
         "priority": job.priority or "",
         "blast": job.blast or "",
         "prep": job.prep or "",
-        "color": job.color or job.coating or "",
+        # Some legacy rows may have a 'coating' attribute instead of 'color'
+        "color": job.color or (getattr(job, "coating", None) or ""),
         "status": job.status or "",
         "department": job.department or "",
-        "date_in": job.date_in.isoformat() if job.date_in else "",
-        "due_by": job.due_by.isoformat() if job.due_by else "",
+        "date_in": _normalize_date_for_input(getattr(job, "date_in", None)),
+        "due_by": _normalize_date_for_input(getattr(job, "due_by", None)),
         "description": job.description or "",
         "notes": job.notes or "",
     }
@@ -219,8 +239,8 @@ def detail(job_id: int):
 
     photos = [
         {
-            "url": photo.filename,
-            "label": photo.original_name or "Job photo",
+            "url": url_for("uploads", name=(photo.filename or "")),
+            "label": photo.original_name or (photo.filename or "Job photo"),
         }
         for photo in getattr(job, "photos", [])
     ]
@@ -262,17 +282,37 @@ def photos_json(job_id: int):
 
 @bp.post("/<int:job_id>/photos/upload")
 def upload_photo(job_id: int):
-    file = request.files.get("file")
-    if not file:
+    """Save uploaded files and link them to the job (supports multi-file)."""
+    files = request.files.getlist("photos") or []
+    single = request.files.get("file")
+    if single:
+        files.append(single)
+    if not files:
         return {"error": "file missing"}, 400
-    # In parity mode we save filename only; storage handled by web server/volume
-    job_repo.add_photo(job_id, filename=file.filename, original_name=file.filename)
-    flash("Photo uploaded", "success")
+
+    job = _find_job(job_id)
+    if not job:
+        return {"error": "job not found"}, 404
+
+    saved = save_job_files(job_id, job.company, files)
+    for rel_path, orig in saved:
+        job_repo.add_photo(job_id, filename=rel_path, original_name=orig)
+
+    flash(f"Uploaded {len(saved)} file(s)", "success")
     return redirect(url_for("jobs.detail", job_id=job_id))
 
 
 @bp.post("/<int:job_id>/photos/<int:photo_id>/delete")
 def delete_photo(job_id: int, photo_id: int):
+    # Retrieve photo to delete disk file first
+    photos = job_repo.list_photos(job_id)
+    rel = None
+    for p in photos:
+        if p.id == photo_id:
+            rel = p.filename
+            break
+    if rel:
+        delete_uploaded_file(rel)
     ok = job_repo.delete_photo(job_id, photo_id)
     flash("Photo deleted" if ok else "Photo not found", "success" if ok else "error")
     return redirect(url_for("jobs.detail", job_id=job_id))

@@ -16,7 +16,7 @@
   or perms.get("see_powders")
   or perms.get("see_customers")
 %}
-{% set has_admin_tools = is_admin or session.get("is_admin") %}
+{% set has_admin_tools = False %}
 
 {% set primary_btn = "inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300" %}
 {% set secondary_btn = "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300" %}
@@ -190,35 +190,6 @@
     </section>
   {% endif %}
 
-  {% if has_admin_tools %}
-    <section class="space-y-4">
-      <header class="flex flex-wrap items-baseline justify-between gap-4">
-        <div>
-          <h2 class="text-xl font-semibold">Administration</h2>
-          <p class="text-sm text-slate-400">Configuration, templates, and advanced tooling.</p>
-        </div>
-      </header>
-      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
-          <div>
-            <h3 class="text-lg font-semibold">Settings &amp; Branding</h3>
-            <p class="text-sm text-slate-400">Control global options, branding assets, and price matrices.</p>
-          </div>
-          <div class="mt-auto flex flex-wrap gap-3">
-            {{ action_button("Open Settings", "/config", "secondary") }}
-          </div>
-        </div>
-        <div class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-5 shadow">
-          <div>
-            <h3 class="text-lg font-semibold">Print Templates</h3>
-            <p class="text-sm text-slate-400">Manage print/export layouts for jobs and customer comms.</p>
-          </div>
-          <div class="mt-auto flex flex-wrap gap-3">
-            {{ action_button("Template Manager", "/api/print-templates", "secondary") }}
-          </div>
-        </div>
-      </div>
-    </section>
-  {% endif %}
+  {# Admin section intentionally removed; access via Admin Settings only. #}
 </section>
 {% endblock %}

@@ -9,7 +9,7 @@
 <section class="space-y-8">
   {% call page_header("Jobs", "Track production progress, assignments, and customer details for every active work order.") %}
     {{ button_primary("New Job", href=url_for('jobs.new_job')) }}
-    {{ button_secondary("Export CSV", href=url_for('jobs.export_csv')) }}
+    {{ button_secondary("Export CSV", href=url_for('jobs.export_csv'), target="_blank") }}
   {% endcall %}
 
   {# Metrics #}
@@ -41,15 +41,15 @@
     </form>
   </header>
 
-  <section class="space-y-4">
+  <section class="space-y-4" id="jobs-list">
     <div class="flex items-center justify-between">
       <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Current Jobs</h2>
       <span class="text-xs text-slate-500">Routes marked “Soon” are pending migration.</span>
     </div>
 
-    <div class="grid gap-4">
+    <div class="grid gap-4" data-filter-scope="job-cards">
       {% for job in jobs %}
-        <article class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30 transition hover:border-slate-600 hover:shadow-slate-950/50">
+        <article class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30 transition hover:border-slate-600 hover:shadow-slate-950/50" data-filter-keywords="{{ (job.company or job.customer or '')|lower }} {{ (job.color or '')|lower }} {{ (job.status or '')|lower }} {{ job.id }}">
           <header class="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 class="text-lg font-semibold text-slate-100">

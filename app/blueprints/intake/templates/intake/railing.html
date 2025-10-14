@@ -11,8 +11,18 @@
     </div>
   </header>
 
+  {% if is_admin %}
+  <div class="flex justify-end -mt-4">
+    <button id="openRailingEditorBtn"
+            type="button"
+            class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">
+      Edit Form
+    </button>
+  </div>
+  {% endif %}
+
   <div class="max-w-4xl">
-    <form method="POST" class="space-y-6">
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
       {% if csrf_token is defined %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       {% endif %}
@@ -64,10 +74,6 @@
           <div class="relative">
             <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">Priority</label>
             <select id="priority" name="priority" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
-            {% if session.get('is_admin') %}
-            <button type="button" class="absolute right-0 -top-6 text-xs text-slate-400 underline hover:text-slate-200"
-                    hx-get="{{ url_for('admin.options_drawer') }}?name=priority" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
-            {% endif %}
           </div>
         </div>
       </div>
@@ -78,18 +84,10 @@
           <div class="relative">
             <label for="prep" class="block text-sm font-medium text-slate-300 mb-2">Prep</label>
             <select id="prep" name="prep" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
-            {% if session.get('is_admin') %}
-            <button type="button" class="absolute right-0 -top-6 text-xs text-slate-400 underline hover:text-slate-200"
-                    hx-get="{{ url_for('admin.options_drawer') }}?name=prep" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
-            {% endif %}
           </div>
           <div class="relative">
             <label for="blast" class="block text-sm font-medium text-slate-300 mb-2">Surface Prep</label>
             <select id="blast" name="blast" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
-            {% if session.get('is_admin') %}
-            <button type="button" class="absolute right-0 -top-6 text-xs text-slate-400 underline hover:text-slate-200"
-                    hx-get="{{ url_for('admin.options_drawer') }}?name=blast" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
-            {% endif %}
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
@@ -164,6 +162,12 @@
         </div>
       </div>
 
+      <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
+        <h2 class="text-lg font-semibold text-slate-100 mb-4">Attachments</h2>
+        <p class="text-sm text-slate-400 mb-2">Add measurement photos or PDFs. Files will be labeled with the job ID and a timestamp.</p>
+        <input type="file" name="photos" accept="image/*,application/pdf" multiple class="block w-full text-sm text-slate-200 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-800 file:px-4 file:py-2 file:text-sm file:font-semibold hover:file:bg-slate-700" />
+      </div>
+
       <div class="flex gap-3 justify-end">
         <a href="{{ url_for('dashboard.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-6 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">Cancel</a>
         <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Submit Job</button>
@@ -208,6 +212,8 @@
 
   // Powder color data
   let POWDER_FAMILIES = [], POWDER_COLORS = [];
+  // Railing config (options + required flags)
+  let RAIL_CFG = { options: {}, required: {} };
   async function loadPowderData(){
     try { const rFam = await fetch('/powders/families.json', {cache:'no-store'}); POWDER_FAMILIES = await rFam.json(); } catch(e){ POWDER_FAMILIES=[]; }
     try { const rCol = await fetch('/powders/colors_full.json', {cache:'no-store'}); POWDER_COLORS = await rCol.json(); } catch(e){ POWDER_COLORS=[]; }
@@ -238,17 +244,36 @@
     }catch(e){ el.textContent='n/a'; el.className='text-red-300'; }
   }
 
-  // Load config for selects
+  // Load config for selects and required flags
   async function loadRailingConfig(){
     try{
       const r = await fetch('/config/railing.json', {cache:'no-store'});
       const cfg = r.ok ? await r.json() : {};
-      const opts = (cfg && cfg.options) || {};
+      RAIL_CFG = { options: (cfg && cfg.options) || {}, required: (cfg && cfg.required) || {} };
+      const opts = RAIL_CFG.options || {};
       const fill = (id, arr)=>{ const el=$(id); if(!el) return; el.innerHTML=''; (arr||[]).forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; el.appendChild(o); }); };
       fill('prep', opts.prep || ['None Required','Base /','Full Prep','Touch Up']);
       fill('blast', opts.blast || ['Light Etch','Medium Etch','Heavy Etch','None']);
       fill('priority', opts.priority || ['Standard','Rush','Hot']);
+      fill('sectionType', opts.section_type || ['Picket','Glass','Other']);
+      applyRequired();
     }catch(e){ /* ignore, fallback to defaults */ }
+  }
+
+  function applyRequired(){
+    const map = RAIL_CFG.required || {};
+    const toggle = (id) => {
+      const el = document.getElementById(id); if(!el) return;
+      const lab = document.querySelector(`label[for="${id}"]`);
+      const on = !!map[id];
+      el.required = on;
+      if (lab) lab.classList.toggle('required', on);
+    };
+    [
+      'contact_name','company','phone','email',
+      'dateIn','dueBy','po','priority','prep','blast',
+      'color','description','notes'
+    ].forEach(toggle);
   }
 
   // Init
@@ -266,5 +291,113 @@
     loadPowderData();
   });
 </script>
+
+<!-- Slide-out Editor -->
+<script>
+  (function(){
+    function qs(sel){ return document.querySelector(sel); }
+    function readSelectOptions(id){ const el=document.getElementById(id); if(!el) return []; return Array.from(el.querySelectorAll('option')).map(o => (o.value||o.textContent||'').trim()).filter(Boolean); }
+    function setTextarea(id, values){ const ta=document.getElementById(id); if(!ta) return; ta.value=(values||[]).join('\n'); }
+    function renderRequiredEditor(){
+      const host = document.getElementById('rail-required'); if(!host) return;
+      const keys = [
+        'contact_name','company','phone','email',
+        'dateIn','dueBy','po','priority','prep','blast',
+        'color','description','notes'
+      ];
+      host.innerHTML = '';
+      keys.forEach((k) => {
+        const row = document.createElement('label');
+        row.className = 'flex items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2 mb-2';
+        row.innerHTML = `<span class="text-slate-300 text-sm">${k}</span>`;
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!(RAIL_CFG.required && RAIL_CFG.required[k]);
+        cb.addEventListener('change', () => { if(!RAIL_CFG.required) RAIL_CFG.required = {}; RAIL_CFG.required[k] = cb.checked; });
+        row.appendChild(cb);
+        host.appendChild(row);
+      });
+    }
+    function openEditor(){
+      const ov = qs('#railEditorOverlay'); const pn = qs('#railEditorPanel'); if(!ov||!pn) return;
+      setTextarea('rail-priority', readSelectOptions('priority'));
+      setTextarea('rail-prep', readSelectOptions('prep'));
+      setTextarea('rail-blast', readSelectOptions('blast'));
+      setTextarea('rail-section_type', readSelectOptions('sectionType'));
+      renderRequiredEditor();
+      ov.classList.remove('hidden'); pn.classList.remove('hidden');
+    }
+    function closeEditor(){ const ov = qs('#railEditorOverlay'); const pn = qs('#railEditorPanel'); if(ov) ov.classList.add('hidden'); if(pn) pn.classList.add('hidden'); }
+    function readLines(id){ const ta=document.getElementById(id); if(!ta) return []; return (ta.value||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean); }
+    async function saveAll(){
+      const tokenEl = document.querySelector('input[name="csrf_token"]');
+      const token = tokenEl ? tokenEl.value : '';
+      const payload = {
+        options: {
+          priority: readLines('rail-priority'),
+          prep: readLines('rail-prep'),
+          blast: readLines('rail-blast'),
+          section_type: readLines('rail-section_type')
+        },
+        required: RAIL_CFG.required || {}
+      };
+      const res = await fetch('/config/railing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': token
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        throw new Error('Save failed (' + res.status + ')');
+      }
+      const msg = document.getElementById('railEditorMsg'); if(msg){ msg.textContent='Saved.'; msg.classList.remove('hidden'); }
+      setTimeout(()=>{ window.location.reload(); }, 600);
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+      const btn = document.getElementById('openRailingEditorBtn'); if(btn) btn.addEventListener('click', openEditor);
+      const closeBtns = document.querySelectorAll('[data-close-rail-editor]'); closeBtns.forEach(b=> b.addEventListener('click', closeEditor));
+      const saveBtn = document.getElementById('railEditorSave'); if(saveBtn) saveBtn.addEventListener('click', function(e){ e.preventDefault(); saveAll().catch(err => { const msg=document.getElementById('railEditorMsg'); if(msg){ msg.textContent=err.message||'Save failed'; msg.classList.remove('hidden'); } }); });
+      const ov = document.getElementById('railEditorOverlay'); if(ov) ov.addEventListener('click', closeEditor);
+    });
+  })();
+</script>
+
+<div id="railEditorOverlay" class="hidden fixed inset-0 z-40 bg-slate-950/60"></div>
+<aside id="railEditorPanel" class="hidden fixed right-0 top-0 z-50 h-full w-full max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl">
+  <div class="flex items-center justify-between p-4 border-b border-slate-800">
+    <h3 class="text-lg font-semibold text-slate-100">Edit Dropdowns</h3>
+    <button type="button" class="text-slate-400 hover:text-slate-200" data-close-rail-editor>✕</button>
+  </div>
+  <div class="p-4 space-y-4 text-sm">
+    <div>
+      <label class="block mb-2 text-slate-300">Priority (one per line)</label>
+      <textarea id="rail-priority" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div>
+      <label class="block mb-2 text-slate-300">Prep (one per line)</label>
+      <textarea id="rail-prep" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div>
+      <label class="block mb-2 text-slate-300">Surface Prep (blast) (one per line)</label>
+      <textarea id="rail-blast" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div>
+      <label class="block mb-2 text-slate-300">Section Type (one per line)</label>
+      <textarea id="rail-section_type" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div>
+      <h4 class="text-slate-200 font-semibold mb-2">Required Fields</h4>
+      <div id="rail-required"></div>
+      <p class="text-xs text-slate-400 mt-1">Toggles apply to this form. Required fields show an asterisk and enforce validation.</p>
+    </div>
+    <div id="railEditorMsg" class="hidden text-emerald-300"></div>
+    <div class="flex justify-end gap-3 pt-2">
+      <button type="button" class="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700" data-close-rail-editor>Close</button>
+      <button id="railEditorSave" type="button" class="rounded-lg px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white">Save</button>
+    </div>
+  </div>
+</aside>
 {% endblock %}
 
