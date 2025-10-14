@@ -22,8 +22,32 @@
       .forEach((el) => el.addEventListener("click", handlePendingRoute, false));
   }
 
+  function initJobsListFiltering() {
+    const container = document.getElementById("jobs-list");
+    if (!container) return;
+    const scope = container.querySelector('[data-filter-scope="job-cards"]');
+    if (!scope) return;
+    const input = document.querySelector('form[role="search"] input[name="q"]');
+    if (!input) return;
+    const items = Array.from(scope.querySelectorAll('[data-filter-keywords]'));
+    const apply = () => {
+      const q = (input.value || "").trim().toLowerCase();
+      if (!q) {
+        items.forEach((el) => (el.style.display = ""));
+        return;
+      }
+      for (const el of items) {
+        const hay = el.getAttribute("data-filter-keywords") || "";
+        el.style.display = hay.includes(q) ? "" : "none";
+      }
+    };
+    input.addEventListener("input", apply);
+    apply();
+  }
+
   function init() {
     initPendingRouteNotices();
+    initJobsListFiltering();
   }
 
   if (document.readyState === "loading") {

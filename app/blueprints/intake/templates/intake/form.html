@@ -11,10 +11,20 @@
     </div>
   </header>
 
+  {% if is_admin %}
+  <div class="flex justify-end -mt-4">
+    <button id="openEditorBtn"
+            type="button"
+            class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">
+      Edit Form
+    </button>
+  </div>
+  {% endif %}
+
   
 
   <div class="max-w-4xl">
-    <form method="POST" class="space-y-6">
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
       {% if csrf_token is defined %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       {% endif %}
@@ -69,10 +79,6 @@
                 <option value="{{ opt }}">{{ opt }}</option>
                 {% endfor %}
               </select>
-              {% if session.get('is_admin') %}
-              <button type="button" class="absolute right-0 -top-6 text-xs text-slate-400 underline hover:text-slate-200"
-                      hx-get="{{ url_for('admin.options_drawer') }}?name=category" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
-              {% endif %}
             </div>
             <div class="relative">
               <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">Priority *</label>
@@ -81,10 +87,6 @@
                 <option value="{{ opt }}">{{ opt }}</option>
                 {% endfor %}
               </select>
-              {% if session.get('is_admin') %}
-              <button type="button" class="absolute right-0 -top-6 text-xs text-slate-400 underline hover:text-slate-200"
-                      hx-get="{{ url_for('admin.options_drawer') }}?name=priority" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
-              {% endif %}
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -95,10 +97,6 @@
                 <option value="{{ opt }}">{{ opt }}</option>
                 {% endfor %}
               </select>
-              {% if session.get('is_admin') %}
-              <button type="button" class="absolute right-0 -top-6 text-xs text-slate-400 underline hover:text-slate-200"
-                      hx-get="{{ url_for('admin.options_drawer') }}?name=blast" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
-              {% endif %}
             </div>
             <div class="relative">
               <label for="prep" class="block text-sm font-medium text-slate-300 mb-2">Prep</label>
@@ -107,10 +105,6 @@
                 <option value="{{ opt }}">{{ opt }}</option>
                 {% endfor %}
               </select>
-              {% if session.get('is_admin') %}
-              <button type="button" class="absolute right-0 -top-6 text-xs text-slate-400 underline hover:text-slate-200"
-                      hx-get="{{ url_for('admin.options_drawer') }}?name=prep" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
-              {% endif %}
             </div>
           </div>
           <div>
@@ -124,10 +118,6 @@
               <option value="{{ opt }}">{{ opt }}</option>
               {% endfor %}
             </select>
-            {% if session.get('is_admin') %}
-            <button type="button" class="absolute right-0 -top-6 text-xs text-slate-400 underline hover:text-slate-200"
-                    hx-get="{{ url_for('admin.options_drawer') }}?name=color_source" hx-target="#drawer-root" hx-swap="innerHTML">Edit</button>
-            {% endif %}
           </div>
           <div>
             <label for="description" class="block text-sm font-medium text-slate-300 mb-2">Description *</label>
@@ -140,6 +130,12 @@
                       class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
           </div>
         </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
+        <h2 class="text-lg font-semibold text-slate-100 mb-4">Attachments</h2>
+        <p class="text-sm text-slate-400 mb-2">You can add reference photos or PDFs. Files will be labeled with the job ID and a timestamp.</p>
+        <input type="file" name="photos" accept="image/*,application/pdf" multiple class="block w-full text-sm text-slate-200 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-800 file:px-4 file:py-2 file:text-sm file:font-semibold hover:file:bg-slate-700" />
       </div>
 
       <div class="flex gap-3 justify-end">
@@ -155,5 +151,120 @@
     </form>
   </div>
 </section>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+  (function(){
+    function qs(sel){ return document.querySelector(sel); }
+    function readSelectOptions(id){
+      const el = document.getElementById(id); if(!el) return [];
+      return Array.from(el.querySelectorAll('option')).map(o => (o.value || o.textContent || '').trim()).filter(Boolean);
+    }
+    function setTextarea(id, values){
+      const ta = document.getElementById(id); if(!ta) return;
+      ta.value = (values || []).join('\n');
+    }
+    function openEditor(){
+      const ov = qs('#formEditorOverlay'); const pn = qs('#formEditorPanel');
+      if(!ov || !pn) return;
+      // Prefill from current selects
+      setTextarea('edit-category', readSelectOptions('category'));
+      setTextarea('edit-priority', readSelectOptions('priority'));
+      setTextarea('edit-blast', readSelectOptions('blast'));
+      setTextarea('edit-prep', readSelectOptions('prep'));
+      setTextarea('edit-color_source', readSelectOptions('color_source'));
+      ov.classList.remove('hidden'); pn.classList.remove('hidden');
+    }
+    function closeEditor(){
+      const ov = qs('#formEditorOverlay'); const pn = qs('#formEditorPanel');
+      if(ov) ov.classList.add('hidden'); if(pn) pn.classList.add('hidden');
+    }
+    async function saveList(name, items, csrf){
+      const body = new URLSearchParams();
+      if (csrf) body.set('csrf_token', csrf);
+      body.set('name', name);
+      body.set('items', (items || []).join('\n'));
+      const res = await fetch('/admin/options/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      });
+      if(!res.ok){ throw new Error('Save failed for ' + name + ' (' + res.status + ')'); }
+    }
+    function readLines(id){
+      const ta = document.getElementById(id); if(!ta) return [];
+      return (ta.value || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    }
+    async function saveAll(){
+      const token = document.querySelector('input[name="csrf_token"]').value;
+      const lists = [
+        ['category','edit-category'],
+        ['priority','edit-priority'],
+        ['blast','edit-blast'],
+        ['prep','edit-prep'],
+        ['color_source','edit-color_source'],
+      ];
+      for (const [name, taId] of lists){
+        const items = readLines(taId);
+        await saveList(name, items, token);
+      }
+      // Simple feedback then reload to reflect updates in selects
+      const msg = document.getElementById('formEditorMsg');
+      if (msg){ msg.textContent = 'Saved.'; msg.classList.remove('hidden'); }
+      setTimeout(() => { window.location.reload(); }, 600);
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      const btn = document.getElementById('openEditorBtn');
+      if(btn) btn.addEventListener('click', openEditor);
+      const closeBtns = document.querySelectorAll('[data-close-form-editor]');
+      closeBtns.forEach(b => b.addEventListener('click', closeEditor));
+      const saveBtn = document.getElementById('formEditorSave');
+      if(saveBtn) saveBtn.addEventListener('click', function(e){ e.preventDefault(); saveAll().catch(err => {
+        const msg = document.getElementById('formEditorMsg');
+        if (msg){ msg.textContent = err.message || 'Save failed'; msg.classList.remove('hidden'); }
+      }); });
+      const ov = document.getElementById('formEditorOverlay');
+      if(ov) ov.addEventListener('click', closeEditor);
+    });
+  })();
+</script>
+
+<!-- Slide-out Editor -->
+<div id="formEditorOverlay" class="hidden fixed inset-0 z-40 bg-slate-950/60"></div>
+<aside id="formEditorPanel" class="hidden fixed right-0 top-0 z-50 h-full w-full max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl">
+  <div class="flex items-center justify-between p-4 border-b border-slate-800">
+    <h3 class="text-lg font-semibold text-slate-100">Edit Dropdowns</h3>
+    <button type="button" class="text-slate-400 hover:text-slate-200" data-close-form-editor>✕</button>
+  </div>
+  <div class="p-4 space-y-4 text-sm">
+    <div>
+      <label class="block mb-2 text-slate-300">Category (one per line)</label>
+      <textarea id="edit-category" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div>
+      <label class="block mb-2 text-slate-300">Priority (one per line)</label>
+      <textarea id="edit-priority" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div>
+      <label class="block mb-2 text-slate-300">Surface Prep (blast) (one per line)</label>
+      <textarea id="edit-blast" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div>
+      <label class="block mb-2 text-slate-300">Prep (one per line)</label>
+      <textarea id="edit-prep" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div>
+      <label class="block mb-2 text-slate-300">Color Source (one per line)</label>
+      <textarea id="edit-color_source" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    </div>
+    <div id="formEditorMsg" class="hidden text-emerald-300"></div>
+    <div class="flex justify-end gap-3 pt-2">
+      <button type="button" class="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700" data-close-form-editor>Close</button>
+      <button id="formEditorSave" type="button" class="rounded-lg px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white">Save</button>
+    </div>
+  </div>
+</aside>
 {% endblock %}
 

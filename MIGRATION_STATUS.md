@@ -157,36 +157,36 @@ All migrated pages share:
 - sprayer        (/sprayer/*)
 ```
 
-**Current State:**
-- ✅ All routes return HTTP 200
+**Current State (2025-10-14):**
+- ✅ All routes return HTTP 200 except noted minor issues in DEVTOOLS_FINDINGS.md
 - ✅ Templates render without errors
-- ✅ Favicon loads correctly
-- ✅ Base layout with theme system works
-- ✅ Admin job/customer forms save to the database
-- ⏳ Remaining forms still rely on placeholder repositories
-- ⏳ No real data displayed outside seeded records
-- ⏳ JavaScript interactivity pending (search, filters, drag-drop)
+- ✅ Base layout + theme system verified (persistence works)
+- ✅ Jobs, Customers: real database data (CRUD working)
+- ✅ Intake (Production, Railing): submissions create jobs successfully
+- ✅ File uploads: intake and job pages save and link photos; delete removes disk + DB
+- ✅ CSV export works (jobs); UI opens in a new tab
+- ✅ Client-side search on jobs list
+- ⏳ Minor: `/jobs/completed` and job edit error addressed; verify in prod
+- ⏳ Minor: HTMX integrity warning removed from base
 
 ---
 
-## 🚀 Next Steps
+## 🚀 Next Steps (Updated)
 
 ### High Priority
-- [ ] **Repository Layer:** expand beyond jobs/customers to remaining domains (powders, inventory, sprayer, intake)
-- [ ] **Auth Integration:** connect admin + customer auth to the new data layer
-- [ ] **Form Handlers:** implement POST flows for customer portal submit/edit, intake forms, sprayer actions
+- [ ] **Customer Portal Edit/Submit:** finalize POST flows + audit trails
+- [ ] **Sprayer Actions:** finalize batch start/stop + usage records
 
 ### Medium Priority
-- [ ] **JavaScript Features:** migrate search/filter interactivity, modals, Kanban drag/drop
-- [ ] **API Endpoints:** create JSON endpoints to back interactive UIs
+- [ ] **JavaScript Features:** Kanban drag/drop, modals
+- [ ] **API Endpoints:** JSON endpoints backing interactive UIs
 - [ ] **Customer Portal Auth:** finish login/reset flows for customers
-- [ ] **File Uploads:** wire up photo/doc upload handlers for jobs, intake, portal
 
 ### Low Priority
-- [ ] **Advanced Features:** Kanban drag/drop, live updates, production dashboards
-- [ ] **Print Templates:** migrate PDF/worksheet generation
+- [ ] **Advanced Features:** live updates, dashboards
+- [ ] **Print Templates:** worksheet/PDF generation
 - [ ] **Reporting:** analytics and expanded exports
-- [ ] **Mobile Optimization:** fine-tune responsive breakpoints and touch interactions
+- [ ] **Mobile Optimization:** fine-tune responsive breakpoints
 
 ---
 
@@ -199,11 +199,10 @@ All migrated pages share:
 - Test mobile responsive views
 - Check accessibility (keyboard navigation, focus states)
 
-**Known Limitations:**
-- No database connectivity yet - all pages show placeholder/sample data
-- Forms POST but don't persist (need repository layer)
-- Some complex JavaScript from legacy not yet migrated (customers.js, etc.)
-- Theme toggle in header may need adjustment for customer portal nav
+**Known Limitations (Updated):**
+- Some complex JavaScript from legacy not yet migrated (kanban dnd, advanced modals)
+- Customer portal write flows pending
+- Print templates pending
 
 ---
 

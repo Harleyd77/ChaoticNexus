@@ -65,3 +65,6 @@ htmlcov/
 *.swp
 *~
 
+
+# Test artifacts
+.playwright-mcp/

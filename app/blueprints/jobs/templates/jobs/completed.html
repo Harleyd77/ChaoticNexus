@@ -1,0 +1,34 @@
+{% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import page_header, button_secondary %}
+
+{% block title %}Completed Jobs{% endblock %}
+
+{% block content %}
+<section class="space-y-8">
+  {% call page_header("Completed Jobs", "Recently completed work orders.") %}
+    {{ button_secondary("Back to Jobs", href=url_for('jobs.index')) }}
+  {% endcall %}
+
+  <div class="grid gap-4">
+    {% for job in jobs %}
+      <article class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
+        <header class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-slate-100">
+            <span>{{ job.company or job.customer }}</span>
+            <span class="ml-2 text-sm font-normal text-slate-400">#{{ job.id }}</span>
+          </h3>
+          <a class="text-sm text-emerald-300 hover:text-emerald-200" href="{{ url_for('jobs.detail', job_id=job.id) }}">View</a>
+        </header>
+        <p class="mt-2 text-sm text-slate-300">{{ job.description or job.notes or 'No description provided.' }}</p>
+        <p class="mt-1 text-xs text-slate-500">Completed • {{ job.completed_at or 'recently' }}</p>
+      </article>
+    {% else %}
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-8 text-center text-slate-400">
+        No completed jobs yet.
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+

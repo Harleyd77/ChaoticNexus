@@ -4,6 +4,7 @@ from flask import flash, redirect, render_template, request, url_for
 
 from app.services.jobs_service import job_intake_service
 from app.services.options_service import options_service
+from app.services.upload_service import save_job_files
 
 from . import bp
 
@@ -40,6 +41,16 @@ def intake_form():
                 form_options=options_service.get_job_form_options(),
             )
         else:
+            # After job is created, persist any uploaded files and link as photos
+            files = request.files.getlist("photos") or []
+            if files:
+                saved = save_job_files(job.id, job.company, files)
+                # Record in repository via jobs blueprint conventions
+                from app.repositories import job_repo  # local import to avoid cycles
+
+                for rel_path, orig in saved:
+                    job_repo.add_photo(job.id, filename=rel_path, original_name=orig)
+
             flash("Production intake submitted successfully.", "success")
             return redirect(url_for("jobs.detail", job_id=job.id))
 
@@ -84,6 +95,14 @@ def railing_intake():
             flash(str(error), "error")
             return render_template("intake/railing.html", form_data=form)
         else:
+            files = request.files.getlist("photos") or []
+            if files:
+                saved = save_job_files(job.id, job.company, files)
+                from app.repositories import job_repo  # local import
+
+                for rel_path, orig in saved:
+                    job_repo.add_photo(job.id, filename=rel_path, original_name=orig)
+
             flash("Railing intake submitted successfully.", "success")
             return redirect(url_for("jobs.detail", job_id=job.id))
 

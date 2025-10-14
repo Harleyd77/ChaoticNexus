@@ -98,6 +98,17 @@ def _register_routes(app: Flask) -> None:
         """Redirect root to dashboard."""
         return redirect(url_for("dashboard.index"))
 
+    # Global template context: expose is_admin flag and username across templates
+    @app.context_processor
+    def _inject_user_context() -> dict[str, Any]:
+        from flask import session
+
+        # Provide both a boolean and username for header/conditional UI
+        return {
+            "is_admin": bool(session.get("is_admin")),
+            "me_username": session.get("me_username"),
+        }
+
     @app.get("/nav")
     def legacy_nav() -> Any:
         """Legacy navigation endpoint redirecting to dashboard.

@@ -1,4 +1,4 @@
-{% macro text_field(name, label, value="", type="text", placeholder="", icon=None, required=False) -%}
+{% macro text_field(name, label, value="", type="text", placeholder="", icon=None, required=False, disabled=False) -%}
   <label class="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
     <span>{{ label }}</span>
     <div class="relative">
@@ -15,6 +15,7 @@
         value="{{ value }}"
         placeholder="{{ placeholder }}"
         {% if required %}required{% endif %}
+        {% if disabled %}disabled{% endif %}
       />
     </div>
   </label>
