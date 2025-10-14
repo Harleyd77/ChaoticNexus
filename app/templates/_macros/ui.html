@@ -1,7 +1,7 @@
 {# UI Component Macros - Reusable UI elements for consistent design #}
 
 {# Primary button - for main actions #}
-{% macro button_primary(label, href=None, type="button", onclick=None, disabled=False, target=None) -%}
+{% macro button_primary(label, href=None, type="button", onclick=None, disabled=False, target=None, download=None) -%}
   {% if href %}
     <a
       href="{{ href }}"
@@ -9,6 +9,7 @@
       {% if disabled %}aria-disabled="true"{% endif %}
       {% if onclick %}onclick="{{ onclick }}"{% endif %}
       {% if target %}target="{{ target }}"{% endif %}
+      {% if download %}download="{{ download }}"{% endif %}
     >
       {{ label }}
     </a>
@@ -25,7 +26,7 @@
 {%- endmacro %}
 
 {# Secondary button - for less important actions #}
-{% macro button_secondary(label, href=None, type="button", onclick=None, disabled=False, target=None) -%}
+{% macro button_secondary(label, href=None, type="button", onclick=None, disabled=False, target=None, download=None) -%}
   {% if href %}
     <a
       href="{{ href }}"
@@ -33,6 +34,7 @@
       {% if disabled %}aria-disabled="true"{% endif %}
       {% if onclick %}onclick="{{ onclick }}"{% endif %}
       {% if target %}target="{{ target }}"{% endif %}
+      {% if download %}download="{{ download }}"{% endif %}
     >
       {{ label }}
     </a>

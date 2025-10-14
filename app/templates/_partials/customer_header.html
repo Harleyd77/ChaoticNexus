@@ -1,4 +1,5 @@
 {% set customer_name = customer.first_name if customer else 'Guest' %}
+{% set customer_meta = customer or None %}
 {% set current_path = request.path %}
 <header class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-4 shadow-md shadow-slate-950/30 ring-1 ring-white/5">
   {# Logo and Branding #}

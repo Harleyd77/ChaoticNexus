@@ -196,6 +196,19 @@
       const ta = document.getElementById(id); if(!ta) return [];
       return (ta.value || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
     }
+    async function showToast(message, ok){
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.setAttribute('role', 'status');
+      toast.className = `fixed right-6 top-6 z-[60] rounded-xl border px-4 py-2 text-sm shadow-lg transition-opacity duration-300 ${ok ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-100' : 'border-red-500/40 bg-red-500/10 text-red-100'}`;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => { toast.style.opacity = '1'; });
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+      }, 2800);
+    }
+
     async function saveAll(){
       const token = document.querySelector('input[name="csrf_token"]').value;
       const lists = [
@@ -210,9 +223,9 @@
         await saveList(name, items, token);
       }
       // Simple feedback then reload to reflect updates in selects
-      const msg = document.getElementById('formEditorMsg');
-      if (msg){ msg.textContent = 'Saved.'; msg.classList.remove('hidden'); }
-      setTimeout(() => { window.location.reload(); }, 600);
+      showToast('Dropdowns updated successfully', true);
+      closeEditor();
+      setTimeout(() => { window.location.reload(); }, 400);
     }
 
     document.addEventListener('DOMContentLoaded', function(){
@@ -223,7 +236,11 @@
       const saveBtn = document.getElementById('formEditorSave');
       if(saveBtn) saveBtn.addEventListener('click', function(e){ e.preventDefault(); saveAll().catch(err => {
         const msg = document.getElementById('formEditorMsg');
-        if (msg){ msg.textContent = err.message || 'Save failed'; msg.classList.remove('hidden'); }
+        if (msg){
+          msg.textContent = err.message || 'Save failed';
+          msg.classList.remove('hidden');
+        }
+        showToast(err.message || 'Save failed', false);
       }); });
       const ov = document.getElementById('formEditorOverlay');
       if(ov) ov.addEventListener('click', closeEditor);
@@ -239,27 +256,29 @@
     <button type="button" class="text-slate-400 hover:text-slate-200" data-close-form-editor>✕</button>
   </div>
   <div class="p-4 space-y-4 text-sm">
-    <div>
-      <label class="block mb-2 text-slate-300">Category (one per line)</label>
-      <textarea id="edit-category" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+    <div class="max-h-[60vh] space-y-4 overflow-y-auto pr-1">
+      <div>
+        <label class="block mb-2 text-slate-300">Category (one per line)</label>
+        <textarea id="edit-category" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+      </div>
+      <div>
+        <label class="block mb-2 text-slate-300">Priority (one per line)</label>
+        <textarea id="edit-priority" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+      </div>
+      <div>
+        <label class="block mb-2 text-slate-300">Surface Prep (blast) (one per line)</label>
+        <textarea id="edit-blast" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+      </div>
+      <div>
+        <label class="block mb-2 text-slate-300">Prep (one per line)</label>
+        <textarea id="edit-prep" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+      </div>
+      <div>
+        <label class="block mb-2 text-slate-300">Color Source (one per line)</label>
+        <textarea id="edit-color_source" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+      </div>
     </div>
-    <div>
-      <label class="block mb-2 text-slate-300">Priority (one per line)</label>
-      <textarea id="edit-priority" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
-    </div>
-    <div>
-      <label class="block mb-2 text-slate-300">Surface Prep (blast) (one per line)</label>
-      <textarea id="edit-blast" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
-    </div>
-    <div>
-      <label class="block mb-2 text-slate-300">Prep (one per line)</label>
-      <textarea id="edit-prep" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
-    </div>
-    <div>
-      <label class="block mb-2 text-slate-300">Color Source (one per line)</label>
-      <textarea id="edit-color_source" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
-    </div>
-    <div id="formEditorMsg" class="hidden text-emerald-300"></div>
+    <div id="formEditorMsg" class="hidden rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-emerald-200 text-sm"></div>
     <div class="flex justify-end gap-3 pt-2">
       <button type="button" class="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700" data-close-form-editor>Close</button>
       <button id="formEditorSave" type="button" class="rounded-lg px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white">Save</button>

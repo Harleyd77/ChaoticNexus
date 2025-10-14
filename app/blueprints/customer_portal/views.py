@@ -2,26 +2,127 @@
 
 from __future__ import annotations
 
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import current_app, flash, redirect, render_template, request, session, url_for
 
 from app.services.auth_service import customer_auth_service
 from app.services.customer_portal_service import customer_portal_service
 
 from . import bp
 
+_LANDING_FEATURES: list[dict[str, str]] = [
+    {
+        "title": "Track job progress",
+        "description": (
+            "View real-time status updates, stage changes, and pickup "
+            "notifications for every job you submit."
+        ),
+        "icon": "clipboard",
+    },
+    {
+        "title": "Share project details",
+        "description": (
+            "Update notes, upload instructions, and keep your contact "
+            "information current without calling the shop."
+        ),
+        "icon": "chat",
+    },
+    {
+        "title": "Submit new work",
+        "description": (
+            "Launch production or railing intake forms from anywhere—"
+            "requests drop straight into the coating workflow."
+        ),
+        "icon": "sparkles",
+    },
+]
 
-@bp.route("/")
-@bp.route("/dashboard")
+_LANDING_STEPS: list[dict[str, str]] = [
+    {
+        "number": "01",
+        "title": "Create your account",
+        "description": (
+            "Register with your business email so we can link jobs to the "
+            "right customer record immediately."
+        ),
+    },
+    {
+        "number": "02",
+        "title": "Submit or review jobs",
+        "description": (
+            "Send new work orders or review active jobs with live status, "
+            "notes, and expected completion dates."
+        ),
+    },
+    {
+        "number": "03",
+        "title": "Stay informed",
+        "description": (
+            "Receive updates as jobs move through intake, prep, coating, "
+            "QA, and pickup—all from one dashboard."
+        ),
+    },
+]
+
+
+def _get_current_account():
+    account_id = session.get("customer_account_id")
+    if not account_id:
+        return None
+    return customer_portal_service.get_account_with_customer(account_id)
+
+
+@bp.get("/portal")
+def portal_redirect():
+    """Legacy path alias: /customer/portal → customer landing page."""
+    return home()
+
+
+@bp.route("/", methods=["GET", "POST"])
+def home():
+    """Public landing page for the customer portal."""
+    account = _get_current_account()
+    support_email = (
+        current_app.config.get("BRANDING_SUPPORT_EMAIL") or "support@victoriapowdercoating.com"
+    )
+    phone = current_app.config.get("BRANDING_SUPPORT_PHONE") or "(250) 555-0133"
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        if not email:
+            flash("Enter an email and we'll reach out shortly.", "error")
+        else:
+            # TODO: Hook into CRM / ticket system. For now, reuse flash messaging.
+            flash("Thanks! We'll follow up within one business day.", "success")
+        return redirect(url_for("customer_portal.home"))
+
+    if account:
+        destination = request.args.get("next") or request.args.get("redirect")
+        if destination == "jobs":
+            return redirect(url_for("customer_portal.jobs_list"))
+        if destination == "profile":
+            return redirect(url_for("customer_portal.profile"))
+        return redirect(url_for("customer_portal.dashboard"))
+
+    return render_template(
+        "customer_portal/landing.html",
+        account=None,
+        customer=None,
+        features=_LANDING_FEATURES,
+        steps=_LANDING_STEPS,
+        login_url=url_for("auth.login"),
+        register_url=url_for("customer_portal.register"),
+        support_email=support_email,
+        support_phone=phone,
+    )
+
+
+@bp.get("/dashboard")
 def dashboard():
     """Customer portal dashboard."""
-    if not session.get("customer_account_id"):
-        flash("Please sign in to access the customer portal", "warning")
-        return redirect(url_for("auth.login"))
-
-    account = customer_portal_service.get_account_with_customer(session["customer_account_id"])
+    account = _get_current_account()
     if not account:
-        flash("Account not found", "error")
-        return redirect(url_for("auth.login"))
+        flash("Please sign in to access the customer portal", "warning")
+        return redirect(url_for("auth.login", next=request.path))
 
     recent_jobs = customer_portal_service.list_recent_jobs(account.id, limit=5)
     stats = customer_portal_service.dashboard_stats(account.id)
@@ -40,17 +141,13 @@ def dashboard():
 @bp.route("/jobs")
 def jobs_list():
     """List all customer jobs."""
-    if not session.get("customer_account_id"):
+    account = _get_current_account()
+    if not account:
         flash("Please sign in to access the customer portal", "warning")
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("auth.login", next=request.path))
 
     search_query = request.args.get("search", "") or None
     status_filter = request.args.get("status", "") or None
-
-    account = customer_portal_service.get_account_with_customer(session["customer_account_id"])
-    if not account:
-        flash("Account not found", "error")
-        return redirect(url_for("auth.login"))
 
     jobs = customer_portal_service.list_jobs_for_account(
         account.id,
@@ -70,14 +167,10 @@ def jobs_list():
 @bp.route("/jobs/<int:job_id>")
 def job_detail(job_id: int):
     """View job details."""
-    if not session.get("customer_account_id"):
-        flash("Please sign in to view jobs", "warning")
-        return redirect(url_for("auth.login"))
-
-    account = customer_portal_service.get_account_with_customer(session["customer_account_id"])
+    account = _get_current_account()
     if not account:
-        flash("Account not found", "error")
-        return redirect(url_for("auth.login"))
+        flash("Please sign in to view jobs", "warning")
+        return redirect(url_for("auth.login", next=request.path))
 
     job = customer_portal_service.get_job(account.id, job_id)
     if not job:
@@ -97,14 +190,10 @@ def job_detail(job_id: int):
 @bp.route("/jobs/<int:job_id>/edit", methods=["GET", "POST"])
 def edit_job(job_id: int):
     """Edit customer job."""
-    if not session.get("customer_account_id"):
-        flash("Please sign in to edit jobs", "warning")
-        return redirect(url_for("auth.login"))
-
-    account = customer_portal_service.get_account_with_customer(session["customer_account_id"])
+    account = _get_current_account()
     if not account:
-        flash("Account not found", "error")
-        return redirect(url_for("auth.login"))
+        flash("Please sign in to edit jobs", "warning")
+        return redirect(url_for("auth.login", next=request.path))
 
     job = customer_portal_service.get_job(account.id, job_id)
     if not job:
@@ -144,14 +233,10 @@ def edit_job(job_id: int):
 @bp.route("/jobs/submit", methods=["GET", "POST"])
 def submit_job():
     """Submit new job."""
-    if not session.get("customer_account_id"):
-        flash("Please sign in to submit jobs", "warning")
-        return redirect(url_for("auth.login"))
-
-    account = customer_portal_service.get_account_with_customer(session["customer_account_id"])
+    account = _get_current_account()
     if not account:
-        flash("Account not found", "error")
-        return redirect(url_for("auth.login"))
+        flash("Please sign in to submit jobs", "warning")
+        return redirect(url_for("auth.login", next=request.path))
 
     customer = account.customer if account else None
 
@@ -189,14 +274,10 @@ def submit_job():
 @bp.route("/profile", methods=["GET", "POST"])
 def profile():
     """View/edit customer profile."""
-    if not session.get("customer_account_id"):
-        flash("Please sign in to view your profile", "warning")
-        return redirect(url_for("auth.login"))
-
-    account = customer_portal_service.get_account_with_customer(session["customer_account_id"])
+    account = _get_current_account()
     if not account:
-        flash("Account not found", "error")
-        return redirect(url_for("auth.login"))
+        flash("Please sign in to view your profile", "warning")
+        return redirect(url_for("auth.login", next=request.path))
 
     if request.method == "POST":
         form = request.form
