@@ -11,15 +11,13 @@
     </div>
   </header>
 
-  <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-    <strong>Note:</strong> This page is a placeholder. Full railing intake functionality pending migration from legacy app.
-  </div>
-
   <div class="max-w-4xl">
     <form method="POST" class="space-y-6">
       {% if csrf_token is defined %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       {% endif %}
+      <input type="hidden" name="intake_source" value="railing" />
+
       <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-slate-100 mb-4">Customer Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -33,39 +31,228 @@
             <input type="text" id="company" name="company" required
                    class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           </div>
+          <div>
+            <label for="phone" class="block text-sm font-medium text-slate-300 mb-2">Phone</label>
+            <input type="tel" id="phone" name="phone"
+                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <input type="email" id="email" name="email"
+                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+          </div>
         </div>
       </div>
 
       <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
-        <h2 class="text-lg font-semibold text-slate-100 mb-4">Railing Specifications</h2>
-        <div class="space-y-4">
+        <h2 class="text-lg font-semibold text-slate-100 mb-4">Dates & Priority</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label for="description" class="block text-sm font-medium text-slate-300 mb-2">Description *</label>
-            <textarea id="description" name="description" required rows="4"
-                      class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                      placeholder="Describe railing type, dimensions, quantities..."></textarea>
+            <label for="dateIn" class="block text-sm font-medium text-slate-300 mb-2">Date In *</label>
+            <input type="date" id="dateIn" name="dateIn" required class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
           </div>
           <div>
-            <label for="measurements" class="block text-sm font-medium text-slate-300 mb-2">Measurements</label>
-            <textarea id="measurements" name="measurements" rows="3"
-                      class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                      placeholder="Length, height, post spacing..."></textarea>
+            <label for="dueBy" class="block text-sm font-medium text-slate-300 mb-2">Date Needed</label>
+            <input type="date" id="dueBy" name="dueBy" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <div>
+            <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
+            <input type="text" id="po" name="po" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+          </div>
+          <div>
+            <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">Priority</label>
+            <select id="priority" name="priority" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
+        <h2 class="text-lg font-semibold text-slate-100 mb-4">Prep & Coating</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="prep" class="block text-sm font-medium text-slate-300 mb-2">Prep</label>
+            <select id="prep" name="prep" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
+          </div>
+          <div>
+            <label for="blast" class="block text-sm font-medium text-slate-300 mb-2">Surface Prep</label>
+            <select id="blast" name="blast" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <div>
+            <label for="colorFamily" class="block text-sm font-medium text-slate-300 mb-2">Color Family</label>
+            <select id="colorFamily" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100">
+              <option value="">All families</option>
+            </select>
+          </div>
+          <div>
+            <label for="color" class="block text-sm font-medium text-slate-300 mb-2">Color *</label>
+            <input list="powderColors" id="color" name="color" required placeholder="Start typing color..."
+                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+            <datalist id="powderColors"></datalist>
+            <p class="text-xs text-slate-400 mt-1">In stock: <strong id="stockAmt">-</strong></p>
+            <p id="aliasHint" class="text-xs text-slate-400 mt-1" style="display:none"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
+        <h2 class="text-lg font-semibold text-slate-100 mb-4">Sections & Hardware</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label for="sectionLength" class="block text-sm font-medium text-slate-300 mb-2">Section Length</label>
+            <input type="text" id="sectionLength" placeholder="e.g., 6 ft" class="w-full px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100" />
+          </div>
+          <div>
+            <label for="sectionType" class="block text-sm font-medium text-slate-300 mb-2">Type</label>
+            <select id="sectionType" class="w-full px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100">
+              <option value="Picket">Picket</option>
+              <option value="Glass">Glass</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button type="button" id="addSection" class="w-full rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500">Add Section</button>
+          </div>
+        </div>
+        <div id="sectionsList" class="mt-3 rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-sm text-slate-300">
+          <div id="emptyText" class="text-slate-400">No sections added yet.</div>
+        </div>
+        <input type="hidden" id="sectionsHidden" name="sections_text" />
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+          <div>
+            <label for="bracketsCount" class="block text-sm font-medium text-slate-300 mb-2">Brackets</label>
+            <input type="number" id="bracketsCount" min="0" step="1" value="0" class="w-full px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100" />
+          </div>
+          <div>
+            <label for="screwsCount" class="block text-sm font-medium text-slate-300 mb-2">Screws</label>
+            <input type="number" id="screwsCount" min="0" step="1" value="0" class="w-full px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100" />
+          </div>
+          <div>
+            <label for="postsCount" class="block text-sm font-medium text-slate-300 mb-2">Posts</label>
+            <input type="number" id="postsCount" min="0" step="1" value="0" class="w-full px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100" />
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
+        <h2 class="text-lg font-semibold text-slate-100 mb-4">Description & Notes</h2>
+        <div class="space-y-4">
+          <div>
+            <label for="description" class="block text-sm font-medium text-slate-300 mb-2">Job Description *</label>
+            <textarea id="description" name="description" required rows="4" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></textarea>
+          </div>
+          <div>
+            <label for="notes" class="block text-sm font-medium text-slate-300 mb-2">Notes / Instructions</label>
+            <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></textarea>
           </div>
         </div>
       </div>
 
       <div class="flex gap-3 justify-end">
-        <a href="{{ url_for('dashboard.index') }}"
-           class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-6 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">
-          Cancel
-        </a>
-        <button type="submit"
-                class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">
-          Submit Job
-        </button>
+        <a href="{{ url_for('dashboard.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-6 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">Cancel</a>
+        <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Submit Job</button>
       </div>
     </form>
   </div>
 </section>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+  // Helpers
+  const $ = (id) => document.getElementById(id);
+  const toISO = (d) => new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+
+  // Sections list
+  let railItems = [];
+  function renderSections(){
+    const host = $("sectionsList"); if(!host) return;
+    if (!railItems.length){ host.innerHTML = '<div id="emptyText" class="text-slate-400">No sections added yet.</div>'; return; }
+    host.innerHTML = railItems.map((it, idx) => `
+      <div class="flex items-center justify-between border-b border-slate-800 py-2 text-sm">
+        <div>${it.type}: ${it.length}</div>
+        <button type="button" class="text-red-300 hover:text-red-200" onclick="removeSection(${idx})">Remove</button>
+      </div>
+    `).join('');
+  }
+  function removeSection(idx){ railItems.splice(idx,1); renderSections(); }
+
+  // Append hardware + sections into notes and hidden field
+  function appendDetailsIntoNotes(){
+    const br = Number($("bracketsCount").value||0), sc=Number($("screwsCount").value||0), po=Number($("postsCount").value||0);
+    let summary = '\n--- Railing Details ---\n';
+    summary += `Hardware: Brackets: ${br} | Screws: ${sc} | Posts: ${po}`;
+    if (railItems.length){
+      const sec = railItems.map((it,i)=> `${i+1}) ${it.type}: ${it.length}`).join('\n');
+      summary += `\nSections:\n${sec}`;
+    }
+    const notes = $("notes"); if (notes) notes.value = (notes.value||'') + summary;
+    const hid = $("sectionsHidden"); if (hid) hid.value = summary;
+  }
+
+  // Powder color data
+  let POWDER_FAMILIES = [], POWDER_COLORS = [];
+  async function loadPowderData(){
+    try { const rFam = await fetch('/powders/families.json', {cache:'no-store'}); POWDER_FAMILIES = await rFam.json(); } catch(e){ POWDER_FAMILIES=[]; }
+    try { const rCol = await fetch('/powders/colors_full.json', {cache:'no-store'}); POWDER_COLORS = await rCol.json(); } catch(e){ POWDER_COLORS=[]; }
+    const famSel = $("colorFamily"); if (famSel){
+      famSel.innerHTML = '<option value="">All families</option>' + (POWDER_FAMILIES||[]).map(f=>`<option>${f}</option>`).join('');
+      famSel.addEventListener('change', rebuildDatalist);
+    }
+    rebuildDatalist();
+  }
+  function rebuildDatalist(){
+    const fam = ($("colorFamily") && $("colorFamily").value) || '';
+    const dl = $("powderColors"); if (!dl) return;
+    dl.innerHTML='';
+    let src = Array.isArray(POWDER_COLORS) ? POWDER_COLORS.slice() : [];
+    if (fam) src = src.filter(it => (it && it.family) === fam);
+    src.forEach(it => { if (it && it.color){ const o = document.createElement('option'); o.value = it.color; if (it.aliases) o.label = `${it.color} - ${it.aliases}`; dl.appendChild(o); } });
+  }
+  async function updateStock(){
+    const name = String(($("color") && $("color").value)||'').trim();
+    const el = $("stockAmt"); if (!el) return;
+    if (!name){ el.textContent='-'; el.className=''; return; }
+    try{
+      const r = await fetch('/powders/by_color.json?name=' + encodeURIComponent(name), {cache:'no-store'});
+      const info = r.ok ? await r.json() : {};
+      const amt = Number(info && info.in_stock || 0);
+      el.textContent = String(amt);
+      el.className = amt>20 ? 'text-emerald-300' : (amt>0 ? 'text-amber-300' : 'text-red-300');
+    }catch(e){ el.textContent='n/a'; el.className='text-red-300'; }
+  }
+
+  // Load config for selects
+  async function loadRailingConfig(){
+    try{
+      const r = await fetch('/config/railing.json', {cache:'no-store'});
+      const cfg = r.ok ? await r.json() : {};
+      const opts = (cfg && cfg.options) || {};
+      const fill = (id, arr)=>{ const el=$(id); if(!el) return; el.innerHTML=''; (arr||[]).forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; el.appendChild(o); }); };
+      fill('prep', opts.prep || ['None Required','Base /','Full Prep','Touch Up']);
+      fill('blast', opts.blast || ['Light Etch','Medium Etch','Heavy Etch','None']);
+      fill('priority', opts.priority || ['Standard','Rush','Hot']);
+    }catch(e){ /* ignore, fallback to defaults */ }
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', function(){
+    // default dates
+    try{ const now=new Date(); $("dateIn").value = toISO(now); const d=new Date(now); d.setDate(d.getDate()+7); $("dueBy").value = toISO(d); }catch(e){}
+    // bind add section
+    const addBtn = $("addSection"); if (addBtn){ addBtn.addEventListener('click', function(){ const len = String($("sectionLength").value||'').trim(); const typ = String($("sectionType").value||'Other'); if (!len) return; railItems.push({length:len, type:typ}); $("sectionLength").value=''; renderSections(); }); }
+    // update stock on color change
+    const colorEl = $("color"); if (colorEl){ colorEl.addEventListener('input', updateStock); colorEl.addEventListener('blur', updateStock); }
+    // on submit, append details
+    const form = document.querySelector('form'); if (form){ form.addEventListener('submit', function(){ appendDetailsIntoNotes(); }); }
+    // load data
+    loadRailingConfig();
+    loadPowderData();
+  });
+</script>
 {% endblock %}
 
