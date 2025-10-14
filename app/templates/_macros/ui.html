@@ -175,7 +175,7 @@
 {%- endmacro %}
 
 {# Form input with label #}
-{% macro form_input(name, label, type="text", value="", placeholder="", required=False) -%}
+{% macro form_input(name, label, type="text", value="", placeholder="", required=False, max_width="") -%}
   <div class="space-y-1.5">
     <label for="{{ name }}" class="block text-sm font-medium text-slate-300">
       {{ label }}
@@ -189,7 +189,7 @@
       name="{{ name }}"
       value="{{ value }}"
       placeholder="{{ placeholder }}"
-      class="w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="w-full{% if max_width %} {{ max_width }}{% endif %} rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
       {% if required %}required{% endif %}
     />
   </div>
