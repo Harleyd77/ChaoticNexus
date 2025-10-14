@@ -44,9 +44,8 @@
   <section class="space-y-4" id="jobs-list" data-filter-active="false">
     <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
       <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Current Jobs</h2>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2" aria-live="polite">
         <span><span data-filter-count>{{ jobs|length }}</span>/<span data-filter-total>{{ jobs|length }}</span> visible</span>
-        <span>Routes marked “Soon” are pending migration.</span>
       </div>
     </div>
 
