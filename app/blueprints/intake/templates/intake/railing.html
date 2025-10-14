@@ -32,12 +32,18 @@
         <h2 class="text-lg font-semibold text-slate-100 mb-4">Customer Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label for="contact_name" class="block text-sm font-medium text-slate-300 mb-2">Contact Name *</label>
+            <label for="contact_name" class="block text-sm font-medium text-slate-300 mb-2">
+              Contact Name
+              <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="contact_name">*</span>
+            </label>
             <input type="text" id="contact_name" name="contact_name" required
                    class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           </div>
           <div>
-            <label for="company" class="block text-sm font-medium text-slate-300 mb-2">Company *</label>
+            <label for="company" class="block text-sm font-medium text-slate-300 mb-2">
+              Company
+              <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="company">*</span>
+            </label>
             <input type="text" id="company" name="company" required
                    class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           </div>
@@ -66,13 +72,16 @@
             <input type="date" id="dueBy" name="dueBy" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
           </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
           <div>
             <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
             <input type="text" id="po" name="po" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
           </div>
           <div class="relative">
-            <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">Priority</label>
+            <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">
+              Priority
+              <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="priority">*</span>
+            </label>
             <select id="priority" name="priority" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
           </div>
         </div>
@@ -82,11 +91,17 @@
         <h2 class="text-lg font-semibold text-slate-100 mb-4">Prep & Coating</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="relative">
-            <label for="prep" class="block text-sm font-medium text-slate-300 mb-2">Prep</label>
+            <label for="prep" class="block text-sm font-medium text-slate-300 mb-2">
+              Prep
+              <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="prep">*</span>
+            </label>
             <select id="prep" name="prep" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
           </div>
           <div class="relative">
-            <label for="blast" class="block text-sm font-medium text-slate-300 mb-2">Surface Prep</label>
+            <label for="blast" class="block text-sm font-medium text-slate-300 mb-2">
+              Surface Prep
+              <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="blast">*</span>
+            </label>
             <select id="blast" name="blast" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
           </div>
         </div>
