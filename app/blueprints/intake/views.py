@@ -3,6 +3,7 @@
 from flask import flash, redirect, render_template, request, url_for
 
 from app.services.jobs_service import job_intake_service
+from app.services.options_service import options_service
 
 from . import bp
 
@@ -33,12 +34,20 @@ def intake_form():
             )
         except ValueError as error:
             flash(str(error), "error")
-            return render_template("intake/form.html", form_data=form)
+            return render_template(
+                "intake/form.html",
+                form_data=form,
+                form_options=options_service.get_job_form_options(),
+            )
         else:
             flash("Production intake submitted successfully.", "success")
             return redirect(url_for("jobs.detail", job_id=job.id))
 
-    return render_template("intake/form.html", form_data={})
+    return render_template(
+        "intake/form.html",
+        form_data={},
+        form_options=options_service.get_job_form_options(),
+    )
 
 
 @bp.route("/railing", methods=["GET", "POST"])

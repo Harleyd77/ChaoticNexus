@@ -12,6 +12,7 @@ _DEFAULT_JOB_OPTIONS = {
     "priority": ["Critical", "High", "Normal", "Low"],
     "blast": ["None", "Mechanical", "Chemical"],
     "prep": ["TBD", "Wipe down", "Mask only", "Mask + Hang", "Degrease"],
+    "color_source": ["Customer Supplied", "In-House Stock", "Special Order"],
 }
 
 
@@ -21,6 +22,7 @@ class JobFormOptions:
     priority: list[str]
     blast: list[str]
     prep: list[str]
+    color_source: list[str]
 
 
 class OptionsService:
@@ -54,6 +56,9 @@ class OptionsService:
             ),
             blast=self._get_list("options:jobs:blast", default=_DEFAULT_JOB_OPTIONS["blast"]),
             prep=self._get_list("options:jobs:prep", default=_DEFAULT_JOB_OPTIONS["prep"]),
+            color_source=self._get_list(
+                "options:jobs:color_source", default=_DEFAULT_JOB_OPTIONS["color_source"]
+            ),
         )
 
     def get_job_option_list(self, name: str) -> list[str]:

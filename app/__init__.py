@@ -38,8 +38,11 @@ def _configure_logging(app: Flask) -> None:
 
 def _register_extensions(app: Flask) -> None:
     """Initialise Flask extensions."""
+    import os
+
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrations_dir = os.path.abspath(os.path.join(app.root_path, "..", "migrations"))
+    migrate.init_app(app, db, directory=migrations_dir)
     csrf.init_app(app)
 
     # Ensure SQLAlchemy models are imported so metadata is registered with the app.
