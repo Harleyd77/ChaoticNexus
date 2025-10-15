@@ -167,8 +167,8 @@ def export_csv() -> Response:
     csv_content = header + "\n".join(rows)
     return Response(
         csv_content,
+        mimetype="text/csv",
         headers={
-            "Content-Type": "text/csv",
             "Content-Disposition": "attachment; filename=jobs.csv",
         },
     )

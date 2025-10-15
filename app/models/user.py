@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import Boolean, Column, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import JSON, Boolean, Column, String
 
 from .base import BaseModel
 from .mixins import TimestampMixin
@@ -18,4 +17,4 @@ class User(BaseModel, TimestampMixin):
     username = Column(String(150), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     is_admin = Column(Boolean, nullable=False, default=False)
-    permissions_json = Column(JSONB, nullable=True)
+    permissions_json = Column(JSON, nullable=True)

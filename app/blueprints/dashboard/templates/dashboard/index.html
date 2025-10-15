@@ -20,23 +20,7 @@
 
 {% set primary_btn = "inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300" %}
 {% set secondary_btn = "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300" %}
-{% set pending_links = [
-  "/intake_form",
-  "/railing_intake",
-  "/sprayer/hitlist",
-  "/sprayer/batches",
-  "/jobs/screen",
-  "/jobs",
-  "/jobs/kanban",
-  "/jobs/completed",
-  "/jobs?archived=1",
-  "/powders",
-  "/customers",
-  "/config",
-  "/api/print-templates"
-] %}
-
-{% from "_macros/ui.html" import button_primary, button_secondary, alert %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% macro action_button(label, href, kind="primary") -%}
   {% if kind == "primary" %}
@@ -63,11 +47,6 @@
       </div>
     </div>
   </div>
-
-  {# Info Alert #}
-  {% call alert(type="warning") %}
-    <strong>Note:</strong> Routes marked <span class="font-semibold">Soon</span> are placeholders until their blueprints are migrated from the legacy app.
-  {% endcall %}
 
   {% if has_operations %}
     <section class="space-y-4">

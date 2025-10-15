@@ -32,24 +32,30 @@
         <h2 class="text-lg font-semibold text-slate-100 mb-4">Customer Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label for="contact_name" class="block text-sm font-medium text-slate-300 mb-2">Contact Name *</label>
+            <label for="contact_name" class="block text-sm font-medium text-slate-300 mb-2">
+              Contact Name
+              <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="contact_name">*</span>
+            </label>
             <input type="text" id="contact_name" name="contact_name" required
-                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                   class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           </div>
           <div>
-            <label for="company" class="block text-sm font-medium text-slate-300 mb-2">Company *</label>
+            <label for="company" class="block text-sm font-medium text-slate-300 mb-2">
+              Company
+              <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="company">*</span>
+            </label>
             <input type="text" id="company" name="company" required
-                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                   class="w-full max-w-lg px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           </div>
           <div>
             <label for="phone" class="block text-sm font-medium text-slate-300 mb-2">Phone</label>
             <input type="tel" id="phone" name="phone"
-                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                   class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           </div>
           <div>
             <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email</label>
             <input type="email" id="email" name="email"
-                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                   class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
           </div>
         </div>
       </div>
@@ -60,20 +66,23 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label for="dateIn" class="block text-sm font-medium text-slate-300 mb-2">Date In *</label>
-              <input type="date" id="dateIn" name="dateIn" required class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+              <input type="date" id="dateIn" name="dateIn" required class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
             </div>
             <div>
               <label for="dueBy" class="block text-sm font-medium text-slate-300 mb-2">Due By</label>
-              <input type="date" id="dueBy" name="dueBy" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+              <input type="date" id="dueBy" name="dueBy" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
             </div>
           </div>
           <div>
             <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
-            <input type="text" id="po" name="po" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+            <input type="text" id="po" name="po" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="relative">
-              <label for="category" class="block text-sm font-medium text-slate-300 mb-2">Category *</label>
+              <label for="category" class="block text-sm font-medium text-slate-300 mb-2">
+                Category
+                <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="category">*</span>
+              </label>
               <select id="category" name="category" required class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100">
                 {% for opt in form_options.category %}
                 <option value="{{ opt }}">{{ opt }}</option>
@@ -81,7 +90,10 @@
               </select>
             </div>
             <div class="relative">
-              <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">Priority *</label>
+              <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">
+                Priority
+                <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="priority">*</span>
+              </label>
               <select id="priority" name="priority" required class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100">
                 {% for opt in form_options.priority %}
                 <option value="{{ opt }}">{{ opt }}</option>
@@ -109,7 +121,7 @@
           </div>
           <div>
             <label for="color" class="block text-sm font-medium text-slate-300 mb-2">Color / Coating</label>
-            <input type="text" id="color" name="color" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+            <input type="text" id="color" name="color" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
           </div>
           <div class="relative">
             <label for="color_source" class="block text-sm font-medium text-slate-300 mb-2">Color Source</label>
@@ -196,6 +208,19 @@
       const ta = document.getElementById(id); if(!ta) return [];
       return (ta.value || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
     }
+    async function showToast(message, ok){
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.setAttribute('role', 'status');
+      toast.className = `fixed right-6 top-6 z-[60] rounded-xl border px-4 py-2 text-sm shadow-lg transition-opacity duration-300 ${ok ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-100' : 'border-red-500/40 bg-red-500/10 text-red-100'}`;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => { toast.style.opacity = '1'; });
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+      }, 2800);
+    }
+
     async function saveAll(){
       const token = document.querySelector('input[name="csrf_token"]').value;
       const lists = [
@@ -209,10 +234,22 @@
         const items = readLines(taId);
         await saveList(name, items, token);
       }
-      // Simple feedback then reload to reflect updates in selects
       const msg = document.getElementById('formEditorMsg');
-      if (msg){ msg.textContent = 'Saved.'; msg.classList.remove('hidden'); }
-      setTimeout(() => { window.location.reload(); }, 600);
+      if (msg){
+        msg.textContent = 'Dropdowns updated successfully';
+        msg.classList.remove('hidden');
+        requestAnimationFrame(() => msg.classList.remove('opacity-0'));
+        setTimeout(() => msg.classList.add('opacity-0'), 1800);
+        setTimeout(() => {
+          msg.classList.add('hidden');
+          closeEditor();
+          window.location.reload();
+        }, 2100);
+      } else {
+        showToast('Dropdowns updated successfully', true);
+        closeEditor();
+        setTimeout(() => { window.location.reload(); }, 800);
+      }
     }
 
     document.addEventListener('DOMContentLoaded', function(){
@@ -221,10 +258,18 @@
       const closeBtns = document.querySelectorAll('[data-close-form-editor]');
       closeBtns.forEach(b => b.addEventListener('click', closeEditor));
       const saveBtn = document.getElementById('formEditorSave');
-      if(saveBtn) saveBtn.addEventListener('click', function(e){ e.preventDefault(); saveAll().catch(err => {
-        const msg = document.getElementById('formEditorMsg');
-        if (msg){ msg.textContent = err.message || 'Save failed'; msg.classList.remove('hidden'); }
-      }); });
+      if(saveBtn) saveBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        saveAll().catch(err => {
+          const msg = document.getElementById('formEditorMsg');
+          if (msg){
+            msg.textContent = err.message || 'Save failed';
+            msg.classList.remove('hidden');
+            msg.classList.remove('opacity-0');
+          }
+          showToast(err.message || 'Save failed', false);
+        });
+      });
       const ov = document.getElementById('formEditorOverlay');
       if(ov) ov.addEventListener('click', closeEditor);
     });
@@ -233,34 +278,38 @@
 
 <!-- Slide-out Editor -->
 <div id="formEditorOverlay" class="hidden fixed inset-0 z-40 bg-slate-950/60"></div>
-<aside id="formEditorPanel" class="hidden fixed right-0 top-0 z-50 h-full w-full max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl">
-  <div class="flex items-center justify-between p-4 border-b border-slate-800">
+<aside id="formEditorPanel" class="hidden fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-slate-900 border-l border-slate-800 shadow-2xl">
+  <div class="flex items-center justify-between border-b border-slate-800 p-4">
     <h3 class="text-lg font-semibold text-slate-100">Edit Dropdowns</h3>
     <button type="button" class="text-slate-400 hover:text-slate-200" data-close-form-editor>✕</button>
   </div>
-  <div class="p-4 space-y-4 text-sm">
-    <div>
-      <label class="block mb-2 text-slate-300">Category (one per line)</label>
-      <textarea id="edit-category" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
+  <div class="flex-1 overflow-y-auto p-4">
+    <div class="space-y-4 text-sm">
+      <div>
+        <label class="mb-2 block text-slate-300">Category (one per line)</label>
+        <textarea id="edit-category" class="h-28 w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-slate-100"></textarea>
+      </div>
+      <div>
+        <label class="mb-2 block text-slate-300">Priority (one per line)</label>
+        <textarea id="edit-priority" class="h-28 w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-slate-100"></textarea>
+      </div>
+      <div>
+        <label class="mb-2 block text-slate-300">Surface Prep (blast) (one per line)</label>
+        <textarea id="edit-blast" class="h-28 w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-slate-100"></textarea>
+      </div>
+      <div>
+        <label class="mb-2 block text-slate-300">Prep (one per line)</label>
+        <textarea id="edit-prep" class="h-28 w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-slate-100"></textarea>
+      </div>
+      <div>
+        <label class="mb-2 block text-slate-300">Color Source (one per line)</label>
+        <textarea id="edit-color_source" class="h-28 w-full rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-slate-100"></textarea>
+      </div>
     </div>
-    <div>
-      <label class="block mb-2 text-slate-300">Priority (one per line)</label>
-      <textarea id="edit-priority" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
-    </div>
-    <div>
-      <label class="block mb-2 text-slate-300">Surface Prep (blast) (one per line)</label>
-      <textarea id="edit-blast" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
-    </div>
-    <div>
-      <label class="block mb-2 text-slate-300">Prep (one per line)</label>
-      <textarea id="edit-prep" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
-    </div>
-    <div>
-      <label class="block mb-2 text-slate-300">Color Source (one per line)</label>
-      <textarea id="edit-color_source" class="w-full h-28 px-3 py-2 rounded-lg bg-slate-950/70 border border-slate-800 text-slate-100"></textarea>
-    </div>
-    <div id="formEditorMsg" class="hidden text-emerald-300"></div>
-    <div class="flex justify-end gap-3 pt-2">
+  </div>
+  <div class="border-t border-slate-800 bg-slate-900/80 p-4">
+    <p id="formEditorMsg" class="pointer-events-none hidden overflow-hidden text-sm text-emerald-200 opacity-0 transition-opacity duration-300"></p>
+    <div class="mt-3 flex justify-end gap-3">
       <button type="button" class="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700" data-close-form-editor>Close</button>
       <button id="formEditorSave" type="button" class="rounded-lg px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white">Save</button>
     </div>

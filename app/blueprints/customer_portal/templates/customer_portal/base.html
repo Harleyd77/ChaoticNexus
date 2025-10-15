@@ -3,7 +3,11 @@
 {% block title %}{% block page_title %}Customer Portal{% endblock %} - Victoria Powder Coating{% endblock %}
 
 {% block header %}
-  {% include "_partials/customer_header.html" %}
+  {% if customer %}
+    {% include "_partials/customer_header.html" %}
+  {% else %}
+    {% include "_header_public.html" %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}

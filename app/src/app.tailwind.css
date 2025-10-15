@@ -2,7 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* VPC Design System - Theme Tokens & Multi-Brand Variants */
+/* ============================================================================
+   VPC Design System - THEME-ISOLATED ARCHITECTURE
+   
+   🎯 ONE FILE - COMPLETE THEME CONTROL!
+   
+   📍 Structure:
+   - Theme variables:         Lines ~28-316   (colors per theme)
+   - Component classes:       Lines ~364-462  (base card, button, table)
+   - THEME-ISOLATED STYLES:   Lines ~467-933  (Each theme = own design!)
+   
+   ✨ NEW ARCHITECTURE: Each theme has COMPLETE control!
+   ✨ Forge theme: 3D metallic buttons, rounded cards, orange glow
+   ✨ Dark theme:  Flat buttons, subtle corners, minimalist
+   ✨ Ocean theme: Glass morphism, pill buttons, cyan glows
+   ✨ And 7 more unique themes!
+   
+   🔨 After editing, rebuild CSS:
+   - Watch mode:  npm run watch:servercss  (auto-rebuild - RECOMMENDED)
+   - One-time:    npm run build:servercss
+   
+   📖 Guide: /UNIFIED_THEME_SYSTEM.md
+   ============================================================================ */
 @layer base {
   /* === Base/Default Theme (Dark) ======================================== */
   :root,
@@ -443,59 +464,605 @@
     border: none;
   }
 
-  /* === Theme-Specific Enhancements ======================================= */
+  /* ========================================================================
+     THEME-ISOLATED DESIGN SYSTEMS
+     Each theme has complete control over its own styling, buttons, cards, etc.
+     This allows vastly different visual styles per theme!
+     ======================================================================== */
   
-  /* Industrial Forge - Metallic card effects */
+  /* === INDUSTRIAL FORGE THEME - 3D METALLIC ============================ */
+  /* Industrial design with tactile 3D buttons, metallic gradients, orange glow */
+  
+  html.theme-forge button.bg-emerald-500,
+  html.theme-forge a.bg-emerald-500 {
+    border-radius: 1.25rem !important;  /* Extra rounded */
+    background: linear-gradient(to bottom, 
+      #22c55e 0%,      /* Bright emerald at top */
+      #16a34a 50%,     /* Mid emerald */
+      #15803d 100%     /* Darker emerald at bottom */
+    ) !important;
+    box-shadow: 
+      0 2px 0 rgba(255, 255, 255, 0.25) inset,
+      0 -3px 0 rgba(0, 0, 0, 0.3) inset,
+      0 6px 12px rgba(0, 0, 0, 0.5),
+      0 3px 6px rgba(34, 197, 94, 0.6),
+      0 1px 3px rgba(34, 197, 94, 0.8) !important;
+    transform: translateY(0) scale(1);
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  html.theme-forge button.bg-emerald-500:hover,
+  html.theme-forge a.bg-emerald-500:hover {
+    background: linear-gradient(to bottom, 
+      #4ade80 0%, 
+      #22c55e 50%, 
+      #16a34a 100%
+    ) !important;
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 3px 0 rgba(255, 255, 255, 0.3) inset,
+      0 -3px 0 rgba(0, 0, 0, 0.3) inset,
+      0 10px 24px rgba(0, 0, 0, 0.6),
+      0 5px 12px rgba(34, 197, 94, 0.7),
+      0 2px 6px rgba(34, 197, 94, 1) !important;
+  }
+  
+  html.theme-forge button.bg-emerald-500:active,
+  html.theme-forge a.bg-emerald-500:active {
+    background: linear-gradient(to bottom, 
+      #166534 0%, 
+      #15803d 50%, 
+      #14532d 100%
+    ) !important;
+    transform: translateY(2px) scale(0.98);
+    box-shadow: 
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 4px 8px rgba(0, 0, 0, 0.6) inset,
+      0 1px 2px rgba(0, 0, 0, 0.4) !important;
+  }
+  
+  html.theme-forge button.bg-slate-800,
+  html.theme-forge a.bg-slate-800 {
+    border-radius: 1.25rem !important;
+    background: linear-gradient(to bottom,
+      rgba(71, 85, 105, 0.9) 0%,
+      rgba(51, 65, 85, 0.9) 50%,
+      rgba(30, 41, 59, 0.9) 100%
+    ) !important;
+    box-shadow: 
+      0 2px 0 rgba(255, 255, 255, 0.08) inset,
+      0 -2px 0 rgba(0, 0, 0, 0.4) inset,
+      0 4px 8px rgba(0, 0, 0, 0.4),
+      0 1px 3px rgba(255, 140, 66, 0.25) !important;
+    border: 1px solid rgba(255, 140, 66, 0.2) !important;
+    transform: translateY(0) scale(1);
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  html.theme-forge button.bg-slate-800:hover,
+  html.theme-forge a.bg-slate-800:hover {
+    background: linear-gradient(to bottom,
+      rgba(100, 116, 139, 0.9) 0%,
+      rgba(71, 85, 105, 0.9) 50%,
+      rgba(51, 65, 85, 0.9) 100%
+    ) !important;
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 
+      0 2px 0 rgba(255, 255, 255, 0.12) inset,
+      0 -2px 0 rgba(0, 0, 0, 0.4) inset,
+      0 8px 16px rgba(0, 0, 0, 0.5),
+      0 2px 6px rgba(255, 140, 66, 0.35) !important;
+  }
+  
+  html.theme-forge button.bg-slate-800:active,
+  html.theme-forge a.bg-slate-800:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  
   html.theme-forge .card {
     background: linear-gradient(135deg, var(--color-card) 0%, #2d2925 100%);
-    border-width: 1px;
-    border-style: solid;
-    border-color: var(--color-border);
+    border: 2px solid var(--color-border);
+    border-radius: 1.5rem !important;  /* Extra rounded cards */
+    box-shadow: 
+      0 2px 0 rgba(255, 140, 66, 0.08) inset,
+      0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   html.theme-forge .card-hover:hover {
+    transform: translateY(-2px);
     box-shadow: 
-      0 0 20px rgba(255, 140, 66, 0.15),
-      0 14px 32px rgba(255, 115, 32, 0.2);
-    border-color: rgba(255, 140, 66, 0.25);
+      0 2px 0 rgba(255, 140, 66, 0.12) inset,
+      0 0 24px rgba(255, 140, 66, 0.2),
+      0 16px 36px rgba(255, 115, 32, 0.25);
+    border-color: rgba(255, 140, 66, 0.35);
   }
   
-  html.theme-forge .btn-primary {
-    background: linear-gradient(135deg, #ff8c42 0%, #ff7320 100%);
-    box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+  /* === DARK THEME - FLAT MODERN ======================================== */
+  /* Modern minimalist design with flat colors, subtle rounded corners */
+  
+  html.theme-dark button.bg-emerald-500,
+  html.theme-dark a.bg-emerald-500 {
+    border-radius: 0.5rem !important;  /* Subtle rounded */
+    background: #10b981 !important;    /* Solid flat */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+    transition: all 150ms ease;
+    transform: none !important;
   }
   
-  html.theme-forge .btn-primary:hover {
-    background: linear-gradient(135deg, #ff7320 0%, #ff6b00 100%);
-    box-shadow: 0 4px 12px rgba(255, 115, 32, 0.4);
+  html.theme-dark button.bg-emerald-500:hover,
+  html.theme-dark a.bg-emerald-500:hover {
+    background: #059669 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+    transform: none !important;  /* No lift effect */
   }
   
-  /* Ocean Breeze - Glowing cyan accents */
+  html.theme-dark button.bg-emerald-500:active,
+  html.theme-dark a.bg-emerald-500:active {
+    background: #047857 !important;
+    transform: none !important;
+  }
+  
+  html.theme-dark button.bg-slate-800,
+  html.theme-dark a.bg-slate-800 {
+    border-radius: 0.5rem !important;
+    background: #1e293b !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+    transition: all 150ms ease;
+  }
+  
+  html.theme-dark button.bg-slate-800:hover,
+  html.theme-dark a.bg-slate-800:hover {
+    background: #334155 !important;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.15) !important;
+  }
+  
+  html.theme-dark .card {
+    border-radius: 0.75rem !important;  /* Less rounded */
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    transition: all 200ms ease;
+  }
+  
+  html.theme-dark .card-hover:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
+    transform: none !important;  /* No lift */
+  }
+  
+  /* === LIGHT THEME - CLEAN MINIMAL ===================================== */
+  /* Clean light design with subtle shadows */
+  
+  html.theme-light button.bg-emerald-500,
+  html.theme-light a.bg-emerald-500 {
+    border-radius: 0.5rem !important;
+    background: #10b981 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(16,185,129,0.1) !important;
+    transition: all 150ms ease;
+  }
+  
+  html.theme-light button.bg-emerald-500:hover,
+  html.theme-light a.bg-emerald-500:hover {
+    background: #059669 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 2px 6px rgba(16,185,129,0.15) !important;
+  }
+  
+  html.theme-light button.bg-slate-800,
+  html.theme-light a.bg-slate-800 {
+    border-radius: 0.5rem !important;
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+  }
+  
+  html.theme-light button.bg-slate-800:hover,
+  html.theme-light a.bg-slate-800:hover {
+    background: #cbd5e1 !important;
+  }
+  
+  html.theme-light .card {
+    border-radius: 0.75rem !important;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  }
+  
+  html.theme-light .card-hover:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07) !important;
+  }
+  
+  /* === OCEAN THEME - GLASS MORPHISM ==================================== */
+  /* Futuristic glassy design with translucent surfaces, cyan glows */
+  
+  html.theme-ocean button.bg-emerald-500,
+  html.theme-ocean a.bg-emerald-500 {
+    border-radius: 9999px !important;  /* Full pill shape */
+    background: rgba(6, 182, 212, 0.3) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px rgba(6, 182, 212, 0.2) !important;
+    transition: all 200ms ease;
+  }
+  
+  html.theme-ocean button.bg-emerald-500:hover,
+  html.theme-ocean a.bg-emerald-500:hover {
+    background: rgba(6, 182, 212, 0.5) !important;
+    box-shadow: 0 12px 40px rgba(6, 182, 212, 0.4) !important;
+    transform: translateY(-2px);
+  }
+  
+  html.theme-ocean button.bg-slate-800,
+  html.theme-ocean a.bg-slate-800 {
+    border-radius: 9999px !important;
+    background: rgba(51, 65, 85, 0.3) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  html.theme-ocean button.bg-slate-800:hover,
+  html.theme-ocean a.bg-slate-800:hover {
+    background: rgba(51, 65, 85, 0.5) !important;
+  }
+  
+  html.theme-ocean .card {
+    border-radius: 1.5rem !important;
+    background: rgba(15, 30, 51, 0.6) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    transition: all 250ms ease;
+  }
+  
   html.theme-ocean .card-hover:hover {
-    box-shadow: 
-      0 0 20px rgba(6, 182, 212, 0.15),
-      0 14px 32px rgba(8, 145, 178, 0.2);
-    border-color: rgba(6, 182, 212, 0.25);
+    background: rgba(15, 30, 51, 0.8) !important;
+    border-color: rgba(6, 182, 212, 0.5) !important;
+    transform: translateY(-2px);
   }
   
-  /* Sunset Glow - Pink/purple gradients */
+  /* === VPC THEME - CORPORATE PROFESSIONAL ============================== */
+  /* Clean professional design with cobalt blue accents */
+  
+  html.theme-vpc button.bg-emerald-500,
+  html.theme-vpc a.bg-emerald-500 {
+    border-radius: 0.375rem !important;
+    background: #1E90FF !important;  /* Cobalt blue */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+    transition: all 150ms ease;
+  }
+  
+  html.theme-vpc button.bg-emerald-500:hover,
+  html.theme-vpc a.bg-emerald-500:hover {
+    background: #0B74E5 !important;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.15) !important;
+  }
+  
+  html.theme-vpc button.bg-slate-800,
+  html.theme-vpc a.bg-slate-800 {
+    border-radius: 0.375rem !important;
+    background: #334155 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+  }
+  
+  html.theme-vpc button.bg-slate-800:hover,
+  html.theme-vpc a.bg-slate-800:hover {
+    background: #475569 !important;
+  }
+  
+  html.theme-vpc .card {
+    border-radius: 0.5rem !important;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+  }
+  
+  html.theme-vpc .card-hover:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08) !important;
+  }
+  
+  /* === VPC LIGHT THEME - CORPORATE LIGHT =============================== */
+  
+  html.theme-vpc-light button.bg-emerald-500,
+  html.theme-vpc-light a.bg-emerald-500 {
+    border-radius: 0.375rem !important;
+    background: #1E90FF !important;
+    box-shadow: 0 1px 2px rgba(30,144,255,0.1) !important;
+  }
+  
+  html.theme-vpc-light button.bg-emerald-500:hover,
+  html.theme-vpc-light a.bg-emerald-500:hover {
+    background: #0B74E5 !important;
+  }
+  
+  html.theme-vpc-light button.bg-slate-800,
+  html.theme-vpc-light a.bg-slate-800 {
+    border-radius: 0.375rem !important;
+    background: #f1f5f9 !important;
+    color: #1e293b !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+  }
+  
+  html.theme-vpc-light .card {
+    border-radius: 0.5rem !important;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  }
+  
+  /* === CHAOS THEME - ELECTRIC BLUE ==================================== */
+  /* Luminous electric blue with advanced effects - shadcn inspired */
+  
+  html.theme-chaos button.bg-emerald-500,
+  html.theme-chaos a.bg-emerald-500 {
+    border-radius: 0.875rem !important;  /* Slightly more rounded */
+    
+    /* Multi-layer gradient - Azure to Cyan with shimmer */
+    background: 
+      linear-gradient(135deg, 
+        rgba(56, 189, 248, 0.95) 0%,    /* Sky blue */
+        rgba(14, 165, 233, 0.95) 50%,   /* Bright blue */
+        rgba(6, 182, 212, 0.95) 100%    /* Cyan */
+      ),
+      linear-gradient(45deg, 
+        rgba(59, 130, 246, 0.1) 0%, 
+        transparent 100%
+      ) !important;
+    
+    /* Advanced multi-layer shadows with blue luminescence */
+    box-shadow: 
+      0 0 0 1px rgba(56, 189, 248, 0.3),           /* Subtle border glow */
+      0 2px 0 rgba(255, 255, 255, 0.15) inset,     /* Top highlight */
+      0 -1px 0 rgba(0, 0, 0, 0.2) inset,           /* Bottom depth */
+      0 4px 16px rgba(14, 165, 233, 0.4),          /* Main shadow */
+      0 2px 8px rgba(56, 189, 248, 0.6),           /* Inner glow */
+      0 8px 24px rgba(6, 182, 212, 0.25) !important; /* Outer luminescence */
+    
+    /* Smooth animation with slight scale */
+    transform: translateY(0) scale(1);
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Optional: Animated gradient (uncomment to enable) */
+    /* background-size: 200% 200%; */
+    /* animation: gradientShift 3s ease infinite; */
+  }
+  
+  html.theme-chaos button.bg-emerald-500:hover,
+  html.theme-chaos a.bg-emerald-500:hover {
+    /* Brighter gradient on hover */
+    background: 
+      linear-gradient(135deg, 
+        rgba(96, 165, 250, 1) 0%,       /* Lighter sky blue */
+        rgba(56, 189, 248, 1) 50%,      /* Bright cyan */
+        rgba(14, 165, 233, 1) 100%      /* Deep blue */
+      ),
+      linear-gradient(45deg, 
+        rgba(59, 130, 246, 0.2) 0%, 
+        transparent 100%
+      ) !important;
+    
+    /* Enhanced glow on hover - luminous effect */
+    box-shadow: 
+      0 0 0 1px rgba(56, 189, 248, 0.5),
+      0 3px 0 rgba(255, 255, 255, 0.2) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.2) inset,
+      0 8px 24px rgba(14, 165, 233, 0.6),          /* Stronger shadow */
+      0 4px 16px rgba(56, 189, 248, 0.8),          /* Bright inner glow */
+      0 12px 32px rgba(6, 182, 212, 0.4),          /* Large outer glow */
+      0 0 40px rgba(56, 189, 248, 0.3) !important; /* Aura effect */
+    
+    /* Lift and slightly enlarge */
+    transform: translateY(-3px) scale(1.02) rotate(-0.5deg);
+  }
+  
+  html.theme-chaos button.bg-emerald-500:active,
+  html.theme-chaos a.bg-emerald-500:active {
+    /* Pressed state - darker and inset */
+    background: 
+      linear-gradient(135deg, 
+        rgba(14, 165, 233, 1) 0%, 
+        rgba(6, 182, 212, 1) 50%,
+        rgba(8, 145, 178, 1) 100%
+      ) !important;
+    
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 
+      0 0 0 1px rgba(56, 189, 248, 0.4),
+      0 2px 8px rgba(0, 0, 0, 0.4) inset,
+      0 2px 4px rgba(14, 165, 233, 0.3) !important;
+  }
+  
+  /* Secondary buttons - Frosted glass effect with blue tint */
+  html.theme-chaos button[class*="bg-slate-8"],
+  html.theme-chaos a[class*="bg-slate-8"] {
+    border-radius: 0.875rem !important;
+    
+    /* Glassmorphism - frosted glass with blue tint */
+    background: 
+      linear-gradient(135deg,
+        rgba(30, 58, 138, 0.25) 0%,
+        rgba(29, 78, 216, 0.15) 100%
+      ) !important;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    
+    /* Glowing blue border */
+    border: 1px solid rgba(56, 189, 248, 0.3) !important;
+    
+    /* Subtle luminous shadow */
+    box-shadow: 
+      0 0 0 1px rgba(59, 130, 246, 0.1) inset,
+      0 4px 12px rgba(14, 165, 233, 0.15),
+      0 2px 6px rgba(56, 189, 248, 0.2) !important;
+    
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  html.theme-chaos button[class*="bg-slate-8"]:hover,
+  html.theme-chaos a[class*="bg-slate-8"]:hover {
+    background: 
+      linear-gradient(135deg,
+        rgba(30, 58, 138, 0.35) 0%,
+        rgba(29, 78, 216, 0.25) 100%
+      ) !important;
+    
+    border-color: rgba(56, 189, 248, 0.5) !important;
+    
+    box-shadow: 
+      0 0 0 1px rgba(59, 130, 246, 0.2) inset,
+      0 6px 16px rgba(14, 165, 233, 0.25),
+      0 3px 10px rgba(56, 189, 248, 0.35),
+      0 0 20px rgba(56, 189, 248, 0.15) !important;
+    
+    transform: translateY(-2px);
+  }
+  
+  html.theme-chaos button[class*="bg-slate-8"]:active,
+  html.theme-chaos a[class*="bg-slate-8"]:active {
+    transform: translateY(0) scale(0.98);
+  }
+  
+  /* Cards - Modern with blue accent glow */
+  html.theme-chaos .card {
+    border-radius: 1.25rem !important;  /* Extra rounded */
+    
+    /* Subtle gradient background */
+    background: 
+      linear-gradient(135deg,
+        rgba(15, 23, 42, 0.95) 0%,
+        rgba(30, 41, 59, 0.98) 100%
+      ) !important;
+    
+    /* Glowing blue border */
+    border: 1px solid rgba(56, 189, 248, 0.2) !important;
+    
+    /* Layered shadows for depth */
+    box-shadow: 
+      0 0 0 1px rgba(59, 130, 246, 0.05) inset,
+      0 4px 16px rgba(0, 0, 0, 0.4),
+      0 2px 8px rgba(14, 165, 233, 0.15),
+      0 1px 4px rgba(56, 189, 248, 0.2) !important;
+    
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  html.theme-chaos .card-hover:hover {
+    /* Enhanced glow on hover */
+    border-color: rgba(56, 189, 248, 0.4) !important;
+    
+    box-shadow: 
+      0 0 0 1px rgba(59, 130, 246, 0.1) inset,
+      0 8px 24px rgba(0, 0, 0, 0.5),
+      0 4px 16px rgba(14, 165, 233, 0.3),
+      0 2px 8px rgba(56, 189, 248, 0.4),
+      0 0 32px rgba(56, 189, 248, 0.15) !important;  /* Aura glow */
+    
+    transform: translateY(-3px) scale(1.005);
+  }
+  
+  /* Optional: Gradient animation keyframes */
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* === CHAOS LIGHT THEME - PURPLE ON LIGHT ============================= */
+  
+  html.theme-chaos-light button.bg-emerald-500,
+  html.theme-chaos-light a.bg-emerald-500 {
+    border-radius: 0.75rem !important;
+    background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%) !important;
+    box-shadow: 0 2px 8px rgba(139,92,246,0.2) !important;
+  }
+  
+  html.theme-chaos-light button.bg-emerald-500:hover,
+  html.theme-chaos-light a.bg-emerald-500:hover {
+    background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%) !important;
+    box-shadow: 0 4px 12px rgba(139,92,246,0.3) !important;
+  }
+  
+  html.theme-chaos-light button.bg-slate-800,
+  html.theme-chaos-light a.bg-slate-800 {
+    border-radius: 0.75rem !important;
+    background: #f5f3ff !important;
+    color: #57577A !important;
+    border: 1px solid #E4E1F7 !important;
+  }
+  
+  html.theme-chaos-light .card {
+    border-radius: 1rem !important;
+    border: 1px solid #E4E1F7;
+    box-shadow: 0 2px 8px rgba(24,16,48,0.06) !important;
+  }
+  
+  /* === SUNSET THEME - WARM GRADIENTS =================================== */
+  /* Warm pink/orange sunset aesthetics */
+  
+  html.theme-sunset button.bg-emerald-500,
+  html.theme-sunset a.bg-emerald-500 {
+    border-radius: 1rem !important;
+    background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%) !important;
+    box-shadow: 0 4px 12px rgba(236,72,153,0.3) !important;
+    transition: all 200ms ease;
+  }
+  
+  html.theme-sunset button.bg-emerald-500:hover,
+  html.theme-sunset a.bg-emerald-500:hover {
+    background: linear-gradient(135deg, #FB7185 0%, #F472B6 100%) !important;
+    box-shadow: 0 6px 16px rgba(236,72,153,0.4) !important;
+    transform: translateY(-2px);
+  }
+  
+  html.theme-sunset button.bg-slate-800,
+  html.theme-sunset a.bg-slate-800 {
+    border-radius: 1rem !important;
+    background: rgba(236, 72, 153, 0.2) !important;
+    border: 1px solid rgba(244, 114, 182, 0.3) !important;
+  }
+  
   html.theme-sunset .card {
+    border-radius: 1.25rem !important;
     background: linear-gradient(135deg, var(--color-card) 0%, #321d3a 100%);
+    border: 1px solid rgba(244, 114, 182, 0.2);
+    box-shadow: 0 4px 12px rgba(236,72,153,0.15) !important;
   }
   
   html.theme-sunset .card-hover:hover {
-    box-shadow: 
-      0 0 20px rgba(244, 114, 182, 0.15),
-      0 14px 32px rgba(236, 72, 153, 0.2);
-    border-color: rgba(244, 114, 182, 0.25);
+    box-shadow: 0 0 20px rgba(244, 114, 182, 0.2), 0 14px 32px rgba(236, 72, 153, 0.25) !important;
+    border-color: rgba(244, 114, 182, 0.4);
+    transform: translateY(-2px);
   }
   
-  /* Emerald Forest - Green glow */
+  /* === FOREST THEME - NATURAL GREENS =================================== */
+  /* Earthy green forest aesthetic */
+  
+  html.theme-forest button.bg-emerald-500,
+  html.theme-forest a.bg-emerald-500 {
+    border-radius: 0.75rem !important;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3) !important;
+    transition: all 200ms ease;
+  }
+  
+  html.theme-forest button.bg-emerald-500:hover,
+  html.theme-forest a.bg-emerald-500:hover {
+    background: linear-gradient(135deg, #22C55E 0%, #10B981 100%) !important;
+    box-shadow: 0 6px 16px rgba(16,185,129,0.4) !important;
+    transform: translateY(-2px);
+  }
+  
+  html.theme-forest button.bg-slate-800,
+  html.theme-forest a.bg-slate-800 {
+    border-radius: 0.75rem !important;
+    background: rgba(16, 185, 129, 0.15) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  }
+  
+  html.theme-forest .card {
+    border-radius: 1rem !important;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    box-shadow: 0 4px 12px rgba(5,150,105,0.15) !important;
+  }
+  
   html.theme-forest .card-hover:hover {
-    box-shadow: 
-      0 0 20px rgba(16, 185, 129, 0.15),
-      0 14px 32px rgba(5, 150, 105, 0.2);
-    border-color: rgba(16, 185, 129, 0.25);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2), 0 14px 32px rgba(5, 150, 105, 0.25) !important;
+    border-color: rgba(16, 185, 129, 0.4);
+    transform: translateY(-2px);
   }
 }
 

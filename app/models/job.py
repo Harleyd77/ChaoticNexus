@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import JSON, Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -35,7 +34,7 @@ class Job(BaseModel, TimestampMixin, SoftDeleteMixin):
     status = Column(String(60), nullable=False, index=True)
     department = Column(String(60), nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
-    work_order_json = Column(JSONB, nullable=True)
+    work_order_json = Column(JSON, nullable=True)
     archived = Column(Boolean, nullable=False, server_default="0")
     archived_reason = Column(Text, nullable=True)
     order_index = Column(Integer, nullable=True)

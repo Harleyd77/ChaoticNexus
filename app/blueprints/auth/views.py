@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from urllib.parse import urljoin, urlparse
+
 from flask import flash, redirect, render_template, request, session, url_for
 
 from app.services.auth_service import admin_auth_service, customer_auth_service
@@ -9,6 +11,19 @@ from app.services.auth_service import admin_auth_service, customer_auth_service
 from . import bp
 
 # TODO: Replace with actual auth service once repositories are implemented
+
+
+def _is_safe_redirect(target: str) -> bool:
+    if not target:
+        return False
+    host_url = request.host_url
+    redirect_url = urljoin(host_url, target)
+    return urlparse(redirect_url).scheme in {"http", "https"} and redirect_url.startswith(host_url)
+
+
+def _next_url(default: str = "") -> str:
+    target = request.args.get("next") or request.form.get("next") or default
+    return target if _is_safe_redirect(target) else default
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -36,7 +51,7 @@ def login():
                 session["user_id"] = admin.id
                 session["me_username"] = admin.username
                 flash("Signed in as admin", "success")
-                return redirect(url_for("dashboard.index"))
+                return redirect(_next_url(url_for("dashboard.index")))
 
         # Customer portal login via email/password
         result = customer_auth_service.authenticate_customer(email=identifier, password=password)
@@ -45,7 +60,7 @@ def login():
             session["customer_account_id"] = result.account.id
             session["customer_email"] = result.account.email
             flash("Welcome back!", "success")
-            return redirect(url_for("customer_portal.dashboard"))
+            return redirect(_next_url(url_for("customer_portal.dashboard")))
 
         flash("Invalid credentials", "error")
 
@@ -56,6 +71,7 @@ def login():
         login_title=login_title,
         customer_logged_in=customer_logged_in,
         customer=customer,
+        next=_next_url(default=""),
     )
 
 

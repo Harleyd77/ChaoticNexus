@@ -24,27 +24,27 @@
           <div>
             <label for="company_name" class="block text-sm font-medium text-slate-300 mb-2">Company Name</label>
             <input type="text" id="company_name" name="company_name"
-                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                   class="w-full max-w-lg px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                    value="{{ settings.company_name }}" />
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="brand_primary" class="block text-sm font-medium text-slate-300 mb-2">Primary Color</label>
               <input type="text" id="brand_primary" name="brand_primary" placeholder="#10b981"
-                     class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"
+                     class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"
                      value="{{ settings.brand_primary }}" />
             </div>
             <div>
               <label for="brand_accent" class="block text-sm font-medium text-slate-300 mb-2">Accent Color</label>
               <input type="text" id="brand_accent" name="brand_accent" placeholder="#06b6d4"
-                     class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"
+                     class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"
                      value="{{ settings.brand_accent }}" />
             </div>
           </div>
           <div>
             <label for="logo_url" class="block text-sm font-medium text-slate-300 mb-2">Logo URL</label>
             <input type="text" id="logo_url" name="logo_url" placeholder="https://.../logo.png"
-                   class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"
+                   class="w-full max-w-lg px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"
                    value="{{ settings.logo_url or '' }}" />
           </div>
           <div class="pt-2">
@@ -55,13 +55,13 @@
                 hx-target="#drawer-root"
                 hx-swap="innerHTML"
                 class="underline hover:text-slate-200"
-              >Edit Categories</button>
+              >Edit Job Categories</button>
               <span>•</span>
-              <button type="button" hx-get="{{ url_for('admin.options_drawer') }}?name=priority" hx-target="#drawer-root" hx-swap="innerHTML" class="underline hover:text-slate-200">Edit Priorities</button>
+              <button type="button" hx-get="{{ url_for('admin.options_drawer') }}?name=priority" hx-target="#drawer-root" hx-swap="innerHTML" class="underline hover:text-slate-200">Edit Job Priorities</button>
               <span>•</span>
-              <button type="button" hx-get="{{ url_for('admin.options_drawer') }}?name=blast" hx-target="#drawer-root" hx-swap="innerHTML" class="underline hover:text-slate-200">Edit Blast</button>
+              <button type="button" hx-get="{{ url_for('admin.options_drawer') }}?name=blast" hx-target="#drawer-root" hx-swap="innerHTML" class="underline hover:text-slate-200">Edit Sandblast Methods</button>
               <span>•</span>
-              <button type="button" hx-get="{{ url_for('admin.options_drawer') }}?name=prep" hx-target="#drawer-root" hx-swap="innerHTML" class="underline hover:text-slate-200">Edit Prep</button>
+              <button type="button" hx-get="{{ url_for('admin.options_drawer') }}?name=prep" hx-target="#drawer-root" hx-swap="innerHTML" class="underline hover:text-slate-200">Edit Surface Prep Options</button>
             </div>
           </div>
         </div>

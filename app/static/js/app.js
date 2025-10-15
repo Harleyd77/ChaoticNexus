@@ -25,23 +25,52 @@
   function initJobsListFiltering() {
     const container = document.getElementById("jobs-list");
     if (!container) return;
+
     const scope = container.querySelector('[data-filter-scope="job-cards"]');
     if (!scope) return;
+
     const input = document.querySelector('form[role="search"] input[name="q"]');
     if (!input) return;
+
     const items = Array.from(scope.querySelectorAll('[data-filter-keywords]'));
+    if (!items.length) return;
+
+    const emptyState = container.querySelector("[data-filter-empty]");
+    const countEl = container.querySelector("[data-filter-count]");
+    const totalEl = container.querySelector("[data-filter-total]");
+
+    if (totalEl) {
+      totalEl.textContent = items.length.toString();
+    }
+
     const apply = () => {
-      const q = (input.value || "").trim().toLowerCase();
-      if (!q) {
-        items.forEach((el) => (el.style.display = ""));
-        return;
-      }
+      const rawQuery = (input.value || "").trim().toLowerCase();
+      const needles = rawQuery.split(/\s+/).filter(Boolean);
+      let visible = 0;
+
       for (const el of items) {
-        const hay = el.getAttribute("data-filter-keywords") || "";
-        el.style.display = hay.includes(q) ? "" : "none";
+        const hay = (el.dataset.filterKeywords || el.getAttribute("data-filter-keywords") || "").toLowerCase();
+        const matches = needles.length
+          ? needles.every((needle) => hay.includes(needle))
+          : true;
+
+        el.hidden = !matches;
+        if (matches) {
+          visible += 1;
+        }
       }
+
+      if (countEl) {
+        countEl.textContent = visible.toString();
+      }
+      if (emptyState) {
+        emptyState.hidden = visible !== 0;
+      }
+      container.dataset.filterActive = needles.length ? "true" : "false";
     };
-    input.addEventListener("input", apply);
+
+    input.addEventListener("input", apply, { passive: true });
+    input.addEventListener("change", apply, { passive: true });
     apply();
   }
 

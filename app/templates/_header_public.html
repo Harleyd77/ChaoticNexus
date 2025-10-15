@@ -1,0 +1,37 @@
+{% set current_path = request.path %}
+<header class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-4 shadow-md shadow-slate-950/30 ring-1 ring-white/5">
+  <a href="{{ url_for('customer_portal.home') }}" class="flex items-center gap-3 transition hover:opacity-80">
+    <img
+      src="{{ branding_header_logo or url_for('static', filename='img/logo.svg') }}"
+      alt="{{ config.BRANDING_COMPANY_NAME or 'Victoria Powder Coating' }}"
+      class="h-10 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
+    />
+    <div class="hidden md:block">
+      <p class="text-xs uppercase tracking-wider text-slate-400">{{ config.BRANDING_COMPANY_NAME or 'Victoria Powder Coating' }}</p>
+      <h1 class="text-base font-semibold text-slate-100">Customer Portal</h1>
+    </div>
+  </a>
+
+  <nav class="flex flex-wrap items-center gap-2 text-sm" aria-label="Public navigation">
+    <a href="{{ url_for('customer_portal.home') }}" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path == url_for('customer_portal.home') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Overview</a>
+    <a href="{{ url_for('customer_portal.register') }}" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path == url_for('customer_portal.register') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Create account</a>
+    <a href="{{ url_for('auth.login') }}" class="rounded-lg px-3 py-1.5 transition {{ 'bg-slate-800 text-white font-medium' if current_path == url_for('auth.login') else 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">Sign in</a>
+  </nav>
+
+  <div class="flex items-center gap-3">
+    <a
+      href="{{ url_for('customer_portal.register') }}"
+      class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+    >
+      Create account
+    </a>
+    <a
+      href="{{ url_for('auth.login') }}"
+      class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+    >
+      Sign in
+    </a>
+  </div>
+</header>
+
+
