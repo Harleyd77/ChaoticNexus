@@ -1,0 +1,63 @@
+{
+  "_comment": "MCP Server Configuration Template for ChaoticNexus",
+  "_instructions": [
+    "1. Copy the 'mcpServers' section below",
+    "2. Paste into your Cursor MCP settings file",
+    "3. Update the paths to match your computer's location",
+    "4. Restart Cursor"
+  ],
+  "_cursor_mcp_settings_location": {
+    "windows": "C:\\Users\\YourName\\AppData\\Roaming\\Cursor\\User\\globalStorage\\saoudrizwan.claude-dev\\settings\\cline_mcp_settings.json",
+    "mac": "~/Library/Application Support/Cursor/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+    "linux": "~/.config/Cursor/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json"
+  },
+  "_path_examples": {
+    "windows_wsl": "/mnt/c/Users/user/Documents/GitHub/ChaoticNexus",
+    "windows_native": "C:\\Users\\user\\Documents\\GitHub\\ChaoticNexus",
+    "ubuntu": "/home/username/Documents/GitHub/ChaoticNexus",
+    "mac": "/Users/username/Documents/GitHub/ChaoticNexus"
+  },
+  
+  "mcpServers": {
+    "chaoticnexus-fs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "UPDATE_THIS_PATH"
+      ],
+      "disabled": false
+    },
+    "chaoticnexus-sqlite": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "UPDATE_THIS_PATH/storage/dev.db"
+      ],
+      "disabled": false
+    }
+  },
+  
+  "_optional_servers": {
+    "chaoticnexus-postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://appuser:password@localhost:5432/chaoticnexus"
+      ],
+      "disabled": true,
+      "_note": "Enable for production Ubuntu machine with PostgreSQL"
+    },
+    "chaoticnexus-playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ],
+      "disabled": true,
+      "_note": "Enable for browser testing"
+    }
+  }
+}
