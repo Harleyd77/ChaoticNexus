@@ -1,4 +1,5 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary %}
 {% block title %}Reorder List{% endblock %}
 {% block content %}
 <div class="space-y-8">
@@ -31,7 +32,7 @@
     </table>
   </div>
   <div>
-    <a href="{{ url_for('inventory.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300">Back to Inventory</a>
+    {{ button_primary("Back to Inventory", href=url_for('inventory.index')) }}
   </div>
 </div>
 {% endblock %}

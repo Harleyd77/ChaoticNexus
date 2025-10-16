@@ -1,4 +1,5 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% block title %}Job #{{ job.id }}{% endblock %}
 
@@ -15,24 +16,9 @@
       </p>
     </div>
     <div class="ml-auto flex flex-wrap items-center gap-3">
-      <a
-        href="{{ url_for('jobs.index') }}"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      >
-        Back to Jobs
-      </a>
-      <a
-        href="{{ url_for('jobs.kanban') }}"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      >
-        Open Kanban
-      </a>
-      <a
-        href="{{ url_for('jobs.edit', job_id=job.id) }}"
-        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
-      >
-        Edit Job
-      </a>
+      {{ button_secondary("Back to Jobs", href=url_for('jobs.index')) }}
+      {{ button_secondary("Open Kanban", href=url_for('jobs.kanban')) }}
+      {{ button_primary("Edit Job", href=url_for('jobs.edit', job_id=job.id)) }}
       {% if is_admin %}
       <button type="button" class="text-xs text-slate-400 underline hover:text-slate-200"
               hx-get="{{ url_for('admin.options_drawer') }}?name=priority" hx-target="#drawer-root" hx-swap="innerHTML">Edit Options</button>
@@ -91,12 +77,7 @@
   <section class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/30">
     <div class="flex items-center justify-between">
       <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">Photos</h2>
-      <a
-        href="{{ url_for('jobs.detail', job_id=job.id) }}#photos"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      >
-        Manage Photos
-      </a>
+      {{ button_secondary("Manage Photos", href=url_for('jobs.detail', job_id=job.id) + '#photos') }}
     </div>
     {% if not photos %}
       <div class="mt-4 rounded-xl border border-slate-800/60 bg-slate-950/60 p-8 text-center text-sm text-slate-400">

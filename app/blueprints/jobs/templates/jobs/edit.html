@@ -1,5 +1,6 @@
 {% extends "_layouts/base.html" %}
 {% from "_partials/forms/controls.html" import text_field, select_field, textarea_field %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% block title %}Edit Job #{{ job.id }}{% endblock %}
 
@@ -14,16 +15,11 @@
       </p>
     </div>
     <div class="ml-auto flex flex-wrap items-center gap-3">
-      <a
-        href="{{ url_for('jobs.detail', job_id=job.id) }}"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      >
-        Cancel
-      </a>
+      {{ button_secondary("Cancel", href=url_for('jobs.detail', job_id=job.id)) }}
       <button
         form="job-edit-form"
         type="submit"
-        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+        class="btn btn-primary"
       >
         Save Changes
       </button>
@@ -104,18 +100,8 @@
     {{ textarea_field("notes", "Internal Notes", form_data.notes, rows=5) }}
 
     <div class="flex flex-wrap items-center gap-3">
-      <button
-        type="submit"
-        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
-      >
-        Save Changes
-      </button>
-      <a
-        href="{{ url_for('jobs.detail', job_id=job.id) }}"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-      >
-        Cancel
-      </a>
+      {{ button_primary("Save Changes", type="submit") }}
+      {{ button_secondary("Cancel", href=url_for('jobs.detail', job_id=job.id)) }}
     </div>
   </form>
 </section>

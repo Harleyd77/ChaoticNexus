@@ -1,4 +1,5 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% block title %}Powder Inventory{% endblock %}
 
@@ -19,16 +20,11 @@
         {% if is_admin %}
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400"
+          class="btn btn-primary"
         >
           + Add Powder
         </button>
-        <a
-          href="#"
-          class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700"
-        >
-          Import CSV
-        </a>
+        {{ button_secondary("Import CSV", href="#") }}
         <button type="button" class="text-xs text-slate-400 underline hover:text-slate-200"
                 hx-get="{{ url_for('admin.options_drawer') }}?name=category" hx-target="#drawer-root" hx-swap="innerHTML">Edit Categories</button>
         {% endif %}
@@ -56,16 +52,11 @@
       </label>
       <button
         type="submit"
-        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400"
+        class="btn btn-primary"
       >
         Apply
       </button>
-      <a
-        href="{{ url_for('powders.index') }}"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700"
-      >
-        Clear
-      </a>
+      {{ button_secondary("Clear", href=url_for('powders.index')) }}
     </form>
   </header>
 

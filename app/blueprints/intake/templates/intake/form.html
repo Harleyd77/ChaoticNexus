@@ -1,4 +1,5 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% block title %}Production Intake Form{% endblock %}
 
@@ -20,7 +21,7 @@
   <div class="flex justify-end -mt-4">
     <button id="openEditorBtn"
             type="button"
-            class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">
+            class="btn btn-secondary">
       Edit Form
     </button>
   </div>
@@ -72,7 +73,7 @@
             <div>
               <label class="block text-sm font-medium text-slate-300 mb-2">Production Window *</label>
               <div class="space-y-2">
-                <button type="button" class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/60 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700" data-toggle-calendar="job">
+                <button type="button" class="btn btn-secondary" data-toggle-calendar="job">
                   Choose dates
                 </button>
                 <div class="calendar-range hidden" data-calendar-range data-start-selector="#dateIn" data-end-selector="#dueBy" data-calendar-overlay="job" data-cal-close>
@@ -199,14 +200,8 @@
       </div>
 
       <div class="flex gap-3 justify-end">
-        <a href="{{ url_for('dashboard.index') }}"
-           class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-6 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">
-          Cancel
-        </a>
-        <button type="submit"
-                class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">
-          Submit Job
-        </button>
+        {{ button_secondary("Cancel", href=url_for('dashboard.index')) }}
+        {{ button_primary("Submit Job", type="submit") }}
       </div>
     </form>
   </div>
@@ -370,8 +365,8 @@
   <div class="border-t border-slate-800 bg-slate-900/80 p-4">
     <p id="formEditorMsg" class="pointer-events-none hidden overflow-hidden text-sm text-emerald-200 opacity-0 transition-opacity duration-300"></p>
     <div class="mt-3 flex justify-end gap-3">
-      <button type="button" class="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700" data-close-form-editor>Close</button>
-      <button id="formEditorSave" type="button" class="rounded-lg px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white">Save</button>
+      <button type="button" class="btn btn-secondary" data-close-form-editor>Close</button>
+      <button id="formEditorSave" type="button" class="btn btn-primary">Save</button>
     </div>
   </div>
 </aside>
