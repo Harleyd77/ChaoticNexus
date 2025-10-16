@@ -29,6 +29,7 @@
   :root,
   html,
   html.theme-dark {
+    color-scheme: dark;
     /* Colors */
     --color-bg: #0e141b;
     --color-surface: #111923;
@@ -77,6 +78,7 @@
 
   /* === Light Theme ====================================================== */
   html.theme-light {
+    color-scheme: light;
     --color-bg: #f7f9fc;
     --color-surface: #ffffff;
     --color-surface-muted: #f1f5f9;
@@ -104,6 +106,7 @@
 
   /* === VPC (Dark) — Cobalt/Steel ======================================== */
   html.theme-vpc {
+    color-scheme: dark;
     --color-bg: #0B1220;
     --color-surface: #111827;
     --color-surface-muted: #0F172A;
@@ -131,6 +134,7 @@
 
   /* === VPC (Light) — Cobalt on Light Slate ============================= */
   html.theme-vpc-light {
+    color-scheme: light;
     --color-bg: #F7FAFF;
     --color-surface: #FFFFFF;
     --color-surface-muted: #F1F5F9;
@@ -158,6 +162,7 @@
 
   /* === Chaotic Designs (Dark) — Electric Purple/Magenta ================ */
   html.theme-chaos {
+    color-scheme: dark;
     --color-bg: #0D0B12;
     --color-surface: #15121E;
     --color-surface-muted: #1B1626;
@@ -185,6 +190,7 @@
 
   /* === Chaotic Designs (Light) — Purple on Warm Gray =================== */
   html.theme-chaos-light {
+    color-scheme: light;
     --color-bg: #FBFAFF;
     --color-surface: #FFFFFF;
     --color-surface-muted: #F5F3FF;
@@ -212,6 +218,7 @@
 
   /* === Industrial Forge (Dark) — Powder Coating Inspired ================ */
   html.theme-forge {
+    color-scheme: dark;
     --color-bg: #1a1614;
     --color-surface: #252220;
     --color-surface-muted: #1f1d1b;
@@ -239,6 +246,7 @@
 
   /* === Ocean Breeze (Dark) — Coastal Blues & Teals ====================== */
   html.theme-ocean {
+    color-scheme: dark;
     --color-bg: #0a1628;
     --color-surface: #0f1e33;
     --color-surface-muted: #0c1a2e;
@@ -266,6 +274,7 @@
 
   /* === Sunset Glow (Dark) — Warm Gradient Aesthetic ==================== */
   html.theme-sunset {
+    color-scheme: dark;
     --color-bg: #1a0f1f;
     --color-surface: #251828;
     --color-surface-muted: #1f1323;
@@ -293,6 +302,7 @@
 
   /* === Emerald Forest (Dark) — Natural Greens ========================== */
   html.theme-forest {
+    color-scheme: dark;
     --color-bg: #0f1912;
     --color-surface: #142820;
     --color-surface-muted: #11221a;
@@ -492,8 +502,43 @@
     border: none;
   }
 
-  button:not([class*="btn"]) {
-    @apply btn btn-secondary;
+  /* Theme Selector - Ensure readability across all themes */
+  select[data-theme-selector] {
+    /* Force good contrast for the select button itself */
+    background: var(--color-surface) !important;
+    color: var(--color-text) !important;
+    border-color: var(--color-border) !important;
+  }
+
+  select[data-theme-selector]:hover {
+    background: var(--color-hover) !important;
+  }
+
+  /* Force proper styling for dropdown options */
+  select[data-theme-selector] option {
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 8px 12px;
+  }
+
+  /* Ensure light themes have light option backgrounds */
+  html.theme-light select[data-theme-selector] option,
+  html.theme-vpc-light select[data-theme-selector] option,
+  html.theme-chaos-light select[data-theme-selector] option {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  /* Ensure dark themes have dark option backgrounds */
+  html.theme-dark select[data-theme-selector] option,
+  html.theme-forge select[data-theme-selector] option,
+  html.theme-ocean select[data-theme-selector] option,
+  html.theme-vpc select[data-theme-selector] option,
+  html.theme-chaos select[data-theme-selector] option,
+  html.theme-sunset select[data-theme-selector] option,
+  html.theme-forest select[data-theme-selector] option {
+    background: #1a1a1a;
+    color: #e5e5e5;
   }
 
   /* ========================================================================
