@@ -1,0 +1,183 @@
+/* Calendar range component shared by intake forms */
+
+.calendar-range {
+  --cal-bg: rgba(15, 23, 42, 0.68);
+  --cal-head: rgba(15, 23, 42, 0.85);
+  --cal-muted: rgba(148, 163, 184, 0.45);
+  --cal-selected: rgba(99, 102, 241, 0.85);
+  --cal-selected-text: #ffffff;
+  --cal-hover: rgba(99, 102, 241, 0.35);
+  --cal-radius: 18px;
+
+  background: var(--cal-bg);
+  backdrop-filter: blur(18px) saturate(160%);
+  border-radius: var(--cal-radius);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.4);
+  color: #e2e8f0;
+  min-width: 18rem;
+}
+
+.calendar-range[data-theme="light"],
+.calendar-range[data-theme="chaos-light"],
+.calendar-range[data-theme="vpc-light"] {
+  --cal-bg: rgba(255, 255, 255, 0.93);
+  --cal-head: rgba(248, 250, 252, 0.95);
+  --cal-muted: rgba(100, 116, 139, 0.55);
+  --cal-selected: rgba(59, 130, 246, 0.88);
+  --cal-selected-text: #0f172a;
+  --cal-hover: rgba(59, 130, 246, 0.25);
+  border-color: rgba(148, 163, 184, 0.28);
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+  color: #0f172a;
+}
+
+.calendar-range .cal-header {
+  background: var(--cal-head);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: calc(var(--cal-radius) - 2px) calc(var(--cal-radius) - 2px) 0 0;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.calendar-range .cal-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.calendar-range button.cal-nav {
+  height: 2.25rem;
+  width: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.9rem;
+  background: rgba(99, 102, 241, 0.15);
+  color: inherit;
+  border: 1px solid transparent;
+  transition: all 160ms ease;
+}
+
+.calendar-range button.cal-nav:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.25);
+}
+
+.calendar-range button.cal-nav svg {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.calendar-range .cal-grid {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.calendar-range .cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cal-muted);
+}
+
+.calendar-range .cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.calendar-range .cal-day {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.45rem;
+  border-radius: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 140ms ease;
+}
+
+.calendar-range .cal-day.is-muted {
+  color: var(--cal-muted);
+}
+
+.calendar-range .cal-day:hover {
+  cursor: pointer;
+  background: var(--cal-hover);
+}
+
+.calendar-range .cal-day.is-selected {
+  background: var(--cal-selected);
+  color: var(--cal-selected-text);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+}
+
+.calendar-range .cal-day.is-in-range:not(.is-selected) {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.calendar-range .cal-day.is-range-start {
+  border-top-left-radius: 1.1rem;
+  border-bottom-left-radius: 1.1rem;
+}
+
+.calendar-range .cal-day.is-range-end {
+  border-top-right-radius: 1.1rem;
+  border-bottom-right-radius: 1.1rem;
+}
+
+.calendar-range .cal-footer {
+  padding: 0.65rem 1rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--cal-muted);
+}
+
+.calendar-range .cal-footer button {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: inherit;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background: transparent;
+  transition: all 140ms ease;
+}
+
+.calendar-range .cal-footer button:hover {
+  background: rgba(99, 102, 241, 0.18);
+}
+
+.calendar-range .cal-footer .cal-close {
+  margin-left: auto;
+}
+
+.calendar-range .cal-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.calendar-range .cal-summary strong {
+  font-weight: 600;
+}
+
+.calendar-range .cal-empty {
+  height: 2.45rem;
+}
+

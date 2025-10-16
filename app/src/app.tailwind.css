@@ -917,6 +917,32 @@
     transform: translateY(0) scale(0.98);
   }
   
+  /* Form controls - pill-shaped, glowing edges */
+  :where([data-theme="chaos"], .theme-chaos) :where(input, select, textarea) {
+    border-radius: 1.1rem !important;
+    border: 1px solid rgba(148, 163, 255, 0.25) !important;
+    background: linear-gradient(135deg, rgba(24, 20, 35, 0.92), rgba(21, 24, 45, 0.96)) !important;
+    box-shadow:
+      0 0 0 1px rgba(104, 116, 255, 0.08) inset,
+      0 12px 30px rgba(13, 17, 32, 0.55),
+      0 8px 18px rgba(56, 189, 248, 0.12);
+    padding: 0.95rem 1.15rem !important;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  :where([data-theme="chaos"], .theme-chaos) :where(input, select, textarea):focus {
+    border-color: rgba(104, 116, 255, 0.55) !important;
+    box-shadow:
+      0 0 0 1px rgba(129, 140, 248, 0.35) inset,
+      0 0 0 3px rgba(99, 102, 241, 0.25),
+      0 18px 38px rgba(14, 23, 45, 0.6);
+    outline: none !important;
+  }
+
+  :where([data-theme="chaos"], .theme-chaos) :where(input, textarea)::placeholder {
+    color: rgba(185, 198, 255, 0.55) !important;
+  }
+
   /* Cards - Modern with blue accent glow */
   html.theme-chaos .card {
     border-radius: 1.25rem !important;  /* Extra rounded */

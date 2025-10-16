@@ -23,9 +23,3 @@ ignore = [
 profile = "black"
 line_length = 100
 
-[tool.pytest.ini_options]
-addopts = "-q"
-pythonpath = ["app"]
-testpaths = [
-  "tests",
-]

@@ -6,6 +6,14 @@ export default {
     "./templates/**/*.html",
     "./blueprints/**/templates/**/*.html"
   ],
+  safelist: [
+    {
+      pattern: /theme-chaos/,
+    },
+    {
+      pattern: /data-theme="chaos"/,
+    }
+  ],
   theme: {
   	extend: {
   		colors: {

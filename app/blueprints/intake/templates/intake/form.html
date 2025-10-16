@@ -2,6 +2,11 @@
 
 {% block title %}Production Intake Form{% endblock %}
 
+{% block head_styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar-range.css') }}">
+{% endblock %}
+
 {% block content %}
 <section class="space-y-8">
   <header class="flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg shadow-slate-950/40 ring-1 ring-white/5">
@@ -65,18 +70,61 @@
         <div class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="dateIn" class="block text-sm font-medium text-slate-300 mb-2">Date In *</label>
-              <input type="date" id="dateIn" name="dateIn" required class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+              <label class="block text-sm font-medium text-slate-300 mb-2">Production Window *</label>
+              <div class="space-y-2">
+                <button type="button" class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/60 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700" data-toggle-calendar="job">
+                  Choose dates
+                </button>
+                <div class="calendar-range hidden" data-calendar-range data-start-selector="#dateIn" data-end-selector="#dueBy" data-calendar-overlay="job" data-cal-close>
+                  <div class="cal-header">
+                    <button type="button" class="cal-nav" data-cal-prev>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <div class="cal-title">June 2025</div>
+                    <button type="button" class="cal-nav" data-cal-next>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </div>
+                  <div class="cal-grid">
+                    <div class="cal-weekdays">
+                      <span>Su</span>
+                      <span>Mo</span>
+                      <span>Tu</span>
+                      <span>We</span>
+                      <span>Th</span>
+                      <span>Fr</span>
+                      <span>Sa</span>
+                    </div>
+                    <div class="cal-days"></div>
+                  </div>
+                  <div class="cal-footer">
+                    <div class="cal-summary">
+                      <span class="cal-summary-range">Select a start date</span>
+                    </div>
+                  <div class="flex gap-2">
+                    <button type="button" data-cal-today>Today +7</button>
+                    <button type="button" class="cal-close" data-cal-close>Close</button>
+                  </div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label for="dateIn" class="text-xs text-slate-400">Start Date</label>
+                    <input type="date" id="dateIn" name="dateIn" required class="w-full px-3 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+                  </div>
+                  <div>
+                    <label for="dueBy" class="text-xs text-slate-400">Due By</label>
+                    <input type="date" id="dueBy" name="dueBy" class="w-full px-3 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+                  </div>
+                </div>
+              </div>
             </div>
             <div>
-              <label for="dueBy" class="block text-sm font-medium text-slate-300 mb-2">Due By</label>
-              <input type="date" id="dueBy" name="dueBy" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+              <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
+              <input type="text" id="po" name="po" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
             </div>
           </div>
           <div>
-            <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
-            <input type="text" id="po" name="po" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
-          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="relative">
               <label for="category" class="block text-sm font-medium text-slate-300 mb-2">
@@ -166,6 +214,7 @@
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{{ url_for('static', filename='js/calendar-range.js') }}" defer></script>
 <script>
   (function(){
     function qs(sel){ return document.querySelector(sel); }
@@ -253,6 +302,17 @@
     }
 
     document.addEventListener('DOMContentLoaded', function(){
+      document.querySelectorAll('[data-toggle-calendar]').forEach(btn => {
+        const key = btn.getAttribute('data-toggle-calendar');
+        const target = document.querySelector(`[data-calendar-overlay="${key}"]`);
+        if (!target) return;
+        btn.addEventListener('click', () => {
+          target.classList.toggle('hidden');
+        });
+        target.addEventListener('calendar-update', () => {
+          target.classList.add('hidden');
+        });
+      });
       const btn = document.getElementById('openEditorBtn');
       if(btn) btn.addEventListener('click', openEditor);
       const closeBtns = document.querySelectorAll('[data-close-form-editor]');
