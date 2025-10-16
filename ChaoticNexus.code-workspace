@@ -1,0 +1,117 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    // Python Configuration
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.analysis.typeCheckingMode": "basic",
+    
+    // Formatting
+    "editor.formatOnSave": true,
+    "editor.rulers": [100],
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+      }
+    },
+    
+    // File Associations
+    "files.associations": {
+      "*.html": "jinja-html",
+      ".env.local": "properties"
+    },
+    
+    // Terminal
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    
+    // Git
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    
+    // Files to exclude from explorer
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/*.pyc": true,
+      "**/.pytest_cache": true,
+      "**/.venv": false,
+      "**/node_modules": true,
+      "**/.git": true
+    },
+    
+    // Search exclusions
+    "search.exclude": {
+      "**/.venv": true,
+      "**/node_modules": true,
+      "**/__pycache__": true,
+      "**/*.pyc": true
+    },
+    
+    // Flask/Jinja specific
+    "emmet.includeLanguages": {
+      "jinja-html": "html"
+    },
+    
+    // Testing
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+      "tests"
+    ],
+    
+    // Linting
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": false,
+    "python.linting.pylintEnabled": false
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "ms-python.black-formatter",
+      "wholroyd.jinja",
+      "streetsidesoftware.code-spell-checker",
+      "eamodio.gitlens",
+      "ms-azuretools.vscode-docker"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Flask: ChaoticNexus",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "flask",
+        "env": {
+          "FLASK_APP": "app.wsgi:app",
+          "FLASK_ENV": "development",
+          "FLASK_DEBUG": "1"
+        },
+        "args": [
+          "run",
+          "--host=0.0.0.0",
+          "--port=5000",
+          "--debug"
+        ],
+        "jinja": true,
+        "autoReload": {
+          "enable": true
+        },
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "Python: Current File",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "console": "integratedTerminal"
+      }
+    ]
+  }
+}
