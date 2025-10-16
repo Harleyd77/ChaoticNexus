@@ -458,25 +458,11 @@ The application is in excellent shape! All critical features are working:
 
 ### Recommended Admin Settings Improvements
 
-**Priority 1: Add Logo/Favicon Management**
-```html
-<!-- Suggested addition to admin settings form -->
-<div class="space-y-4">
-  <h3>Branding Assets</h3>
-  
-  <div>
-    <label>Company Logo</label>
-    <input type="file" accept="image/*" name="logo_upload">
-    <p class="text-sm">Current: <img src="{{ current_logo }}" class="h-8 inline"></p>
-  </div>
-  
-  <div>
-    <label>Favicon (Browser Icon)</label>
-    <input type="file" accept="image/x-icon,image/png" name="favicon_upload">
-    <p class="text-sm">Recommended: 32x32px .ico or .png</p>
-  </div>
-</div>
-```
+**Priority 1 (Resolved Oct 16, 2025): Add Logo/Favicon Management**
+- Added branding card with live previews, upload & clear buttons for favicon and navigation logo
+- Supported formats: favicon (PNG/JPG/WEBP/SVG/ICO), logo (PNG/JPG/WEBP/SVG)
+- Files stored under `_data/uploads/branding/`; served via `branding_favicon` & `branding_page_logo`
+- Upload routes are CSRF-exempt and guard admin-only access
 
 **Priority 2: Reorganize Settings Sections**
 ```

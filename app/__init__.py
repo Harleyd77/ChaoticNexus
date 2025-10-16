@@ -109,6 +109,33 @@ def _register_routes(app: Flask) -> None:
             "me_username": session.get("me_username"),
         }
 
+    @app.context_processor
+    def _inject_branding_context() -> dict[str, Any]:
+        from sqlalchemy.exc import SQLAlchemyError
+
+        from app.services.settings_service import settings_service
+
+        try:
+            payload = settings_service.get_settings()
+        except (SQLAlchemyError, RuntimeError):
+            app.logger.exception("Failed to load branding settings")
+            return {"branding_favicon": None, "branding_page_logo": None}
+
+        def _resolve(asset: str | None) -> str | None:
+            if not asset:
+                return None
+            if asset.startswith(("http://", "https://", "//")):
+                return asset
+            try:
+                return url_for("uploads", name=asset)
+            except RuntimeError:
+                return None
+
+        return {
+            "branding_favicon": _resolve(payload.favicon_path),
+            "branding_page_logo": _resolve(payload.page_logo_path),
+        }
+
     @app.get("/nav")
     def legacy_nav() -> Any:
         """Legacy navigation endpoint redirecting to dashboard.

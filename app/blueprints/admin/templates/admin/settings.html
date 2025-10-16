@@ -21,13 +21,14 @@
       {% endif %}
       <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-slate-100 mb-4">Branding</h2>
-        <div class="space-y-4">
+        <div class="space-y-6">
           <div>
             <label for="company_name" class="block text-sm font-medium text-slate-300 mb-2">Company Name</label>
             <input type="text" id="company_name" name="company_name"
                    class="w-full max-w-lg px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                    value="{{ settings.company_name }}" />
           </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="brand_primary" class="block text-sm font-medium text-slate-300 mb-2">Primary Color</label>
@@ -42,12 +43,81 @@
                      value="{{ settings.brand_accent }}" />
             </div>
           </div>
+
+          <div class="grid gap-6 md:grid-cols-2">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-200">Browser Tab Icon (Favicon)</h3>
+                  <p class="text-xs text-slate-400">PNG, JPG, WEBP, SVG, or ICO • Recommended 32×32</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 bg-slate-900">
+                  {% if branding_favicon %}
+                    <img src="{{ branding_favicon }}" alt="Current favicon" class="h-6 w-6 object-contain" />
+                  {% else %}
+                    <span class="text-xs text-slate-500">Default</span>
+                  {% endif %}
+                </div>
+              </div>
+              <form method="post" action="{{ url_for('admin.branding_favicon_upload') }}" enctype="multipart/form-data" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                {% if csrf_token is defined %}
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                {% endif %}
+                <input type="file" name="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,.ico"
+                       class="w-full cursor-pointer rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-500" required />
+                {{ button_primary("Upload", type="submit") }}
+              </form>
+              {% if branding_favicon %}
+                <form method="post" action="{{ url_for('admin.branding_favicon_clear') }}" class="inline">
+                  {% if csrf_token is defined %}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                  {% endif %}
+                  {{ button_secondary("Clear (use default)", type="submit") }}
+                </form>
+              {% endif %}
+            </div>
+
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-200">Page Logo</h3>
+                  <p class="text-xs text-slate-400">PNG, JPG, WEBP, or SVG • Transparent background works best</p>
+                </div>
+                <div class="flex h-12 w-24 items-center justify-center rounded-lg border border-slate-700 bg-slate-900">
+                  {% if branding_page_logo %}
+                    <img src="{{ branding_page_logo }}" alt="Current page logo" class="max-h-10 w-full object-contain" />
+                  {% else %}
+                    <span class="text-xs text-slate-500">Default</span>
+                  {% endif %}
+                </div>
+              </div>
+              <form method="post" action="{{ url_for('admin.branding_page_logo_upload') }}" enctype="multipart/form-data" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                {% if csrf_token is defined %}
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                {% endif %}
+                <input type="file" name="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                       class="w-full cursor-pointer rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-500" required />
+                {{ button_primary("Upload", type="submit") }}
+              </form>
+              {% if branding_page_logo %}
+                <form method="post" action="{{ url_for('admin.branding_page_logo_clear') }}" class="inline">
+                  {% if csrf_token is defined %}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                  {% endif %}
+                  {{ button_secondary("Clear (use default)", type="submit") }}
+                </form>
+              {% endif %}
+            </div>
+          </div>
+
           <div>
-            <label for="logo_url" class="block text-sm font-medium text-slate-300 mb-2">Logo URL</label>
+            <label for="logo_url" class="block text-sm font-medium text-slate-300 mb-2">Legacy Logo URL (optional)</label>
             <input type="text" id="logo_url" name="logo_url" placeholder="https://.../logo.png"
                    class="w-full max-w-lg px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"
                    value="{{ settings.logo_url or '' }}" />
+            <p class="mt-2 text-xs text-slate-500">Used as a fallback for integrations or email templates requiring an absolute URL.</p>
           </div>
+
           <div class="pt-2">
             <div class="inline-flex gap-2 text-xs text-slate-400">
               <button
