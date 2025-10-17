@@ -33,7 +33,7 @@ services:
     volumes:
       - /home/harley/chaoticnexus/app:/srv/chaoticnexus/app
       - /home/harley/chaoticnexus/migrations:/srv/chaoticnexus/migrations
-      - ./_logs:/app/_logs
-      - ./_data:/app/_data
+      - ./_logs:/srv/chaoticnexus/_logs
+      - ./_data:/srv/chaoticnexus/_data
     command: ["gunicorn", "--reload", "--bind", "0.0.0.0:8000", "app.wsgi:app"]
     restart: unless-stopped

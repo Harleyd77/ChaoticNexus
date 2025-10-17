@@ -901,133 +901,60 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
   }
   
-  /* === CHAOS THEME - ELECTRIC BLUE ==================================== */
-  /* Luminous electric blue with advanced effects - shadcn inspired */
+  /* === CHAOS THEME - ELECTRIC BLUE (SHADCN-INSPIRED) ================ */
+  /* Clean, uniform button styles with subtle effects */
   
   html.theme-chaos .btn-primary {
-    border-radius: 0.875rem !important;  /* Slightly more rounded */
-    
-    /* Multi-layer gradient - Azure to Cyan with shimmer */
-    background: 
-      linear-gradient(135deg, 
-        rgba(56, 189, 248, 0.95) 0%,    /* Sky blue */
-        rgba(14, 165, 233, 0.95) 50%,   /* Bright blue */
-        rgba(6, 182, 212, 0.95) 100%    /* Cyan */
-      ),
-      linear-gradient(45deg, 
-        rgba(59, 130, 246, 0.1) 0%, 
-        transparent 100%
-      ) !important;
-    
-    /* Advanced multi-layer shadows with blue luminescence */
+    border-radius: 0.5rem !important;
+    background: rgba(56, 189, 248, 1) !important;  /* Clean electric blue */
+    border: 1px solid rgba(96, 165, 250, 0.5) !important;
     box-shadow: 
-      0 0 0 1px rgba(56, 189, 248, 0.3),           /* Subtle border glow */
-      0 2px 0 rgba(255, 255, 255, 0.15) inset,     /* Top highlight */
-      0 -1px 0 rgba(0, 0, 0, 0.2) inset,           /* Bottom depth */
-      0 4px 16px rgba(14, 165, 233, 0.4),          /* Main shadow */
-      0 2px 8px rgba(56, 189, 248, 0.6),           /* Inner glow */
-      0 8px 24px rgba(6, 182, 212, 0.25) !important; /* Outer luminescence */
-    
-    /* Smooth animation with slight scale */
-    transform: translateY(0) scale(1);
-    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Optional: Animated gradient (uncomment to enable) */
-    /* background-size: 200% 200%; */
-    /* animation: gradientShift 3s ease infinite; */
+      0 1px 2px rgba(0, 0, 0, 0.05),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    transform: translateY(0);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   html.theme-chaos .btn-primary:hover {
-    /* Brighter gradient on hover */
-    background: 
-      linear-gradient(135deg, 
-        rgba(96, 165, 250, 1) 0%,       /* Lighter sky blue */
-        rgba(56, 189, 248, 1) 50%,      /* Bright cyan */
-        rgba(14, 165, 233, 1) 100%      /* Deep blue */
-      ),
-      linear-gradient(45deg, 
-        rgba(59, 130, 246, 0.2) 0%, 
-        transparent 100%
-      ) !important;
-    
-    /* Enhanced glow on hover - luminous effect */
+    background: rgba(96, 165, 250, 1) !important;  /* Lighter on hover */
+    border-color: rgba(147, 197, 253, 0.6) !important;
     box-shadow: 
-      0 0 0 1px rgba(56, 189, 248, 0.5),
-      0 3px 0 rgba(255, 255, 255, 0.2) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.2) inset,
-      0 8px 24px rgba(14, 165, 233, 0.6),          /* Stronger shadow */
-      0 4px 16px rgba(56, 189, 248, 0.8),          /* Bright inner glow */
-      0 12px 32px rgba(6, 182, 212, 0.4),          /* Large outer glow */
-      0 0 40px rgba(56, 189, 248, 0.3) !important; /* Aura effect */
-    
-    /* Lift and slightly enlarge */
-    transform: translateY(-3px) scale(1.02) rotate(-0.5deg);
+      0 2px 4px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+    transform: translateY(-1px);
   }
   
   html.theme-chaos .btn-primary:active {
-    /* Pressed state - darker and inset */
-    background: 
-      linear-gradient(135deg, 
-        rgba(14, 165, 233, 1) 0%, 
-        rgba(6, 182, 212, 1) 50%,
-        rgba(8, 145, 178, 1) 100%
-      ) !important;
-    
-    transform: translateY(1px) scale(0.98);
+    background: rgba(14, 165, 233, 1) !important;  /* Darker when pressed */
+    transform: translateY(0);
     box-shadow: 
-      0 0 0 1px rgba(56, 189, 248, 0.4),
-      0 2px 8px rgba(0, 0, 0, 0.4) inset,
-      0 2px 4px rgba(14, 165, 233, 0.3) !important;
+      0 1px 2px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(0, 0, 0, 0.05) inset !important;
   }
   
-  /* Secondary buttons - Frosted glass effect with blue tint */
+  /* Secondary buttons - subtle with border emphasis */
   html.theme-chaos .btn-secondary,
   html.theme-chaos .btn-outline {
-    border-radius: 0.875rem !important;
-    
-    /* Glassmorphism - frosted glass with blue tint */
-    background: 
-      linear-gradient(135deg,
-        rgba(30, 58, 138, 0.25) 0%,
-        rgba(29, 78, 216, 0.15) 100%
-      ) !important;
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    
-    /* Glowing blue border */
+    border-radius: 0.5rem !important;
+    background: rgba(30, 41, 59, 0.6) !important;  /* Subtle dark background */
     border: 1px solid rgba(56, 189, 248, 0.3) !important;
-    
-    /* Subtle luminous shadow */
-    box-shadow: 
-      0 0 0 1px rgba(59, 130, 246, 0.1) inset,
-      0 4px 12px rgba(14, 165, 233, 0.15),
-      0 2px 6px rgba(56, 189, 248, 0.2) !important;
-    
-    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   html.theme-chaos .btn-secondary:hover,
   html.theme-chaos .btn-outline:hover {
-    background: 
-      linear-gradient(135deg,
-        rgba(30, 58, 138, 0.35) 0%,
-        rgba(29, 78, 216, 0.25) 100%
-      ) !important;
-    
+    background: rgba(30, 41, 59, 0.8) !important;
     border-color: rgba(56, 189, 248, 0.5) !important;
-    
-    box-shadow: 
-      0 0 0 1px rgba(59, 130, 246, 0.2) inset,
-      0 6px 16px rgba(14, 165, 233, 0.25),
-      0 3px 10px rgba(56, 189, 248, 0.35),
-      0 0 20px rgba(56, 189, 248, 0.15) !important;
-    
-    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-1px);
   }
   
   html.theme-chaos .btn-secondary:active,
   html.theme-chaos .btn-outline:active {
-    transform: translateY(0) scale(0.98);
+    background: rgba(15, 23, 42, 0.9) !important;
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
   }
   
   /* Form controls - pill-shaped, glowing edges */

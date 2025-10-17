@@ -3,7 +3,7 @@
 **Purpose:** Track UI issues, console errors, and layout problems found during browser testing.  
 **How to use:** Window 2 (Chrome DevTools MCP) documents findings here. Window 1 (SSH dev) fixes them and checks them off.
 
-**Last Updated:** 2025-10-14 (Button Usability Review - Playwright MCP)
+**Last Updated:** 2025-10-17 (Button Style Uniformity - Chaotic Dark Theme - Playwright MCP)
 
 ---
 
@@ -57,6 +57,79 @@
 ---
 
 ## 🔧 Issues to Fix
+
+### ✅ Fixed This Session (2025-10-17)
+
+- ✅ **Admin Settings Page Cleanup**  
+  - **Page URL:** `http://10.0.0.196:8080/admin/settings`  
+  - **Affected File(s):** `app/blueprints/admin/templates/admin/settings.html`  
+  - **Changes Made:** 
+    - Removed Primary Color and Accent Color fields (redundant with 10-theme system)
+    - Removed Legacy Logo URL field (modern upload system replaces it)
+    - Removed inline "Edit Job..." button links (Categories, Priorities, Blast, Prep)
+    - Streamlined to just: Company Name, Favicon Upload, Page Logo Upload
+  - **Result:** Cleaner, focused branding page (107 lines down from 149)
+  - **Impact:** 🟢 Improved UX – Page is now focused and uncluttered
+
+### ✅ Fixed This Session (2025-10-17 - Favicon Upload Fix)
+
+- ✅ **Favicon Upload Form Broken - Nested Forms** 
+  - **Page URL:** `http://10.0.0.196:8080/admin/settings`  
+  - **Affected File(s):** `app/blueprints/admin/templates/admin/settings.html`  
+  - **Issue:** Favicon and Page Logo upload forms were **nested inside the main settings form**, which is invalid HTML and breaks upload functionality.  
+  - **Root Cause:** HTML does not allow nested forms! Browsers handle this unpredictably - they either ignore the inner form or merge it with the outer form.
+  - **Fix Applied:** 
+    - Restructured the page into three independent sections:
+      1. "Branding" form with Company Name field and its own submit button
+      2. "Brand Assets" section with separate favicon upload form
+      3. Page logo upload form (also in Brand Assets section)
+    - Each form now submits independently to its correct endpoint
+    - Backend routes are working correctly (`/admin/branding/favicon`, `/admin/branding/page-logo`)
+  - **Result:** ✅ Users can now upload favicon and page logo images successfully
+  - **Testing Evidence:** Playwright test confirmed proper page structure after fix
+  - **Screenshot:** `admin-settings-fixed-forms.png`
+
+- ✅ **Page Logo Preview Box Size Standardized**
+  - **Page URL:** `http://10.0.0.196:8080/admin/settings`  
+  - **Affected File(s):** `app/blueprints/admin/templates/admin/settings.html` (line 78-80)  
+  - **Issue:** Page Logo preview box size didn't match favicon preview size.
+  - **Fix Applied:** 
+    - Standardized both preview boxes to `h-10 w-10` (40×40px)
+    - Favicon image: `h-6 w-6`
+    - Page logo image: `h-6 w-6`
+    - Both use `object-contain` for proper aspect ratio
+  - **Result:** ✅ Both preview boxes now match in size for consistent UI
+  - **Screenshot:** `admin-settings-matching-preview-sizes.png`
+
+- ✅ **Chaotic Dark Theme Button Uniformity**
+  - **Page URL:** `http://10.0.0.196:8080/dashboard/`  
+  - **Affected File(s):** `app/src/app.tailwind.css` (lines 904-958)  
+  - **Issue:** Buttons had inconsistent, overly elaborate styles with intense gradients, glow effects, transforms, and glassmorphism that varied dramatically between primary and secondary buttons.
+  - **Previous Design:**
+    - Primary: Multi-layer gradients, 6+ box shadows, rotation effects, 3px lift on hover
+    - Secondary: Frosted glass with backdrop blur, complex multi-layer shadows
+    - Inconsistent border-radius (0.875rem) and animation timings
+  - **New Design (shadcn-inspired):**
+    - **Primary buttons:** Clean electric blue (`rgba(56, 189, 248, 1)`), uniform 0.5rem border-radius, subtle shadows
+    - **Secondary buttons:** Subtle dark background with blue borders, matching border-radius
+    - **Consistent behavior:** All buttons use same transform (translateY -1px on hover), same timing (150ms)
+    - **Simplified effects:** Removed gradients, glow effects, and excessive shadows
+  - **Result:** ✅ All buttons now have uniform, clean styling with consistent interactions
+  - **Note:** CSS rebuild required - run `npm run build:servercss` from app directory on SSH/local machine [[memory:9935566]]
+
+### 🟡 Open Issues (2025-10-17)
+
+- 🟡 **HTMX Integrity Warning** *(still tracked from Oct 14)*  
+  - **Page URL:** All server-rendered pages  
+  - **Issue:** Console reports `Failed to find a valid digest in the 'integrity' attribute for resource 'https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js'`.  
+  - **Impact:** Low – warning only, but clutters diagnostics.  
+  - **Fix Required:** Update integrity hash, remove the attribute, or serve a bundled copy.
+
+- 🟢 **Generic “Manage” Buttons** *(UX clean-up backlog)*  
+  - **Page URL:** `/jobs/<id>/`  
+  - **Issue:** “Manage” links for Time Logs and Powder Usage remain vague.  
+  - **Impact:** Low – functionality intact; labeling could improve clarity.  
+  - **Action:** Rename to “Add Time Entry” / “Track Powder Usage” when convenient.
 
 ### ✅ Resolved This Session (2025-10-14)
 
