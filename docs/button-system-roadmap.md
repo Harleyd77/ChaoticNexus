@@ -2,7 +2,7 @@
 
 _Last updated: October 15, 2025_
 
-This roadmap captures the plan for rolling out unified button utilities now and preparing for future design systems (e.g., shadcn/ui).
+This roadmap captures the plan for rolling out unified button utilities now and preparing for future design systems (e.g., shadcn/ui). It pairs with the architecture notes in `docs/project-overview.md` and the active tasks tracked in `docs/current-focus.md`.
 
 ---
 

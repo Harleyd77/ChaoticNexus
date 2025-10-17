@@ -1,4 +1,5 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 {% block title %}Customer Accounts{% endblock %}
 {% block content %}
 <section class="space-y-8">
@@ -45,7 +46,7 @@
           </div>
         </div>
         <div class="flex justify-end gap-3">
-          <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Create</button>
+          <button type="submit" class="btn btn-primary">Create</button>
         </div>
       </form>
     </div>
@@ -75,10 +76,10 @@
                   {% if csrf_token is defined %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />{% endif %}
                   {% if a.is_active %}
                   <input type="hidden" name="action" value="disable" />
-                  <button class="rounded-md bg-slate-800 px-3 py-1 hover:bg-slate-700">Disable</button>
+                  <button class="btn btn-secondary px-3 py-1 text-xs">Disable</button>
                   {% else %}
                   <input type="hidden" name="action" value="enable" />
-                  <button class="rounded-md bg-emerald-600 px-3 py-1 hover:bg-emerald-500">Enable</button>
+                  <button class="btn btn-primary px-3 py-1 text-xs">Enable</button>
                   {% endif %}
                 </form>
               </td>

@@ -536,14 +536,30 @@ def worksheet(job_id: int):
             ),
             404,
         )
-    return render_template("jobs/worksheet.html", job=job)
+    time_logs = job_repo.list_time_logs(job.id)
+    powder_usage = job_repo.list_powder_usage(job.id)
+    total_minutes = sum(filter(None, (log.minutes for log in time_logs)))
+    total_powder = sum(filter(None, (usage.amount_used for usage in powder_usage)))
+    return render_template(
+        "jobs/worksheet.html",
+        job=job,
+        time_logs=time_logs,
+        powder_usage=powder_usage,
+        total_minutes=total_minutes,
+        total_powder=total_powder,
+    )
 
 
 @bp.post("/<int:job_id>/worksheet/save")
 def worksheet_save(job_id: int):
-    # For parity, persist shop_notes and customer_notes from form
-    notes = request.form.get("shop_notes")
-    customer_notes = request.form.get("customer_notes")
-    job_repo.update_job(job_id, shop_notes=notes, customer_notes=customer_notes)
-    flash("Worksheet saved", "success")
+    # Worksheet data is captured directly on the printable template; persist
+    # tailored sections back to the job record for future edits.
+    payload = {
+        "shop_notes": request.form.get("shop_notes"),
+        "customer_notes": request.form.get("customer_notes"),
+        "production_notes": request.form.get("production_notes"),
+        "quality_checks": request.form.get("quality_checks"),
+    }
+    job_repo.update_job(job_id, **payload)
+    flash("Work order details saved", "success")
     return redirect(url_for("jobs.worksheet", job_id=job_id))

@@ -18,6 +18,11 @@ def create_app(config_name: str | None = None) -> Flask:
     config_class = get_config(config_name)
     app.config.from_object(config_class)
 
+    # Expose asset helper globally for templates (cache-busted static URLs)
+    from app.utils.assets import asset_url
+
+    app.jinja_env.globals.setdefault("asset_url", asset_url)
+
     _configure_logging(app)
     _register_extensions(app)
     _register_blueprints(app)
@@ -107,6 +112,33 @@ def _register_routes(app: Flask) -> None:
         return {
             "is_admin": bool(session.get("is_admin")),
             "me_username": session.get("me_username"),
+        }
+
+    @app.context_processor
+    def _inject_branding_context() -> dict[str, Any]:
+        from sqlalchemy.exc import SQLAlchemyError
+
+        from app.services.settings_service import settings_service
+
+        try:
+            payload = settings_service.get_settings()
+        except (SQLAlchemyError, RuntimeError):
+            app.logger.exception("Failed to load branding settings")
+            return {"branding_favicon": None, "branding_page_logo": None}
+
+        def _resolve(asset: str | None) -> str | None:
+            if not asset:
+                return None
+            if asset.startswith(("http://", "https://", "//")):
+                return asset
+            try:
+                return url_for("uploads", name=asset)
+            except RuntimeError:
+                return None
+
+        return {
+            "branding_favicon": _resolve(payload.favicon_path),
+            "branding_page_logo": _resolve(payload.page_logo_path),
         }
 
     @app.get("/nav")

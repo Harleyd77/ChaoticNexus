@@ -1,6 +1,12 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% block title %}Railing Intake Form{% endblock %}
+
+{% block head_styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar-range.css') }}">
+{% endblock %}
 
 {% block content %}
 <section class="space-y-8">
@@ -15,7 +21,7 @@
   <div class="flex justify-end -mt-4">
     <button id="openRailingEditorBtn"
             type="button"
-            class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">
+            class="btn btn-secondary">
       Edit Form
     </button>
   </div>
@@ -62,27 +68,69 @@
 
       <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-slate-100 mb-4">Dates & Priority</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
           <div>
-            <label for="dateIn" class="block text-sm font-medium text-slate-300 mb-2">Date In *</label>
-            <input type="date" id="dateIn" name="dateIn" required class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+            <label class="block text-sm font-medium text-slate-300 mb-2">Requested Window *</label>
+            <div class="space-y-2">
+              <button type="button" class="btn btn-secondary" data-toggle-calendar="rail">
+                Choose dates
+              </button>
+              <div class="calendar-range hidden" data-calendar-range data-start-selector="#dateIn" data-end-selector="#dueBy" data-calendar-overlay="rail" data-cal-close>
+                <div class="cal-header">
+                  <button type="button" class="cal-nav" data-cal-prev>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                  </button>
+                  <div class="cal-title">June 2025</div>
+                  <button type="button" class="cal-nav" data-cal-next>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+                <div class="cal-grid">
+                  <div class="cal-weekdays">
+                    <span>Su</span>
+                    <span>Mo</span>
+                    <span>Tu</span>
+                    <span>We</span>
+                    <span>Th</span>
+                    <span>Fr</span>
+                    <span>Sa</span>
+                  </div>
+                  <div class="cal-days"></div>
+                </div>
+                <div class="cal-footer">
+                  <div class="cal-summary">
+                    <span class="cal-summary-range">Select a start date</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <button type="button" data-cal-today>Today +7</button>
+                    <button type="button" class="cal-close" data-cal-close>Close</button>
+                  </div>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label for="dateIn" class="text-xs text-slate-400">Start Date</label>
+                  <input type="date" id="dateIn" name="dateIn" required class="w-full px-3 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+                </div>
+                <div>
+                  <label for="dueBy" class="text-xs text-slate-400">Date Needed</label>
+                  <input type="date" id="dueBy" name="dueBy" class="w-full px-3 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <label for="dueBy" class="block text-sm font-medium text-slate-300 mb-2">Date Needed</label>
-            <input type="date" id="dueBy" name="dueBy" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
-          </div>
-        </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-          <div>
-            <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
-            <input type="text" id="po" name="po" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
-          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
+              <input type="text" id="po" name="po" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+            </div>
           <div class="relative">
             <label for="priority" class="block text-sm font-medium text-slate-300 mb-2">
               Priority
               <span aria-hidden="true" class="text-rose-400 required-indicator hidden" data-required-indicator="priority">*</span>
             </label>
             <select id="priority" name="priority" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100"></select>
+          </div>
           </div>
         </div>
       </div>
@@ -139,7 +187,7 @@
             </select>
           </div>
           <div class="flex items-end">
-            <button type="button" id="addSection" class="w-full rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500">Add Section</button>
+            <button type="button" id="addSection" class="btn btn-primary w-full">Add Section</button>
           </div>
         </div>
         <div id="sectionsList" class="mt-3 rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-sm text-slate-300">
@@ -184,8 +232,8 @@
       </div>
 
       <div class="flex gap-3 justify-end">
-        <a href="{{ url_for('dashboard.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-6 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">Cancel</a>
-        <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Submit Job</button>
+        {{ button_secondary("Cancel", href=url_for('dashboard.index')) }}
+        {{ button_primary("Submit Job", type="submit") }}
       </div>
     </form>
   </div>
@@ -193,6 +241,7 @@
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{{ url_for('static', filename='js/calendar-range.js') }}" defer></script>
 <script>
   // Helpers
   const $ = (id) => document.getElementById(id);
@@ -293,6 +342,17 @@
 
   // Init
   document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('[data-toggle-calendar]').forEach(btn => {
+      const key = btn.getAttribute('data-toggle-calendar');
+      const target = document.querySelector(`[data-calendar-overlay="${key}"]`);
+      if (!target) return;
+      btn.addEventListener('click', () => {
+        target.classList.toggle('hidden');
+      });
+      target.addEventListener('calendar-update', () => {
+        target.classList.add('hidden');
+      });
+    });
     // default dates
     try{ const now=new Date(); $("dateIn").value = toISO(now); const d=new Date(now); d.setDate(d.getDate()+7); $("dueBy").value = toISO(d); }catch(e){}
     // bind add section
@@ -441,7 +501,7 @@
     <p id="railEditorMsg" class="pointer-events-none hidden overflow-hidden text-sm text-emerald-200 opacity-0 transition-opacity duration-300"></p>
     <div class="mt-3 flex justify-end gap-3">
       <button type="button" class="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700" data-close-rail-editor>Close</button>
-      <button id="railEditorSave" type="button" class="rounded-lg px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white">Save</button>
+      <button id="railEditorSave" type="button" class="btn btn-primary">Save</button>
     </div>
   </div>
 </aside>

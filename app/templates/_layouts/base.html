@@ -27,10 +27,11 @@
     </script>
     <script
       src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js"
+      integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
       crossorigin="anonymous"
     ></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+    <link rel="stylesheet" href="{{ asset_url('css/app.css') }}" />
     {% block head_styles %}{% endblock %}
     <title>{% block title %}Chaotic Nexus{% endblock %}</title>
     {% block head_scripts %}{% endblock %}
@@ -42,20 +43,20 @@
     >
       Skip to main content
     </a>
-    <div id="app-shell" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8" x-data>
+    <div id="app-shell" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8 print:max-w-none print:p-8" x-data>
       {% block header %}
         {% include "_partials/header.html" %}
       {% endblock %}
-      <main id="main-content" class="mt-6 flex-1">
+      <main id="main-content" class="mt-6 flex-1 print:mt-0">
         {% block content %}{% endblock %}
       </main>
     </div>
     <div id="drawer-root"></div>
-    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/motion.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/ui-core.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/global-theme-menu.js') }}" defer></script>
+    <script src="{{ asset_url('js/theme.js') }}" defer></script>
+    <script src="{{ asset_url('js/motion.js') }}" defer></script>
+    <script src="{{ asset_url('js/ui-core.js') }}" defer></script>
+    <script src="{{ asset_url('js/app.js') }}" defer></script>
+    <script src="{{ asset_url('js/global-theme-menu.js') }}" defer></script>
     {% block body_scripts %}{% endblock %}
   </body>
 </html>

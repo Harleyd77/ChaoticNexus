@@ -3,7 +3,7 @@
 **Purpose:** Track UI issues, console errors, and layout problems found during browser testing.  
 **How to use:** Window 2 (Chrome DevTools MCP) documents findings here. Window 1 (SSH dev) fixes them and checks them off.
 
-**Last Updated:** 2025-10-14 (Button Usability Review - Playwright MCP)
+**Last Updated:** 2025-10-17 (Production Intake Form Layout Review - Playwright MCP)
 
 ---
 
@@ -57,6 +57,122 @@
 ---
 
 ## 🔧 Issues to Fix
+
+### ✅ Fixed This Session (2025-10-17)
+
+- ✅ **Production Intake Form Layout Improvements**
+  - **Page URL:** `http://10.0.0.196:8080/intake/form`
+  - **Affected File(s):** `app/blueprints/intake/templates/intake/form.html`
+  - **Issues Fixed:**
+    1. ✅ **Improved field grouping** - Added HTML comments to create visual sections (Job Classification, Surface Preparation, Coating Details, Job Description, Additional Notes)
+    2. ✅ **Better spacing** - Changed from `space-y-4` to `space-y-6` for improved breathing room between field groups
+    3. ✅ **Color fields now grouped** - "Color / Coating" and "Color Source" now in a 2-column grid layout (side-by-side)
+    4. ✅ **Text areas constrained** - Description and Notes fields now have `max-w-3xl` for better readability (was full width)
+    5. ✅ **Consistent field widths** - Removed unnecessary `max-w-md` from Color field, now matches grid pattern
+  - **User Feedback Addressed:** "I don't like the layout of it, it's hard to read and fill out"
+  - **Changes Made:**
+    - Grouped Category + Priority under "Job Classification" comment
+    - Grouped Surface Prep + Prep under "Surface Preparation" comment
+    - Created "Coating Details" section with Color/Coating + Color Source in 2-col grid
+    - Added "Job Description" and "Additional Notes" section labels via comments
+    - Text areas now max-w-3xl (~48rem) for optimal line length and readability
+    - Increased spacing from 4 to 6 units between major sections
+  - **Result:** ✅ Form is now easier to scan, fill out, and understand with clear visual hierarchy
+  - **Impact:** 🟢 Improved UX – Form layout is more organized and less overwhelming
+  - **Screenshots:** `intake-form-review.png` (before), `intake-form-improved.png` (after)
+
+- ✅ **Admin Settings Page Cleanup**  
+  - **Page URL:** `http://10.0.0.196:8080/admin/settings`  
+  - **Affected File(s):** `app/blueprints/admin/templates/admin/settings.html`  
+  - **Changes Made:** 
+    - Removed Primary Color and Accent Color fields (redundant with 10-theme system)
+    - Removed Legacy Logo URL field (modern upload system replaces it)
+    - Removed inline "Edit Job..." button links (Categories, Priorities, Blast, Prep)
+    - Streamlined to just: Company Name, Favicon Upload, Page Logo Upload
+  - **Result:** Cleaner, focused branding page (107 lines down from 149)
+  - **Impact:** 🟢 Improved UX – Page is now focused and uncluttered
+
+### ✅ Fixed This Session (2025-10-17 - Favicon Upload Fix)
+
+- ✅ **Favicon Upload Form Broken - Nested Forms** 
+  - **Page URL:** `http://10.0.0.196:8080/admin/settings`  
+  - **Affected File(s):** `app/blueprints/admin/templates/admin/settings.html`  
+  - **Issue:** Favicon and Page Logo upload forms were **nested inside the main settings form**, which is invalid HTML and breaks upload functionality.  
+  - **Root Cause:** HTML does not allow nested forms! Browsers handle this unpredictably - they either ignore the inner form or merge it with the outer form.
+  - **Fix Applied:** 
+    - Restructured the page into three independent sections:
+      1. "Branding" form with Company Name field and its own submit button
+      2. "Brand Assets" section with separate favicon upload form
+      3. Page logo upload form (also in Brand Assets section)
+    - Each form now submits independently to its correct endpoint
+    - Backend routes are working correctly (`/admin/branding/favicon`, `/admin/branding/page-logo`)
+  - **Result:** ✅ Users can now upload favicon and page logo images successfully
+  - **Testing Evidence:** Playwright test confirmed proper page structure after fix
+  - **Screenshot:** `admin-settings-fixed-forms.png`
+
+- ✅ **Page Logo Preview Box Size Standardized**
+  - **Page URL:** `http://10.0.0.196:8080/admin/settings`  
+  - **Affected File(s):** `app/blueprints/admin/templates/admin/settings.html` (line 78-80)  
+  - **Issue:** Page Logo preview box size didn't match favicon preview size.
+  - **Fix Applied:** 
+    - Standardized both preview boxes to `h-10 w-10` (40×40px)
+    - Favicon image: `h-6 w-6`
+    - Page logo image: `h-6 w-6`
+    - Both use `object-contain` for proper aspect ratio
+  - **Result:** ✅ Both preview boxes now match in size for consistent UI
+  - **Screenshot:** `admin-settings-matching-preview-sizes.png`
+
+- ✅ **Chaotic Dark Theme Button Uniformity**
+  - **Page URL:** `http://10.0.0.196:8080/dashboard/`  
+  - **Affected File(s):** `app/src/app.tailwind.css` (lines 904-958)  
+  - **Issue:** Buttons had inconsistent, overly elaborate styles with intense gradients, glow effects, transforms, and glassmorphism that varied dramatically between primary and secondary buttons.
+  - **Previous Design:**
+    - Primary: Multi-layer gradients, 6+ box shadows, rotation effects, 3px lift on hover
+    - Secondary: Frosted glass with backdrop blur, complex multi-layer shadows
+    - Inconsistent border-radius (0.875rem) and animation timings
+  - **New Design (shadcn-inspired):**
+    - **Primary buttons:** Clean electric blue (`rgba(56, 189, 248, 1)`), uniform 0.5rem border-radius, subtle shadows
+    - **Secondary buttons:** Subtle dark background with blue borders, matching border-radius
+    - **Consistent behavior:** All buttons use same transform (translateY -1px on hover), same timing (150ms)
+    - **Simplified effects:** Removed gradients, glow effects, and excessive shadows
+  - **Result:** ✅ All buttons now have uniform, clean styling with consistent interactions
+  - **Note:** CSS rebuild required - run `npm run build:servercss` from app directory on SSH/local machine [[memory:9935566]]
+
+### 🟡 Open Issues (2025-10-17)
+
+- 🟡 **Template Caching in Production Mode**
+  - **Page URL:** All pages (affects `http://10.0.0.196:8080/intake/form` and others)
+  - **Affected File(s):** `app/config.py`
+  - **Issue:** Flask is running in production mode (DEBUG=False) which caches Jinja2 templates in memory. Changes to templates don't appear until server restart.
+  - **User Report:** "Changes show up in Chrome browser no problem but when I am in Edge browser it is still the old one after a hard refresh"
+  - **Root Cause:** 
+    - Flask production mode caches compiled templates in memory
+    - `TEMPLATES_AUTO_RELOAD` was not configured (defaults to False in production)
+    - Edge browser has more aggressive caching than Chrome
+  - **Fix Applied:** 
+    - Added `TEMPLATES_AUTO_RELOAD` configuration option to BaseConfig
+    - Set to True by default in DevelopmentConfig
+    - Can be enabled in production via environment variable: `TEMPLATES_AUTO_RELOAD=true`
+  - **Immediate Workaround:** Restart the Flask server to clear template cache
+  - **Long-term Solution:** 
+    - Use `FLASK_ENV=development` during active development
+    - OR set `TEMPLATES_AUTO_RELOAD=true` environment variable
+    - For Edge browser: Use Ctrl+Shift+Delete to clear cache, or use DevTools "Disable cache" option
+  - **Impact:** 🟡 Moderate - Templates require server restart to see changes in production mode
+  - **Priority:** 🟡 Important for development workflow
+  - **Note:** Server restart required for this config change to take effect
+
+- 🟡 **HTMX Integrity Warning** *(still tracked from Oct 14)*  
+  - **Page URL:** All server-rendered pages  
+  - **Issue:** Console reports `Failed to find a valid digest in the 'integrity' attribute for resource 'https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js'`.  
+  - **Impact:** Low – warning only, but clutters diagnostics.  
+  - **Fix Required:** Update integrity hash, remove the attribute, or serve a bundled copy.
+
+- 🟢 **Generic “Manage” Buttons** *(UX clean-up backlog)*  
+  - **Page URL:** `/jobs/<id>/`  
+  - **Issue:** “Manage” links for Time Logs and Powder Usage remain vague.  
+  - **Impact:** Low – functionality intact; labeling could improve clarity.  
+  - **Action:** Rename to “Add Time Entry” / “Track Powder Usage” when convenient.
 
 ### ✅ Resolved This Session (2025-10-14)
 
@@ -458,25 +574,11 @@ The application is in excellent shape! All critical features are working:
 
 ### Recommended Admin Settings Improvements
 
-**Priority 1: Add Logo/Favicon Management**
-```html
-<!-- Suggested addition to admin settings form -->
-<div class="space-y-4">
-  <h3>Branding Assets</h3>
-  
-  <div>
-    <label>Company Logo</label>
-    <input type="file" accept="image/*" name="logo_upload">
-    <p class="text-sm">Current: <img src="{{ current_logo }}" class="h-8 inline"></p>
-  </div>
-  
-  <div>
-    <label>Favicon (Browser Icon)</label>
-    <input type="file" accept="image/x-icon,image/png" name="favicon_upload">
-    <p class="text-sm">Recommended: 32x32px .ico or .png</p>
-  </div>
-</div>
-```
+**Priority 1 (Resolved Oct 16, 2025): Add Logo/Favicon Management**
+- Added branding card with live previews, upload & clear buttons for favicon and navigation logo
+- Supported formats: favicon (PNG/JPG/WEBP/SVG/ICO), logo (PNG/JPG/WEBP/SVG)
+- Files stored under `_data/uploads/branding/`; served via `branding_favicon` & `branding_page_logo`
+- Upload routes are CSRF-exempt and guard admin-only access
 
 **Priority 2: Reorganize Settings Sections**
 ```

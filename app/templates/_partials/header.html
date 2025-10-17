@@ -6,7 +6,7 @@
   {# Logo and Branding #}
   <a href="/dashboard" class="flex items-center gap-3 transition hover:opacity-80">
     <img
-      src="{{ branding_header_logo or url_for('static', filename='img/logo.svg') }}"
+      src="{{ branding_page_logo or asset_url('img/logo.svg') }}"
       alt="Chaotic Nexus"
       class="h-10 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
     />
@@ -55,7 +55,7 @@
       <select
         id="theme-selector"
         data-theme-selector
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 pr-8 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 cursor-pointer appearance-none"
+        class="btn btn-secondary pr-8 cursor-pointer appearance-none"
       >
         <option value="dark">Dark</option>
         <option value="light">Light</option>
@@ -77,7 +77,7 @@
     {% if header_is_admin or header_username %}
       <a
         href="/auth/logout"
-        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+        class="btn btn-primary"
       >
         <span class="hidden sm:inline">Logout</span>
         <span class="sm:hidden">
@@ -89,7 +89,7 @@
     {% else %}
       <a
         href="/auth/login"
-        class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+        class="btn btn-primary"
       >
         <span class="hidden sm:inline">Login</span>
         <span class="sm:hidden">

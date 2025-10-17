@@ -1,4 +1,5 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% block title %}Customer Profile{% endblock %}
 
@@ -89,8 +90,8 @@
       </div>
 
       <div class="flex gap-3 justify-end">
-        <a href="{{ url_for('customers.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-6 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">Cancel</a>
-        <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Save</button>
+        {{ button_secondary("Cancel", href=url_for('customers.index')) }}
+        {{ button_primary("Save", type="submit") }}
       </div>
     </form>
   </div>

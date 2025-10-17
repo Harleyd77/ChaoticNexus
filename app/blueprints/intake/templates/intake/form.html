@@ -1,6 +1,12 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% block title %}Production Intake Form{% endblock %}
+
+{% block head_styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar-range.css') }}">
+{% endblock %}
 
 {% block content %}
 <section class="space-y-8">
@@ -15,7 +21,7 @@
   <div class="flex justify-end -mt-4">
     <button id="openEditorBtn"
             type="button"
-            class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">
+            class="btn btn-secondary">
       Edit Form
     </button>
   </div>
@@ -62,21 +68,64 @@
 
       <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-slate-100 mb-4">Job Details</h2>
-        <div class="space-y-4">
+        <div class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="dateIn" class="block text-sm font-medium text-slate-300 mb-2">Date In *</label>
-              <input type="date" id="dateIn" name="dateIn" required class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+              <label class="block text-sm font-medium text-slate-300 mb-2">Production Window *</label>
+              <div class="space-y-2">
+                <button type="button" class="btn btn-secondary" data-toggle-calendar="job">
+                  Choose dates
+                </button>
+                <div class="calendar-range hidden" data-calendar-range data-start-selector="#dateIn" data-end-selector="#dueBy" data-calendar-overlay="job" data-cal-close>
+                  <div class="cal-header">
+                    <button type="button" class="cal-nav" data-cal-prev>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <div class="cal-title">June 2025</div>
+                    <button type="button" class="cal-nav" data-cal-next>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </div>
+                  <div class="cal-grid">
+                    <div class="cal-weekdays">
+                      <span>Su</span>
+                      <span>Mo</span>
+                      <span>Tu</span>
+                      <span>We</span>
+                      <span>Th</span>
+                      <span>Fr</span>
+                      <span>Sa</span>
+                    </div>
+                    <div class="cal-days"></div>
+                  </div>
+                  <div class="cal-footer">
+                    <div class="cal-summary">
+                      <span class="cal-summary-range">Select a start date</span>
+                    </div>
+                  <div class="flex gap-2">
+                    <button type="button" data-cal-today>Today +7</button>
+                    <button type="button" class="cal-close" data-cal-close>Close</button>
+                  </div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label for="dateIn" class="text-xs text-slate-400">Start Date</label>
+                    <input type="date" id="dateIn" name="dateIn" required class="w-full px-3 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+                  </div>
+                  <div>
+                    <label for="dueBy" class="text-xs text-slate-400">Due By</label>
+                    <input type="date" id="dueBy" name="dueBy" class="w-full px-3 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+                  </div>
+                </div>
+              </div>
             </div>
             <div>
-              <label for="dueBy" class="block text-sm font-medium text-slate-300 mb-2">Due By</label>
-              <input type="date" id="dueBy" name="dueBy" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+              <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
+              <input type="text" id="po" name="po" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
             </div>
           </div>
-          <div>
-            <label for="po" class="block text-sm font-medium text-slate-300 mb-2">PO Number</label>
-            <input type="text" id="po" name="po" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
-          </div>
+          <!-- Job Classification -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="relative">
               <label for="category" class="block text-sm font-medium text-slate-300 mb-2">
@@ -101,6 +150,8 @@
               </select>
             </div>
           </div>
+
+          <!-- Surface Preparation -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="relative">
               <label for="blast" class="block text-sm font-medium text-slate-300 mb-2">Surface Prep</label>
@@ -119,27 +170,34 @@
               </select>
             </div>
           </div>
-          <div>
-            <label for="color" class="block text-sm font-medium text-slate-300 mb-2">Color / Coating</label>
-            <input type="text" id="color" name="color" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+          <!-- Coating Details -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="color" class="block text-sm font-medium text-slate-300 mb-2">Color / Coating</label>
+              <input type="text" id="color" name="color" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+            </div>
+            <div class="relative">
+              <label for="color_source" class="block text-sm font-medium text-slate-300 mb-2">Color Source</label>
+              <select id="color_source" name="color_source" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100">
+                {% for opt in form_options.color_source %}
+                <option value="{{ opt }}">{{ opt }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
-          <div class="relative">
-            <label for="color_source" class="block text-sm font-medium text-slate-300 mb-2">Color Source</label>
-            <select id="color_source" name="color_source" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100">
-              {% for opt in form_options.color_source %}
-              <option value="{{ opt }}">{{ opt }}</option>
-              {% endfor %}
-            </select>
-          </div>
+
+          <!-- Job Description -->
           <div>
             <label for="description" class="block text-sm font-medium text-slate-300 mb-2">Description *</label>
             <textarea id="description" name="description" required rows="4"
-                      class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
+                      class="w-full max-w-3xl px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
           </div>
+
+          <!-- Additional Notes -->
           <div>
             <label for="notes" class="block text-sm font-medium text-slate-300 mb-2">Additional Notes</label>
             <textarea id="notes" name="notes" rows="3"
-                      class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
+                      class="w-full max-w-3xl px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
           </div>
         </div>
       </div>
@@ -151,14 +209,8 @@
       </div>
 
       <div class="flex gap-3 justify-end">
-        <a href="{{ url_for('dashboard.index') }}"
-           class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-6 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700">
-          Cancel
-        </a>
-        <button type="submit"
-                class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">
-          Submit Job
-        </button>
+        {{ button_secondary("Cancel", href=url_for('dashboard.index')) }}
+        {{ button_primary("Submit Job", type="submit") }}
       </div>
     </form>
   </div>
@@ -166,6 +218,7 @@
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{{ url_for('static', filename='js/calendar-range.js') }}" defer></script>
 <script>
   (function(){
     function qs(sel){ return document.querySelector(sel); }
@@ -253,6 +306,17 @@
     }
 
     document.addEventListener('DOMContentLoaded', function(){
+      document.querySelectorAll('[data-toggle-calendar]').forEach(btn => {
+        const key = btn.getAttribute('data-toggle-calendar');
+        const target = document.querySelector(`[data-calendar-overlay="${key}"]`);
+        if (!target) return;
+        btn.addEventListener('click', () => {
+          target.classList.toggle('hidden');
+        });
+        target.addEventListener('calendar-update', () => {
+          target.classList.add('hidden');
+        });
+      });
       const btn = document.getElementById('openEditorBtn');
       if(btn) btn.addEventListener('click', openEditor);
       const closeBtns = document.querySelectorAll('[data-close-form-editor]');
@@ -310,8 +374,8 @@
   <div class="border-t border-slate-800 bg-slate-900/80 p-4">
     <p id="formEditorMsg" class="pointer-events-none hidden overflow-hidden text-sm text-emerald-200 opacity-0 transition-opacity duration-300"></p>
     <div class="mt-3 flex justify-end gap-3">
-      <button type="button" class="rounded-lg px-4 py-2 bg-slate-800 hover:bg-slate-700" data-close-form-editor>Close</button>
-      <button id="formEditorSave" type="button" class="rounded-lg px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white">Save</button>
+      <button type="button" class="btn btn-secondary" data-close-form-editor>Close</button>
+      <button id="formEditorSave" type="button" class="btn btn-primary">Save</button>
     </div>
   </div>
 </aside>

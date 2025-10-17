@@ -13,6 +13,8 @@ class SettingsPayload:
     brand_primary: str
     brand_accent: str
     logo_url: str | None
+    favicon_path: str | None
+    page_logo_path: str | None
 
 
 class SettingsService:
@@ -26,6 +28,8 @@ class SettingsService:
             brand_primary=data.get("brand_primary", "#10b981"),
             brand_accent=data.get("brand_accent", "#06b6d4"),
             logo_url=data.get("logo_url"),
+            favicon_path=data.get("branding:favicon") or None,
+            page_logo_path=data.get("branding:page_logo") or None,
         )
 
     def update_settings(

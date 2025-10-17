@@ -1,4 +1,5 @@
 {% extends "_layouts/base.html" %}
+{% from "_macros/ui.html" import button_primary, button_secondary %}
 
 {% block title %}Inventory Management{% endblock %}
 
@@ -11,12 +12,7 @@
         <p class="text-sm text-slate-400">Track and manage powder stock levels.</p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <a
-          href="#"
-          class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700"
-        >
-          Reorder List
-        </a>
+        {{ button_secondary("Reorder List", href="#") }}
         {% if is_admin %}
         <button type="button" class="text-xs text-slate-400 underline hover:text-slate-200"
                 hx-get="{{ url_for('admin.options_drawer') }}?name=priority" hx-target="#drawer-root" hx-swap="innerHTML">Edit Priorities</button>
@@ -72,7 +68,7 @@
       </label>
       <button
         type="submit"
-        class="rounded-lg border border-slate-700/70 bg-emerald-600/80 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+        class="btn btn-primary"
       >
         Apply filters
       </button>

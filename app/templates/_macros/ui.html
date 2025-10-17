@@ -5,7 +5,7 @@
   {% if href %}
     <a
       href="{{ href }}"
-      class="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="btn btn-primary"
       {% if disabled %}aria-disabled="true"{% endif %}
       {% if onclick %}onclick="{{ onclick }}"{% endif %}
       {% if target %}target="{{ target }}"{% endif %}
@@ -16,7 +16,7 @@
   {% else %}
     <button
       type="{{ type }}"
-      class="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="btn btn-primary"
       {% if disabled %}disabled{% endif %}
       {% if onclick %}onclick="{{ onclick }}"{% endif %}
     >
@@ -30,7 +30,7 @@
   {% if href %}
     <a
       href="{{ href }}"
-      class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="btn btn-secondary"
       {% if disabled %}aria-disabled="true"{% endif %}
       {% if onclick %}onclick="{{ onclick }}"{% endif %}
       {% if target %}target="{{ target }}"{% endif %}
@@ -41,7 +41,31 @@
   {% else %}
     <button
       type="{{ type }}"
-      class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="btn btn-secondary"
+      {% if disabled %}disabled{% endif %}
+      {% if onclick %}onclick="{{ onclick }}"{% endif %}
+    >
+      {{ label }}
+    </button>
+  {% endif %}
+{%- endmacro %}
+
+{% macro button_outline(label, href=None, type="button", onclick=None, disabled=False, target=None, download=None) -%}
+  {% if href %}
+    <a
+      href="{{ href }}"
+      class="btn btn-outline"
+      {% if disabled %}aria-disabled="true"{% endif %}
+      {% if onclick %}onclick="{{ onclick }}"{% endif %}
+      {% if target %}target="{{ target }}"{% endif %}
+      {% if download %}download="{{ download }}"{% endif %}
+    >
+      {{ label }}
+    </a>
+  {% else %}
+    <button
+      type="{{ type }}"
+      class="btn btn-outline"
       {% if disabled %}disabled{% endif %}
       {% if onclick %}onclick="{{ onclick }}"{% endif %}
     >

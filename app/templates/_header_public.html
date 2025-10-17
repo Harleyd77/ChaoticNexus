@@ -2,7 +2,7 @@
 <header class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-4 shadow-md shadow-slate-950/30 ring-1 ring-white/5">
   <a href="{{ url_for('customer_portal.home') }}" class="flex items-center gap-3 transition hover:opacity-80">
     <img
-      src="{{ branding_header_logo or url_for('static', filename='img/logo.svg') }}"
+      src="{{ branding_logo or branding_page_logo or asset_url('img/logo.svg') }}"
       alt="{{ config.BRANDING_COMPANY_NAME or 'Victoria Powder Coating' }}"
       class="h-10 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
     />
@@ -21,13 +21,13 @@
   <div class="flex items-center gap-3">
     <a
       href="{{ url_for('customer_portal.register') }}"
-      class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+      class="btn btn-primary"
     >
       Create account
     </a>
     <a
       href="{{ url_for('auth.login') }}"
-      class="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
+      class="btn btn-secondary"
     >
       Sign in
     </a>

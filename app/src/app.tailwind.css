@@ -29,6 +29,7 @@
   :root,
   html,
   html.theme-dark {
+    color-scheme: dark;
     /* Colors */
     --color-bg: #0e141b;
     --color-surface: #111923;
@@ -77,6 +78,7 @@
 
   /* === Light Theme ====================================================== */
   html.theme-light {
+    color-scheme: light;
     --color-bg: #f7f9fc;
     --color-surface: #ffffff;
     --color-surface-muted: #f1f5f9;
@@ -104,6 +106,7 @@
 
   /* === VPC (Dark) — Cobalt/Steel ======================================== */
   html.theme-vpc {
+    color-scheme: dark;
     --color-bg: #0B1220;
     --color-surface: #111827;
     --color-surface-muted: #0F172A;
@@ -131,6 +134,7 @@
 
   /* === VPC (Light) — Cobalt on Light Slate ============================= */
   html.theme-vpc-light {
+    color-scheme: light;
     --color-bg: #F7FAFF;
     --color-surface: #FFFFFF;
     --color-surface-muted: #F1F5F9;
@@ -158,6 +162,7 @@
 
   /* === Chaotic Designs (Dark) — Electric Purple/Magenta ================ */
   html.theme-chaos {
+    color-scheme: dark;
     --color-bg: #0D0B12;
     --color-surface: #15121E;
     --color-surface-muted: #1B1626;
@@ -185,6 +190,7 @@
 
   /* === Chaotic Designs (Light) — Purple on Warm Gray =================== */
   html.theme-chaos-light {
+    color-scheme: light;
     --color-bg: #FBFAFF;
     --color-surface: #FFFFFF;
     --color-surface-muted: #F5F3FF;
@@ -212,6 +218,7 @@
 
   /* === Industrial Forge (Dark) — Powder Coating Inspired ================ */
   html.theme-forge {
+    color-scheme: dark;
     --color-bg: #1a1614;
     --color-surface: #252220;
     --color-surface-muted: #1f1d1b;
@@ -239,6 +246,7 @@
 
   /* === Ocean Breeze (Dark) — Coastal Blues & Teals ====================== */
   html.theme-ocean {
+    color-scheme: dark;
     --color-bg: #0a1628;
     --color-surface: #0f1e33;
     --color-surface-muted: #0c1a2e;
@@ -266,6 +274,7 @@
 
   /* === Sunset Glow (Dark) — Warm Gradient Aesthetic ==================== */
   html.theme-sunset {
+    color-scheme: dark;
     --color-bg: #1a0f1f;
     --color-surface: #251828;
     --color-surface-muted: #1f1323;
@@ -293,6 +302,7 @@
 
   /* === Emerald Forest (Dark) — Natural Greens ========================== */
   html.theme-forest {
+    color-scheme: dark;
     --color-bg: #0f1912;
     --color-surface: #142820;
     --color-surface-muted: #11221a;
@@ -405,12 +415,40 @@
     &:hover {
       background: var(--color-hover);
     }
+    &:disabled,
+    &[aria-disabled="true"] {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
   }
   .btn-primary { 
     @apply border-transparent text-white;
     background: var(--color-accent);
     &:hover {
       background: var(--color-accent-hover);
+    }
+  }
+  .btn-secondary {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    &:hover {
+      background: var(--color-hover);
+      border-color: var(--color-border);
+    }
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border transition;
+    background: transparent;
+    border-color: var(--color-border);
+    color: var(--color-text);
+    &:hover {
+      background: var(--color-hover);
+      border-color: var(--color-border);
+    }
+    &:disabled,
+    &[aria-disabled="true"] {
+      background: transparent;
     }
   }
   .btn-ghost { 
@@ -464,6 +502,45 @@
     border: none;
   }
 
+  /* Theme Selector - Ensure readability across all themes */
+  select[data-theme-selector] {
+    /* Force good contrast for the select button itself */
+    background: var(--color-surface) !important;
+    color: var(--color-text) !important;
+    border-color: var(--color-border) !important;
+  }
+
+  select[data-theme-selector]:hover {
+    background: var(--color-hover) !important;
+  }
+
+  /* Force proper styling for dropdown options */
+  select[data-theme-selector] option {
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 8px 12px;
+  }
+
+  /* Ensure light themes have light option backgrounds */
+  html.theme-light select[data-theme-selector] option,
+  html.theme-vpc-light select[data-theme-selector] option,
+  html.theme-chaos-light select[data-theme-selector] option {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  /* Ensure dark themes have dark option backgrounds */
+  html.theme-dark select[data-theme-selector] option,
+  html.theme-forge select[data-theme-selector] option,
+  html.theme-ocean select[data-theme-selector] option,
+  html.theme-vpc select[data-theme-selector] option,
+  html.theme-chaos select[data-theme-selector] option,
+  html.theme-sunset select[data-theme-selector] option,
+  html.theme-forest select[data-theme-selector] option {
+    background: #1a1a1a;
+    color: #e5e5e5;
+  }
+
   /* ========================================================================
      THEME-ISOLATED DESIGN SYSTEMS
      Each theme has complete control over its own styling, buttons, cards, etc.
@@ -473,8 +550,7 @@
   /* === INDUSTRIAL FORGE THEME - 3D METALLIC ============================ */
   /* Industrial design with tactile 3D buttons, metallic gradients, orange glow */
   
-  html.theme-forge button.bg-emerald-500,
-  html.theme-forge a.bg-emerald-500 {
+  html.theme-forge .btn-primary {
     border-radius: 1.25rem !important;  /* Extra rounded */
     background: linear-gradient(to bottom, 
       #22c55e 0%,      /* Bright emerald at top */
@@ -491,8 +567,7 @@
     transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  html.theme-forge button.bg-emerald-500:hover,
-  html.theme-forge a.bg-emerald-500:hover {
+  html.theme-forge .btn-primary:hover {
     background: linear-gradient(to bottom, 
       #4ade80 0%, 
       #22c55e 50%, 
@@ -507,8 +582,7 @@
       0 2px 6px rgba(34, 197, 94, 1) !important;
   }
   
-  html.theme-forge button.bg-emerald-500:active,
-  html.theme-forge a.bg-emerald-500:active {
+  html.theme-forge .btn-primary:active {
     background: linear-gradient(to bottom, 
       #166534 0%, 
       #15803d 50%, 
@@ -521,8 +595,7 @@
       0 1px 2px rgba(0, 0, 0, 0.4) !important;
   }
   
-  html.theme-forge button.bg-slate-800,
-  html.theme-forge a.bg-slate-800 {
+  html.theme-forge .btn-secondary {
     border-radius: 1.25rem !important;
     background: linear-gradient(to bottom,
       rgba(71, 85, 105, 0.9) 0%,
@@ -539,8 +612,7 @@
     transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  html.theme-forge button.bg-slate-800:hover,
-  html.theme-forge a.bg-slate-800:hover {
+  html.theme-forge .btn-secondary:hover {
     background: linear-gradient(to bottom,
       rgba(100, 116, 139, 0.9) 0%,
       rgba(71, 85, 105, 0.9) 50%,
@@ -554,9 +626,21 @@
       0 2px 6px rgba(255, 140, 66, 0.35) !important;
   }
   
-  html.theme-forge button.bg-slate-800:active,
-  html.theme-forge a.bg-slate-800:active {
+  html.theme-forge .btn-secondary:active {
     transform: translateY(1px) scale(0.99);
+  }
+
+  html.theme-forge .btn-outline {
+    border-radius: 1.25rem !important;
+    border: 1px solid rgba(255, 140, 66, 0.35) !important;
+    color: rgba(255, 230, 204, 0.85) !important;
+    box-shadow: 0 2px 0 rgba(255, 140, 66, 0.12) inset, 0 1px 3px rgba(255, 140, 66, 0.25) !important;
+  }
+
+  html.theme-forge .btn-outline:hover {
+    background: rgba(255, 140, 66, 0.1) !important;
+    border-color: rgba(255, 140, 66, 0.5) !important;
+    box-shadow: 0 2px 0 rgba(255, 140, 66, 0.2) inset, 0 4px 8px rgba(0, 0, 0, 0.3) !important;
   }
   
   html.theme-forge .card {
@@ -581,8 +665,7 @@
   /* === DARK THEME - FLAT MODERN ======================================== */
   /* Modern minimalist design with flat colors, subtle rounded corners */
   
-  html.theme-dark button.bg-emerald-500,
-  html.theme-dark a.bg-emerald-500 {
+  html.theme-dark .btn-primary {
     border-radius: 0.5rem !important;  /* Subtle rounded */
     background: #10b981 !important;    /* Solid flat */
     box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
@@ -590,31 +673,37 @@
     transform: none !important;
   }
   
-  html.theme-dark button.bg-emerald-500:hover,
-  html.theme-dark a.bg-emerald-500:hover {
+  html.theme-dark .btn-primary:hover {
     background: #059669 !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
     transform: none !important;  /* No lift effect */
   }
   
-  html.theme-dark button.bg-emerald-500:active,
-  html.theme-dark a.bg-emerald-500:active {
+  html.theme-dark .btn-primary:active {
     background: #047857 !important;
     transform: none !important;
   }
   
-  html.theme-dark button.bg-slate-800,
-  html.theme-dark a.bg-slate-800 {
+  html.theme-dark .btn-secondary {
     border-radius: 0.5rem !important;
     background: #1e293b !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
     transition: all 150ms ease;
   }
   
-  html.theme-dark button.bg-slate-800:hover,
-  html.theme-dark a.bg-slate-800:hover {
+  html.theme-dark .btn-secondary:hover {
     background: #334155 !important;
     box-shadow: 0 2px 3px rgba(0,0,0,0.15) !important;
+  }
+
+  html.theme-dark .btn-outline {
+    border-color: rgba(148, 163, 184, 0.4) !important;
+    color: #e2e8f0 !important;
+  }
+
+  html.theme-dark .btn-outline:hover {
+    border-color: rgba(148, 163, 184, 0.6) !important;
+    background: rgba(15, 23, 42, 0.65) !important;
   }
   
   html.theme-dark .card {
@@ -632,31 +721,37 @@
   /* === LIGHT THEME - CLEAN MINIMAL ===================================== */
   /* Clean light design with subtle shadows */
   
-  html.theme-light button.bg-emerald-500,
-  html.theme-light a.bg-emerald-500 {
+  html.theme-light .btn-primary {
     border-radius: 0.5rem !important;
     background: #10b981 !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(16,185,129,0.1) !important;
     transition: all 150ms ease;
   }
   
-  html.theme-light button.bg-emerald-500:hover,
-  html.theme-light a.bg-emerald-500:hover {
+  html.theme-light .btn-primary:hover {
     background: #059669 !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 2px 6px rgba(16,185,129,0.15) !important;
   }
   
-  html.theme-light button.bg-slate-800,
-  html.theme-light a.bg-slate-800 {
+  html.theme-light .btn-secondary {
     border-radius: 0.5rem !important;
     background: #e2e8f0 !important;
     color: #1e293b !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
   }
   
-  html.theme-light button.bg-slate-800:hover,
-  html.theme-light a.bg-slate-800:hover {
+  html.theme-light .btn-secondary:hover {
     background: #cbd5e1 !important;
+  }
+
+  html.theme-light .btn-outline {
+    border-color: rgba(148, 163, 184, 0.6) !important;
+    color: #0f172a !important;
+  }
+
+  html.theme-light .btn-outline:hover {
+    background: rgba(148, 163, 184, 0.1) !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
   }
   
   html.theme-light .card {
@@ -672,8 +767,7 @@
   /* === OCEAN THEME - GLASS MORPHISM ==================================== */
   /* Futuristic glassy design with translucent surfaces, cyan glows */
   
-  html.theme-ocean button.bg-emerald-500,
-  html.theme-ocean a.bg-emerald-500 {
+  html.theme-ocean .btn-primary {
     border-radius: 9999px !important;  /* Full pill shape */
     background: rgba(6, 182, 212, 0.3) !important;
     backdrop-filter: blur(10px);
@@ -682,15 +776,13 @@
     transition: all 200ms ease;
   }
   
-  html.theme-ocean button.bg-emerald-500:hover,
-  html.theme-ocean a.bg-emerald-500:hover {
+  html.theme-ocean .btn-primary:hover {
     background: rgba(6, 182, 212, 0.5) !important;
     box-shadow: 0 12px 40px rgba(6, 182, 212, 0.4) !important;
     transform: translateY(-2px);
   }
   
-  html.theme-ocean button.bg-slate-800,
-  html.theme-ocean a.bg-slate-800 {
+  html.theme-ocean .btn-secondary {
     border-radius: 9999px !important;
     background: rgba(51, 65, 85, 0.3) !important;
     backdrop-filter: blur(10px);
@@ -698,9 +790,20 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
   }
   
-  html.theme-ocean button.bg-slate-800:hover,
-  html.theme-ocean a.bg-slate-800:hover {
+  html.theme-ocean .btn-secondary:hover {
     background: rgba(51, 65, 85, 0.5) !important;
+  }
+
+  html.theme-ocean .btn-outline {
+    border-radius: 9999px !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: rgba(226, 232, 240, 0.92) !important;
+    backdrop-filter: blur(10px);
+  }
+
+  html.theme-ocean .btn-outline:hover {
+    background: rgba(6, 182, 212, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
   }
   
   html.theme-ocean .card {
@@ -721,30 +824,36 @@
   /* === VPC THEME - CORPORATE PROFESSIONAL ============================== */
   /* Clean professional design with cobalt blue accents */
   
-  html.theme-vpc button.bg-emerald-500,
-  html.theme-vpc a.bg-emerald-500 {
+  html.theme-vpc .btn-primary {
     border-radius: 0.375rem !important;
     background: #1E90FF !important;  /* Cobalt blue */
     box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
     transition: all 150ms ease;
   }
   
-  html.theme-vpc button.bg-emerald-500:hover,
-  html.theme-vpc a.bg-emerald-500:hover {
+  html.theme-vpc .btn-primary:hover {
     background: #0B74E5 !important;
     box-shadow: 0 2px 3px rgba(0,0,0,0.15) !important;
   }
   
-  html.theme-vpc button.bg-slate-800,
-  html.theme-vpc a.bg-slate-800 {
+  html.theme-vpc .btn-secondary {
     border-radius: 0.375rem !important;
     background: #334155 !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
   }
   
-  html.theme-vpc button.bg-slate-800:hover,
-  html.theme-vpc a.bg-slate-800:hover {
+  html.theme-vpc .btn-secondary:hover {
     background: #475569 !important;
+  }
+
+  html.theme-vpc .btn-outline {
+    border-color: rgba(30, 144, 255, 0.35) !important;
+    color: #1E90FF !important;
+  }
+
+  html.theme-vpc .btn-outline:hover {
+    background: rgba(30, 144, 255, 0.08) !important;
+    border-color: rgba(30, 144, 255, 0.5) !important;
   }
   
   html.theme-vpc .card {
@@ -759,24 +868,31 @@
   
   /* === VPC LIGHT THEME - CORPORATE LIGHT =============================== */
   
-  html.theme-vpc-light button.bg-emerald-500,
-  html.theme-vpc-light a.bg-emerald-500 {
+  html.theme-vpc-light .btn-primary {
     border-radius: 0.375rem !important;
     background: #1E90FF !important;
     box-shadow: 0 1px 2px rgba(30,144,255,0.1) !important;
   }
   
-  html.theme-vpc-light button.bg-emerald-500:hover,
-  html.theme-vpc-light a.bg-emerald-500:hover {
+  html.theme-vpc-light .btn-primary:hover {
     background: #0B74E5 !important;
   }
   
-  html.theme-vpc-light button.bg-slate-800,
-  html.theme-vpc-light a.bg-slate-800 {
+  html.theme-vpc-light .btn-secondary {
     border-radius: 0.375rem !important;
     background: #f1f5f9 !important;
     color: #1e293b !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+  }
+
+  html.theme-vpc-light .btn-outline {
+    border-color: rgba(30, 90, 180, 0.3) !important;
+    color: #0f172a !important;
+  }
+
+  html.theme-vpc-light .btn-outline:hover {
+    background: rgba(30, 90, 180, 0.08) !important;
+    border-color: rgba(30, 90, 180, 0.45) !important;
   }
   
   html.theme-vpc-light .card {
@@ -785,138 +901,88 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
   }
   
-  /* === CHAOS THEME - ELECTRIC BLUE ==================================== */
-  /* Luminous electric blue with advanced effects - shadcn inspired */
+  /* === CHAOS THEME - ELECTRIC BLUE (SHADCN-INSPIRED) ================ */
+  /* Clean, uniform button styles with subtle effects */
   
-  html.theme-chaos button.bg-emerald-500,
-  html.theme-chaos a.bg-emerald-500 {
-    border-radius: 0.875rem !important;  /* Slightly more rounded */
-    
-    /* Multi-layer gradient - Azure to Cyan with shimmer */
-    background: 
-      linear-gradient(135deg, 
-        rgba(56, 189, 248, 0.95) 0%,    /* Sky blue */
-        rgba(14, 165, 233, 0.95) 50%,   /* Bright blue */
-        rgba(6, 182, 212, 0.95) 100%    /* Cyan */
-      ),
-      linear-gradient(45deg, 
-        rgba(59, 130, 246, 0.1) 0%, 
-        transparent 100%
-      ) !important;
-    
-    /* Advanced multi-layer shadows with blue luminescence */
+  html.theme-chaos .btn-primary {
+    border-radius: 0.5rem !important;
+    background: rgba(56, 189, 248, 1) !important;  /* Clean electric blue */
+    border: 1px solid rgba(96, 165, 250, 0.5) !important;
     box-shadow: 
-      0 0 0 1px rgba(56, 189, 248, 0.3),           /* Subtle border glow */
-      0 2px 0 rgba(255, 255, 255, 0.15) inset,     /* Top highlight */
-      0 -1px 0 rgba(0, 0, 0, 0.2) inset,           /* Bottom depth */
-      0 4px 16px rgba(14, 165, 233, 0.4),          /* Main shadow */
-      0 2px 8px rgba(56, 189, 248, 0.6),           /* Inner glow */
-      0 8px 24px rgba(6, 182, 212, 0.25) !important; /* Outer luminescence */
-    
-    /* Smooth animation with slight scale */
-    transform: translateY(0) scale(1);
-    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Optional: Animated gradient (uncomment to enable) */
-    /* background-size: 200% 200%; */
-    /* animation: gradientShift 3s ease infinite; */
+      0 1px 2px rgba(0, 0, 0, 0.05),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    transform: translateY(0);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  html.theme-chaos button.bg-emerald-500:hover,
-  html.theme-chaos a.bg-emerald-500:hover {
-    /* Brighter gradient on hover */
-    background: 
-      linear-gradient(135deg, 
-        rgba(96, 165, 250, 1) 0%,       /* Lighter sky blue */
-        rgba(56, 189, 248, 1) 50%,      /* Bright cyan */
-        rgba(14, 165, 233, 1) 100%      /* Deep blue */
-      ),
-      linear-gradient(45deg, 
-        rgba(59, 130, 246, 0.2) 0%, 
-        transparent 100%
-      ) !important;
-    
-    /* Enhanced glow on hover - luminous effect */
+  html.theme-chaos .btn-primary:hover {
+    background: rgba(96, 165, 250, 1) !important;  /* Lighter on hover */
+    border-color: rgba(147, 197, 253, 0.6) !important;
     box-shadow: 
-      0 0 0 1px rgba(56, 189, 248, 0.5),
-      0 3px 0 rgba(255, 255, 255, 0.2) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.2) inset,
-      0 8px 24px rgba(14, 165, 233, 0.6),          /* Stronger shadow */
-      0 4px 16px rgba(56, 189, 248, 0.8),          /* Bright inner glow */
-      0 12px 32px rgba(6, 182, 212, 0.4),          /* Large outer glow */
-      0 0 40px rgba(56, 189, 248, 0.3) !important; /* Aura effect */
-    
-    /* Lift and slightly enlarge */
-    transform: translateY(-3px) scale(1.02) rotate(-0.5deg);
+      0 2px 4px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+    transform: translateY(-1px);
   }
   
-  html.theme-chaos button.bg-emerald-500:active,
-  html.theme-chaos a.bg-emerald-500:active {
-    /* Pressed state - darker and inset */
-    background: 
-      linear-gradient(135deg, 
-        rgba(14, 165, 233, 1) 0%, 
-        rgba(6, 182, 212, 1) 50%,
-        rgba(8, 145, 178, 1) 100%
-      ) !important;
-    
-    transform: translateY(1px) scale(0.98);
+  html.theme-chaos .btn-primary:active {
+    background: rgba(14, 165, 233, 1) !important;  /* Darker when pressed */
+    transform: translateY(0);
     box-shadow: 
-      0 0 0 1px rgba(56, 189, 248, 0.4),
-      0 2px 8px rgba(0, 0, 0, 0.4) inset,
-      0 2px 4px rgba(14, 165, 233, 0.3) !important;
+      0 1px 2px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(0, 0, 0, 0.05) inset !important;
   }
   
-  /* Secondary buttons - Frosted glass effect with blue tint */
-  html.theme-chaos button[class*="bg-slate-8"],
-  html.theme-chaos a[class*="bg-slate-8"] {
-    border-radius: 0.875rem !important;
-    
-    /* Glassmorphism - frosted glass with blue tint */
-    background: 
-      linear-gradient(135deg,
-        rgba(30, 58, 138, 0.25) 0%,
-        rgba(29, 78, 216, 0.15) 100%
-      ) !important;
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    
-    /* Glowing blue border */
+  /* Secondary buttons - subtle with border emphasis */
+  html.theme-chaos .btn-secondary,
+  html.theme-chaos .btn-outline {
+    border-radius: 0.5rem !important;
+    background: rgba(30, 41, 59, 0.6) !important;  /* Subtle dark background */
     border: 1px solid rgba(56, 189, 248, 0.3) !important;
-    
-    /* Subtle luminous shadow */
-    box-shadow: 
-      0 0 0 1px rgba(59, 130, 246, 0.1) inset,
-      0 4px 12px rgba(14, 165, 233, 0.15),
-      0 2px 6px rgba(56, 189, 248, 0.2) !important;
-    
-    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  html.theme-chaos button[class*="bg-slate-8"]:hover,
-  html.theme-chaos a[class*="bg-slate-8"]:hover {
-    background: 
-      linear-gradient(135deg,
-        rgba(30, 58, 138, 0.35) 0%,
-        rgba(29, 78, 216, 0.25) 100%
-      ) !important;
-    
+  html.theme-chaos .btn-secondary:hover,
+  html.theme-chaos .btn-outline:hover {
+    background: rgba(30, 41, 59, 0.8) !important;
     border-color: rgba(56, 189, 248, 0.5) !important;
-    
-    box-shadow: 
-      0 0 0 1px rgba(59, 130, 246, 0.2) inset,
-      0 6px 16px rgba(14, 165, 233, 0.25),
-      0 3px 10px rgba(56, 189, 248, 0.35),
-      0 0 20px rgba(56, 189, 248, 0.15) !important;
-    
-    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-1px);
   }
   
-  html.theme-chaos button[class*="bg-slate-8"]:active,
-  html.theme-chaos a[class*="bg-slate-8"]:active {
-    transform: translateY(0) scale(0.98);
+  html.theme-chaos .btn-secondary:active,
+  html.theme-chaos .btn-outline:active {
+    background: rgba(15, 23, 42, 0.9) !important;
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
   }
   
+  /* Form controls - pill-shaped, glowing edges */
+  :where([data-theme="chaos"], .theme-chaos) :where(input, select, textarea) {
+    border-radius: 1.1rem !important;
+    border: 1px solid rgba(148, 163, 255, 0.25) !important;
+    background: linear-gradient(135deg, rgba(24, 20, 35, 0.92), rgba(21, 24, 45, 0.96)) !important;
+    box-shadow:
+      0 0 0 1px rgba(104, 116, 255, 0.08) inset,
+      0 12px 30px rgba(13, 17, 32, 0.55),
+      0 8px 18px rgba(56, 189, 248, 0.12);
+    padding: 0.95rem 1.15rem !important;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  :where([data-theme="chaos"], .theme-chaos) :where(input, select, textarea):focus {
+    border-color: rgba(104, 116, 255, 0.55) !important;
+    box-shadow:
+      0 0 0 1px rgba(129, 140, 248, 0.35) inset,
+      0 0 0 3px rgba(99, 102, 241, 0.25),
+      0 18px 38px rgba(14, 23, 45, 0.6);
+    outline: none !important;
+  }
+
+  :where([data-theme="chaos"], .theme-chaos) :where(input, textarea)::placeholder {
+    color: rgba(185, 198, 255, 0.55) !important;
+  }
+
   /* Cards - Modern with blue accent glow */
   html.theme-chaos .card {
     border-radius: 1.25rem !important;  /* Extra rounded */
@@ -963,25 +1029,33 @@
   
   /* === CHAOS LIGHT THEME - PURPLE ON LIGHT ============================= */
   
-  html.theme-chaos-light button.bg-emerald-500,
-  html.theme-chaos-light a.bg-emerald-500 {
+  html.theme-chaos-light .btn-primary {
     border-radius: 0.75rem !important;
     background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%) !important;
     box-shadow: 0 2px 8px rgba(139,92,246,0.2) !important;
   }
   
-  html.theme-chaos-light button.bg-emerald-500:hover,
-  html.theme-chaos-light a.bg-emerald-500:hover {
+  html.theme-chaos-light .btn-primary:hover {
     background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%) !important;
     box-shadow: 0 4px 12px rgba(139,92,246,0.3) !important;
   }
   
-  html.theme-chaos-light button.bg-slate-800,
-  html.theme-chaos-light a.bg-slate-800 {
+  html.theme-chaos-light .btn-secondary {
     border-radius: 0.75rem !important;
     background: #f5f3ff !important;
     color: #57577A !important;
     border: 1px solid #E4E1F7 !important;
+  }
+
+  html.theme-chaos-light .btn-outline {
+    border-radius: 0.75rem !important;
+    border: 1px solid rgba(124, 58, 237, 0.3) !important;
+    color: #4c1d95 !important;
+  }
+
+  html.theme-chaos-light .btn-outline:hover {
+    background: rgba(124, 58, 237, 0.12) !important;
+    border-color: rgba(124, 58, 237, 0.5) !important;
   }
   
   html.theme-chaos-light .card {
@@ -993,23 +1067,20 @@
   /* === SUNSET THEME - WARM GRADIENTS =================================== */
   /* Warm pink/orange sunset aesthetics */
   
-  html.theme-sunset button.bg-emerald-500,
-  html.theme-sunset a.bg-emerald-500 {
+  html.theme-sunset .btn-primary {
     border-radius: 1rem !important;
     background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%) !important;
     box-shadow: 0 4px 12px rgba(236,72,153,0.3) !important;
     transition: all 200ms ease;
   }
   
-  html.theme-sunset button.bg-emerald-500:hover,
-  html.theme-sunset a.bg-emerald-500:hover {
+  html.theme-sunset .btn-primary:hover {
     background: linear-gradient(135deg, #FB7185 0%, #F472B6 100%) !important;
     box-shadow: 0 6px 16px rgba(236,72,153,0.4) !important;
     transform: translateY(-2px);
   }
   
-  html.theme-sunset button.bg-slate-800,
-  html.theme-sunset a.bg-slate-800 {
+  html.theme-sunset .btn-secondary {
     border-radius: 1rem !important;
     background: rgba(236, 72, 153, 0.2) !important;
     border: 1px solid rgba(244, 114, 182, 0.3) !important;
@@ -1031,23 +1102,20 @@
   /* === FOREST THEME - NATURAL GREENS =================================== */
   /* Earthy green forest aesthetic */
   
-  html.theme-forest button.bg-emerald-500,
-  html.theme-forest a.bg-emerald-500 {
+  html.theme-forest .btn-primary {
     border-radius: 0.75rem !important;
     background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
     box-shadow: 0 4px 12px rgba(16,185,129,0.3) !important;
     transition: all 200ms ease;
   }
   
-  html.theme-forest button.bg-emerald-500:hover,
-  html.theme-forest a.bg-emerald-500:hover {
+  html.theme-forest .btn-primary:hover {
     background: linear-gradient(135deg, #22C55E 0%, #10B981 100%) !important;
     box-shadow: 0 6px 16px rgba(16,185,129,0.4) !important;
     transform: translateY(-2px);
   }
   
-  html.theme-forest button.bg-slate-800,
-  html.theme-forest a.bg-slate-800 {
+  html.theme-forest .btn-secondary {
     border-radius: 0.75rem !important;
     background: rgba(16, 185, 129, 0.15) !important;
     border: 1px solid rgba(16, 185, 129, 0.3) !important;
