@@ -3,7 +3,7 @@
 **Purpose:** Track UI issues, console errors, and layout problems found during browser testing.  
 **How to use:** Window 2 (Chrome DevTools MCP) documents findings here. Window 1 (SSH dev) fixes them and checks them off.
 
-**Last Updated:** 2025-10-17 (Button Style Uniformity - Chaotic Dark Theme - Playwright MCP)
+**Last Updated:** 2025-10-17 (Production Intake Form Layout Review - Playwright MCP)
 
 ---
 
@@ -59,6 +59,27 @@
 ## 🔧 Issues to Fix
 
 ### ✅ Fixed This Session (2025-10-17)
+
+- ✅ **Production Intake Form Layout Improvements**
+  - **Page URL:** `http://10.0.0.196:8080/intake/form`
+  - **Affected File(s):** `app/blueprints/intake/templates/intake/form.html`
+  - **Issues Fixed:**
+    1. ✅ **Improved field grouping** - Added HTML comments to create visual sections (Job Classification, Surface Preparation, Coating Details, Job Description, Additional Notes)
+    2. ✅ **Better spacing** - Changed from `space-y-4` to `space-y-6` for improved breathing room between field groups
+    3. ✅ **Color fields now grouped** - "Color / Coating" and "Color Source" now in a 2-column grid layout (side-by-side)
+    4. ✅ **Text areas constrained** - Description and Notes fields now have `max-w-3xl` for better readability (was full width)
+    5. ✅ **Consistent field widths** - Removed unnecessary `max-w-md` from Color field, now matches grid pattern
+  - **User Feedback Addressed:** "I don't like the layout of it, it's hard to read and fill out"
+  - **Changes Made:**
+    - Grouped Category + Priority under "Job Classification" comment
+    - Grouped Surface Prep + Prep under "Surface Preparation" comment
+    - Created "Coating Details" section with Color/Coating + Color Source in 2-col grid
+    - Added "Job Description" and "Additional Notes" section labels via comments
+    - Text areas now max-w-3xl (~48rem) for optimal line length and readability
+    - Increased spacing from 4 to 6 units between major sections
+  - **Result:** ✅ Form is now easier to scan, fill out, and understand with clear visual hierarchy
+  - **Impact:** 🟢 Improved UX – Form layout is more organized and less overwhelming
+  - **Screenshots:** `intake-form-review.png` (before), `intake-form-improved.png` (after)
 
 - ✅ **Admin Settings Page Cleanup**  
   - **Page URL:** `http://10.0.0.196:8080/admin/settings`  
@@ -118,6 +139,28 @@
   - **Note:** CSS rebuild required - run `npm run build:servercss` from app directory on SSH/local machine [[memory:9935566]]
 
 ### 🟡 Open Issues (2025-10-17)
+
+- 🟡 **Template Caching in Production Mode**
+  - **Page URL:** All pages (affects `http://10.0.0.196:8080/intake/form` and others)
+  - **Affected File(s):** `app/config.py`
+  - **Issue:** Flask is running in production mode (DEBUG=False) which caches Jinja2 templates in memory. Changes to templates don't appear until server restart.
+  - **User Report:** "Changes show up in Chrome browser no problem but when I am in Edge browser it is still the old one after a hard refresh"
+  - **Root Cause:** 
+    - Flask production mode caches compiled templates in memory
+    - `TEMPLATES_AUTO_RELOAD` was not configured (defaults to False in production)
+    - Edge browser has more aggressive caching than Chrome
+  - **Fix Applied:** 
+    - Added `TEMPLATES_AUTO_RELOAD` configuration option to BaseConfig
+    - Set to True by default in DevelopmentConfig
+    - Can be enabled in production via environment variable: `TEMPLATES_AUTO_RELOAD=true`
+  - **Immediate Workaround:** Restart the Flask server to clear template cache
+  - **Long-term Solution:** 
+    - Use `FLASK_ENV=development` during active development
+    - OR set `TEMPLATES_AUTO_RELOAD=true` environment variable
+    - For Edge browser: Use Ctrl+Shift+Delete to clear cache, or use DevTools "Disable cache" option
+  - **Impact:** 🟡 Moderate - Templates require server restart to see changes in production mode
+  - **Priority:** 🟡 Important for development workflow
+  - **Note:** Server restart required for this config change to take effect
 
 - 🟡 **HTMX Integrity Warning** *(still tracked from Oct 14)*  
   - **Page URL:** All server-rendered pages  

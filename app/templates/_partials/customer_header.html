@@ -5,7 +5,7 @@
   {# Logo and Branding #}
   <a href="{{ url_for('customer_portal.dashboard') }}" class="flex items-center gap-3 transition hover:opacity-80">
     <img
-      src="{{ branding_header_logo or url_for('static', filename='img/logo.svg') }}"
+      src="{{ branding_logo or branding_page_logo or asset_url('img/logo.svg') }}"
       alt="Customer Portal"
       class="h-10 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
     />

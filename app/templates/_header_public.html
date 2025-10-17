@@ -2,7 +2,7 @@
 <header class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/70 px-6 py-4 shadow-md shadow-slate-950/30 ring-1 ring-white/5">
   <a href="{{ url_for('customer_portal.home') }}" class="flex items-center gap-3 transition hover:opacity-80">
     <img
-      src="{{ branding_header_logo or url_for('static', filename='img/logo.svg') }}"
+      src="{{ branding_logo or branding_page_logo or asset_url('img/logo.svg') }}"
       alt="{{ config.BRANDING_COMPANY_NAME or 'Victoria Powder Coating' }}"
       class="h-10 w-auto rounded-md bg-slate-950/60 p-2 ring-1 ring-white/10"
     />

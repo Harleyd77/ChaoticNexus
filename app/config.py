@@ -23,11 +23,14 @@ class BaseConfig:
         "UPLOADS_DIR",
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "_data", "uploads")),
     )
+    # Template reloading (useful during development/staging)
+    TEMPLATES_AUTO_RELOAD = os.environ.get("TEMPLATES_AUTO_RELOAD", "false").lower() == "true"
 
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
     SESSION_COOKIE_SECURE = False
+    TEMPLATES_AUTO_RELOAD = True  # Always reload templates in development
 
 
 class TestingConfig(BaseConfig):

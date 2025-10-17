@@ -18,6 +18,11 @@ def create_app(config_name: str | None = None) -> Flask:
     config_class = get_config(config_name)
     app.config.from_object(config_class)
 
+    # Expose asset helper globally for templates (cache-busted static URLs)
+    from app.utils.assets import asset_url
+
+    app.jinja_env.globals.setdefault("asset_url", asset_url)
+
     _configure_logging(app)
     _register_extensions(app)
     _register_blueprints(app)

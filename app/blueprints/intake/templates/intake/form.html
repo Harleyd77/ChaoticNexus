@@ -68,7 +68,7 @@
 
       <div class="rounded-2xl border border-slate-800/70 bg-slate-900/70 p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-slate-100 mb-4">Job Details</h2>
-        <div class="space-y-4">
+        <div class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-medium text-slate-300 mb-2">Production Window *</label>
@@ -125,7 +125,7 @@
               <input type="text" id="po" name="po" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
             </div>
           </div>
-          <div>
+          <!-- Job Classification -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="relative">
               <label for="category" class="block text-sm font-medium text-slate-300 mb-2">
@@ -150,6 +150,8 @@
               </select>
             </div>
           </div>
+
+          <!-- Surface Preparation -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="relative">
               <label for="blast" class="block text-sm font-medium text-slate-300 mb-2">Surface Prep</label>
@@ -168,27 +170,34 @@
               </select>
             </div>
           </div>
-          <div>
-            <label for="color" class="block text-sm font-medium text-slate-300 mb-2">Color / Coating</label>
-            <input type="text" id="color" name="color" class="w-full max-w-md px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+          <!-- Coating Details -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="color" class="block text-sm font-medium text-slate-300 mb-2">Color / Coating</label>
+              <input type="text" id="color" name="color" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100" />
+            </div>
+            <div class="relative">
+              <label for="color_source" class="block text-sm font-medium text-slate-300 mb-2">Color Source</label>
+              <select id="color_source" name="color_source" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100">
+                {% for opt in form_options.color_source %}
+                <option value="{{ opt }}">{{ opt }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
-          <div class="relative">
-            <label for="color_source" class="block text-sm font-medium text-slate-300 mb-2">Color Source</label>
-            <select id="color_source" name="color_source" class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100">
-              {% for opt in form_options.color_source %}
-              <option value="{{ opt }}">{{ opt }}</option>
-              {% endfor %}
-            </select>
-          </div>
+
+          <!-- Job Description -->
           <div>
             <label for="description" class="block text-sm font-medium text-slate-300 mb-2">Description *</label>
             <textarea id="description" name="description" required rows="4"
-                      class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
+                      class="w-full max-w-3xl px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
           </div>
+
+          <!-- Additional Notes -->
           <div>
             <label for="notes" class="block text-sm font-medium text-slate-300 mb-2">Additional Notes</label>
             <textarea id="notes" name="notes" rows="3"
-                      class="w-full px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
+                      class="w-full max-w-3xl px-4 py-2 bg-slate-950/70 border border-slate-800 rounded-lg text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
           </div>
         </div>
       </div>
