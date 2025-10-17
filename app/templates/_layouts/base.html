@@ -43,11 +43,11 @@
     >
       Skip to main content
     </a>
-    <div id="app-shell" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8" x-data>
+    <div id="app-shell" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8 print:max-w-none print:p-8" x-data>
       {% block header %}
         {% include "_partials/header.html" %}
       {% endblock %}
-      <main id="main-content" class="mt-6 flex-1">
+      <main id="main-content" class="mt-6 flex-1 print:mt-0">
         {% block content %}{% endblock %}
       </main>
     </div>
